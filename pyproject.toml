@@ -1,0 +1,12 @@
+[project]
+name = "soramimi-phonetic-search-dataset"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "editdistance>=0.8.1",
+    "jamorasep>=0.0.1",
+    "kanasim>=0.0.4",
+    "pyopenjtalk>=0.4.0",
+]

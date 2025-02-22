@@ -1,4 +1,19 @@
+import argparse
+import json
 from dataclasses import dataclass, field
+from typing import Any, Callable
+
+import editdistance as ed
+import jamorasep
+import pyopenjtalk
+from kanasim import create_kana_distance_calculator
+
+
+@dataclass
+class PhoneticSearchQuery:
+    query: str
+    positive: list[str]
+
 
 @dataclass
 class PhoneticSearchDataset:
@@ -12,17 +27,6 @@ class PhoneticSearchDataset:
         words = data["words"]
         metadata = data.get("metadata", {})
         return cls(queries=queries, words=words, metadata=metadata)
-
-import argparse
-import json
-from typing import Any, Callable
-
-import editdistance as ed
-import jamorasep
-import pyopenjtalk
-from kanasim import create_kana_distance_calculator
-
-from soramimi_align.schemas import PhoneticSearchDataset
 
 
 def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
