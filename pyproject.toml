@@ -1,12 +1,38 @@
 [project]
 name = "soramimi-phonetic-search-dataset"
-version = "0.1.0"
-description = "Add your description here"
+dynamic = ["version"]
+description = "音韻的類似性を考慮した検索システムの評価用データセット。替え歌の歌詞から構築された特定ジャンルの単語ペアを収録。"
 readme = "README.md"
+authors = [
+    { name="shimajiroxyz" },
+]
 requires-python = ">=3.11"
 dependencies = [
     "editdistance>=0.8.1",
     "jamorasep>=0.0.1",
     "kanasim>=0.0.4",
+    "litellm>=1.63.3",
     "pyopenjtalk>=0.4.0",
+    "python-dotenv>=1.0.1",
+    "tqdm>=4.67.1",
+]
+keywords = ["音韻検索", "あいまい検索", "評価用データセット", "替え歌", "音韻類似性", "phonetic-search", "dataset", "Japanese"]
+license = { text = "MIT AND CDLA-Permissive-2.0" }
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+urls = { "Homepage" = "https://github.com/jiroshimaya/soramimi-phonetic-search-dataset" }
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
 ]
