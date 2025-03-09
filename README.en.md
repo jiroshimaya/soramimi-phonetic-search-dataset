@@ -1,10 +1,12 @@
 # soramimi-phonetic-search-dataset
 
-A dataset for evaluating phonetic search systems, built from Japanese parody song lyrics ("soramimi"). Includes word pairs from specific genres to evaluate phonetic similarity.
+A dataset for evaluating phonetic search systems, built from Japanese homophonic translation parody songs ("soramimi") that recreate lyrics using only words from specific genres.
 
 ## Overview
 
-This dataset is designed for evaluating phonetic search systems, particularly for Japanese language. It contains word pairs extracted from parody songs (known as "singing in the style of X"), making it suitable for assessing phonetic similarity in Japanese.
+This dataset is designed for evaluating phonetic search systems, particularly for Japanese language. It contains word pairs extracted from homophonic translation parody songs (where lyrics are recreated using only words from a specific genre while maintaining similar sounds), making it particularly suitable for evaluating phonetic search systems that emphasize matching rhymes and rhythms.
+
+For evaluation results of different methods, please see the [leaderboard](https://github.com/jiroshimaya/soramimi-phonetic-search-dataset/blob/main/leaderboard.md).
 
 ## Usage
 
