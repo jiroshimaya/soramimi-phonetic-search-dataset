@@ -36,3 +36,27 @@ source = "vcs"
 dev = [
     "pytest>=8.3.5",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-m 'not workflow'"
+markers = [
+    "workflow: Marker indicating tests related to github actions workflows",
+]
+
+[tool.taskipy.tasks]
+test-workflow-py = "pytest -m 'workflow' --override-ini=addopts="
+test-workflow = "bats tests/workflow/test_workflow.bats"
+act-sample = "act -j publish -W .github/workflows/publish-to-testpypi.yaml -e tests/workflow/event.json"
+test = "pytest"
+lint = "uvx ruff check . && uvx mypy ."
+format = "uvx ruff format ."
+
+[tool.mypy]
+# スタブが無いパッケージのエラーは無視させる.サードパーティのライブラリに型情報がないケースもあるため
+ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.3",
+    "taskipy>=1.13.0",
+]
