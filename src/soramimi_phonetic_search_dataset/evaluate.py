@@ -1,7 +1,13 @@
 from pathlib import Path
 from typing import Callable
 
-from soramimi_phonetic_search_dataset.schemas import PhoneticSearchDataset
+from soramimi_phonetic_search_dataset.schemas import (
+    PhoneticSearchDataset,
+    PhoneticSearchMetrics,
+    PhoneticSearchParameters,
+    PhoneticSearchResult,
+    PhoneticSearchResults,
+)
 
 
 def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
@@ -40,10 +46,10 @@ def calculate_recall(
     return sum(recalls) / len(recalls) if recalls else 0.0
 
 
-def evaluate_ranking_function(
+def evaluate_ranking_function_with_details(
     ranking_func: Callable[[list[str], list[str]], list[list[str]]],
     topn: int = 10,
-) -> float:
+) -> PhoneticSearchResults:
     """
     ランキング関数の評価を行う
 
@@ -53,7 +59,7 @@ def evaluate_ranking_function(
         topn: 評価に使用する上位n件
 
     Returns:
-        float: Recall@N
+        PhoneticSearchResults: 評価結果
     """
     # デフォルトのデータセットを読み込む
     dataset_path = Path(__file__).parent / "data" / "baseball.json"
@@ -69,4 +75,35 @@ def evaluate_ranking_function(
     # Recallを計算
     recall = calculate_recall(ranked_wordlists, positive_texts, topn=topn)
 
-    return recall
+    # 結果を作成
+    results = [
+        PhoneticSearchResult(
+            query=query.query,
+            ranked_words=wordlist[:topn],
+            positive_words=positive_text,
+        )
+        for query, wordlist, positive_text in zip(
+            dataset.queries, ranked_wordlists, positive_texts
+        )
+    ]
+
+    # パラメータは最小限の情報のみ
+    parameters = PhoneticSearchParameters(
+        topn=topn,
+        rank_func="unknown",  # basic_usage.py側で設定する
+    )
+
+    metrics = PhoneticSearchMetrics(recall=recall)
+
+    return PhoneticSearchResults(
+        parameters=parameters,
+        metrics=metrics,
+        results=results,
+    )
+
+
+def evaluate_ranking_function(
+    ranking_func: Callable[[list[str], list[str]], list[list[str]]],
+    topn: int = 10,
+) -> float:
+    return evaluate_ranking_function_with_details(ranking_func, topn).metrics.recall
