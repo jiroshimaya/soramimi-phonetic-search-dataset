@@ -49,6 +49,10 @@ def create_reranking_function(
         topk_ranked_wordlists = [
             wordlist[:rerank_input_size] for wordlist in base_ranked_wordlists
         ]
+        # あいうえお順に並べ替え
+        # topk_ranked_wordlists = [
+        #    sorted(wordlist, key=lambda x: x[0]) for wordlist in topk_ranked_wordlists
+        # ]
         reranked_wordlists = rerank_by_llm(
             query_texts,
             topk_ranked_wordlists,
@@ -71,7 +75,9 @@ def get_default_output_path(
 ) -> str:
     suffix = f"_{rank_func}_top{topn}"
     if rerank:
-        suffix += f"_reranked_top{rerank_topn}_model{rerank_model_name}"
+        # スラッシュを含む場合はハイフンに変換
+        model_name_safe = rerank_model_name.replace("/", "-")
+        suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
     return f"output{suffix}.json"
 
 
