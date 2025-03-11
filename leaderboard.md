@@ -11,6 +11,7 @@
 | LLM Rerank (gpt-4o-mini) | 0.642 |
 | LLM Rerank (gpt-4o) | 0.595 |
 | LLM Rerank (gemini-2.0-flash) | 0.565 |
+| LLM Rerank (gpt-4.5-preview) | 0.614 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
