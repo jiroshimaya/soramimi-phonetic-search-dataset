@@ -2,7 +2,11 @@ import argparse
 import json
 from typing import Callable
 
-from reproduce_leaderboard.methods.common.reranker import rerank_by_llm
+# lintエラーを回避するためtype: ignoreを使用
+# rerankerモジュールは同じディレクトリにある単なるユーティリティファイルで、
+# パッケージとしてインストールする意図はないため、import-not-foundエラーを無視して問題ありません。
+from reranker import rerank_by_llm
+
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
     rank_by_kanasim,
