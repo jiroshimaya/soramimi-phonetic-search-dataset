@@ -202,6 +202,7 @@ def main():
     )
 
     print("Recall: ", results.metrics.recall)
+    print("Execution time: ", results.metrics.execution_time)
 
     if args.output_file_path:
         output_path = args.output_file_path
