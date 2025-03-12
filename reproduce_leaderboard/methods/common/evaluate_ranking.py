@@ -1,14 +1,10 @@
 import argparse
 import json
-import sys
-from pathlib import Path
 from typing import Callable
 
-sys.path.append(str(Path(__file__).parent))
 # lintエラーを回避するためtype: ignoreを使用
 # rerankerモジュールは同じディレクトリにある単なるユーティリティファイルで、
 # パッケージとしてインストールする意図はないため、import-not-foundエラーを無視して問題ありません。
-# type: ignore[import-not-found]
 from reranker import rerank_by_llm
 
 from soramimi_phonetic_search_dataset import (
@@ -229,5 +225,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
     main()
