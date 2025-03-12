@@ -8,10 +8,10 @@
 | Phoneme EditDistance | 0.672 |
 | Vowel Consonant EditDistance | 0.744 |
 | KanaSim EditDistance | 0.831 |
-| LLM Rerank (gpt-4o-mini) | 0.682 |
-| LLM Rerank (gpt-4o) | 0.571 |
-| LLM Rerank (gemini-2.0-flash) | 0.561 |
-| LLM Rerank (gpt-4.5-preview) | 0.614 |
+| LLM Rerank (gpt-4o-mini) | 0.444 |
+| LLM Rerank (gpt-4o) | 0.508 |
+| LLM Rerank (gemini-2.0-flash) | 0.496 |
+| LLM Rerank (gpt-4.5-preview) | 0.583 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
