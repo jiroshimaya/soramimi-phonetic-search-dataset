@@ -17,15 +17,9 @@ on:
         required: false
         default: false
         type: boolean
-  push:
-    branches:
-      - main
-
-env:
-  TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
 
 jobs:
-  publish:
+  update-version:
     runs-on: ubuntu-latest
 
     steps:
