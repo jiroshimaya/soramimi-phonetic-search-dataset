@@ -1,23 +1,13 @@
-import time  # 追加
-from pathlib import Path
+import time
 from typing import Callable
 
+from soramimi_phonetic_search_dataset.dataset import load_default_dataset
 from soramimi_phonetic_search_dataset.schemas import (
-    PhoneticSearchDataset,
     PhoneticSearchMetrics,
     PhoneticSearchParameters,
     PhoneticSearchResult,
     PhoneticSearchResults,
 )
-
-
-def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
-    """データセットを読み込む"""
-    import json
-
-    with open(path, "r") as f:
-        dataset = json.load(f)
-    return PhoneticSearchDataset.from_dict(dataset)
 
 
 def calculate_recall(
@@ -63,8 +53,7 @@ def evaluate_ranking_function_with_details(
         PhoneticSearchResults: 評価結果
     """
     # デフォルトのデータセットを読み込む
-    dataset_path = Path(__file__).parent / "data" / "baseball.json"
-    dataset = load_phonetic_search_dataset(str(dataset_path))
+    dataset = load_default_dataset()
 
     # クエリと正解を取得
     query_texts = [query.query for query in dataset.queries]
