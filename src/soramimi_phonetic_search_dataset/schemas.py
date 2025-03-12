@@ -43,6 +43,7 @@ class PhoneticSearchParameters:
     rerank: bool = False
     rerank_model_name: str | None = None
     rerank_input_size: int | None = None
+    execution_timestamp: str | None = None
 
 
 @dataclass
