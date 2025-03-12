@@ -2,6 +2,11 @@
 Soramimi Phonetic Search Dataset package
 """
 
+from .dataset import (
+    DEFAULT_DATASET_PATH,
+    load_default_dataset,
+    load_phonetic_search_dataset,
+)
 from .evaluate import evaluate_ranking_function, evaluate_ranking_function_with_details
 from .ranking import (
     rank_by_kanasim,
@@ -20,4 +25,7 @@ __all__ = [
     "rank_by_kanasim",
     "PhoneticSearchDataset",
     "PhoneticSearchQuery",
+    "load_phonetic_search_dataset",
+    "load_default_dataset",
+    "DEFAULT_DATASET_PATH",
 ]
