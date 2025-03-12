@@ -1,5 +1,5 @@
 """
-Gemini-2.0-flashによるリランクを実行するスクリプト
+LLMリランク (gemini-2.0-flash) による評価を実行するスクリプト
 """
 
 import subprocess
@@ -12,11 +12,12 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "006_llm_rerank_gemini.json"
 
-    # basic_usage.pyを実行
+    # evaluate_ranking.pyを実行
+    evaluate_script = Path(__file__).parent / "common" / "evaluate_ranking.py"
     cmd = [
         "uv",
         "run",
-        "examples/basic_usage.py",
+        str(evaluate_script),
         "--rank_func",
         "vowel_consonant",
         "--topn",

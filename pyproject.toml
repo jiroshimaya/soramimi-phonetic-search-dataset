@@ -35,6 +35,10 @@ source = "vcs"
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "taskipy>=1.14.1",
+]
+eval = [
+    "litellm>=1.63.3",
 ]
 
 [tool.pytest.ini_options]
@@ -55,8 +59,3 @@ format = "uvx ruff format ."
 # スタブが無いパッケージのエラーは無視させる.サードパーティのライブラリに型情報がないケースもあるため
 ignore_missing_imports = true
 
-[tool.uv]
-dev-dependencies = [
-    "pytest>=8.3.3",
-    "taskipy>=1.13.0",
-]
