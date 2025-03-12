@@ -1098,7 +1098,7 @@ wheels = [
 
 [[package]]
 name = "soramimi-phonetic-search-dataset"
-version = "0.0.4.dev6+ga9f9c39.d20250310"
+version = "0.0.5.dev0+g4aa248d.d20250311"
 source = { editable = "." }
 dependencies = [
     { name = "editdistance" },

@@ -8,9 +8,9 @@
 | Phoneme EditDistance | 0.672 |
 | Vowel Consonant EditDistance | 0.744 |
 | KanaSim EditDistance | 0.831 |
-| LLM Rerank (gpt-4o-mini) | 0.642 |
-| LLM Rerank (gpt-4o) | 0.595 |
-| LLM Rerank (gemini-2.0-flash) | 0.565 |
+| LLM Rerank (gpt-4o-mini) | 0.682 |
+| LLM Rerank (gpt-4o) | 0.571 |
+| LLM Rerank (gemini-2.0-flash) | 0.561 |
 | LLM Rerank (gpt-4.5-preview) | 0.614 |
 
 ## 評価方法
