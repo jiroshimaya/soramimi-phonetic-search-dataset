@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from typing import Callable
 
 from soramimi_phonetic_search_dataset.dataset import load_default_dataset
@@ -83,6 +84,7 @@ def evaluate_ranking_function_with_details(
     parameters = PhoneticSearchParameters(
         topn=topn,
         rank_func="unknown",  # basic_usage.py側で設定する
+        execution_timestamp=datetime.now().isoformat(),  # 実行日時を追加
     )
 
     metrics = PhoneticSearchMetrics(

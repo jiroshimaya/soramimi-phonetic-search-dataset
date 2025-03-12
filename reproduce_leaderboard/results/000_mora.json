@@ -5,11 +5,12 @@
     "vowel_ratio": null,
     "rerank": false,
     "rerank_model_name": null,
-    "rerank_input_size": null
+    "rerank_input_size": null,
+    "execution_timestamp": "2025-03-12T22:29:09.535839"
   },
   "metrics": {
     "recall": 0.455,
-    "execution_time": 4.02440071105957
+    "execution_time": 3.874135971069336
   },
   "results": [
     {
