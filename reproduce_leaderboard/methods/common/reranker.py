@@ -112,4 +112,3 @@ def rerank_by_llm(
         time.sleep(rerank_interval)
 
     return reranked_wordlists
-    return reranked_wordlists
