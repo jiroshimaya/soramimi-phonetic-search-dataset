@@ -1,5 +1,5 @@
 """
-GPT-4.5-previewによるLLMリランクを実行するスクリプト
+LLMリランク (gpt-4.5-preview) による評価を実行するスクリプト
 """
 
 import subprocess
@@ -12,11 +12,12 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "007_llm_rerank_gpt45preview.json"
 
-    # basic_usage.pyを実行
+    # evaluate_ranking.pyを実行
+    evaluate_script = Path(__file__).parent / "common" / "evaluate_ranking.py"
     cmd = [
         "uv",
         "run",
-        "examples/basic_usage.py",
+        str(evaluate_script),
         "--rank_func",
         "vowel_consonant",
         "--topn",
