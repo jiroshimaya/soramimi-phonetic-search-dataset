@@ -32,6 +32,7 @@ class PhoneticSearchResult:
 @dataclass
 class PhoneticSearchMetrics:
     recall: float
+    execution_time: float
 
 
 @dataclass
