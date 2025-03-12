@@ -6,11 +6,9 @@ from soramimi_phonetic_search_dataset import (
     PhoneticSearchDataset,
     PhoneticSearchQuery,
     evaluate_ranking_function,
-)
-from soramimi_phonetic_search_dataset.evaluate import (
-    calculate_recall,
     load_phonetic_search_dataset,
 )
+from soramimi_phonetic_search_dataset.evaluate import calculate_recall
 
 
 @pytest.fixture
@@ -85,7 +83,7 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
         return sample_dataset
 
     monkeypatch.setattr(
-        "soramimi_phonetic_search_dataset.evaluate.load_phonetic_search_dataset",
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
         mock_load_dataset,
     )
 
