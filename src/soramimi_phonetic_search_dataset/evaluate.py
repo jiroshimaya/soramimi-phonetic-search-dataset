@@ -1,3 +1,4 @@
+import time  # 追加
 from pathlib import Path
 from typing import Callable
 
@@ -69,8 +70,10 @@ def evaluate_ranking_function_with_details(
     query_texts = [query.query for query in dataset.queries]
     positive_texts = [query.positive for query in dataset.queries]
 
-    # ランキングを実行
+    # ランキングを実行（実行時間を計測）
+    start_time = time.time()
     ranked_wordlists = ranking_func(query_texts, dataset.words)
+    execution_time = time.time() - start_time
 
     # Recallを計算
     recall = calculate_recall(ranked_wordlists, positive_texts, topn=topn)
@@ -93,7 +96,10 @@ def evaluate_ranking_function_with_details(
         rank_func="unknown",  # basic_usage.py側で設定する
     )
 
-    metrics = PhoneticSearchMetrics(recall=recall)
+    metrics = PhoneticSearchMetrics(
+        recall=recall,
+        execution_time=execution_time,  # 実行時間を追加
+    )
 
     return PhoneticSearchResults(
         parameters=parameters,
