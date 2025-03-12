@@ -2,9 +2,6 @@ import argparse
 import json
 from typing import Callable
 
-# lintエラーを回避するためtype: ignoreを使用
-# rerankerモジュールは同じディレクトリにある単なるユーティリティファイルで、
-# パッケージとしてインストールする意図はないため、import-not-foundエラーを無視して問題ありません。
 from reranker import rerank_by_llm
 
 from soramimi_phonetic_search_dataset import (
