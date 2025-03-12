@@ -19,4 +19,8 @@
 - パラメータ設定:
   - Vowel Consonant EditDistance: vowel_ratio=0.8
   - KanaSim EditDistance: vowel_ratio=0.8
-  - LLM Rerank: Vowel Consonant EditDistance (vowel_ratio=0.5) でtop100を取得（recall@100=0.861）した結果からtop10を再ランク付け 
+  - LLM Rerank: 以下の手順でリランクを行う
+    1. Vowel Consonant EditDistance (vowel_ratio=0.5) で上位100件を取得
+    2. 正解が100件に含まれない場合は、下位のものと入れ替え
+    3. 順序によるバイアスを避けるため、候補をあいうえお順にソート
+    4. LLMに候補を渡して上位10件を選択させる
