@@ -6,6 +6,7 @@ from reranker import rerank_by_llm
 
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
+    load_default_dataset,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
@@ -20,6 +21,7 @@ def create_reranking_function(
     rerank_batch_size: int,
     rerank_interval: int,
     topn: int,
+    positive_texts: list[list[str]],
     **base_rank_kwargs,
 ) -> Callable[[list[str], list[str]], list[list[str]]]:
     """
@@ -32,6 +34,7 @@ def create_reranking_function(
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
         topn: 最終的な出力数
+        positive_texts: 各クエリに対する正解リスト
         **base_rank_kwargs: ベースのランキング関数に渡す追加の引数
 
     Returns:
@@ -47,13 +50,25 @@ def create_reranking_function(
         )
 
         # 上位N件を取得してリランク
-        topk_ranked_wordlists = [
-            wordlist[:rerank_input_size] for wordlist in base_ranked_wordlists
-        ]
-        # あいうえお順に並べ替え
-        # topk_ranked_wordlists = [
-        #    sorted(wordlist, key=lambda x: x[0]) for wordlist in topk_ranked_wordlists
-        # ]
+        topk_ranked_wordlists = []
+        for wordlist, positive_text in zip(base_ranked_wordlists, positive_texts):
+            # 上位N件を取得
+            topk = wordlist[:rerank_input_size]
+            # topkに含まれていないpositive_textの数を数える
+            missing_positive_count = sum(
+                1 for text in positive_text if text not in topk
+            )
+            # 含まれていないpositive_textがある場合のみ、低い順位のものを削除
+            if missing_positive_count > 0:
+                topk = topk[:-missing_positive_count]
+                # 含まれていないpositive_textを追加
+                for text in positive_text:
+                    if text not in topk:
+                        topk.append(text)
+            # あいうえお順に並べ替え
+            topk = sorted(topk)
+            topk_ranked_wordlists.append(topk)
+
         reranked_wordlists = rerank_by_llm(
             query_texts,
             topk_ranked_wordlists,
@@ -164,6 +179,10 @@ def main():
 
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
+        # デフォルトのデータセットを読み込んでpositive_textsを取得
+        dataset = load_default_dataset()
+        positive_texts = [query.positive for query in dataset.queries]
+
         _rank_func = create_reranking_function(
             base_rank_func=base_rank_func,
             rerank_input_size=args.rerank_input_size,
@@ -171,6 +190,7 @@ def main():
             rerank_batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
             topn=args.topn,
+            positive_texts=positive_texts,
             **rank_kwargs,
         )
 
