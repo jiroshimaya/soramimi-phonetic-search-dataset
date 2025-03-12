@@ -8,7 +8,8 @@
     "rerank_input_size": null
   },
   "metrics": {
-    "recall": 0.455
+    "recall": 0.455,
+    "execution_time": 4.02440071105957
   },
   "results": [
     {
