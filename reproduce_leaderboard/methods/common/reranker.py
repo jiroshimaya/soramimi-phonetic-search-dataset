@@ -1,7 +1,7 @@
 import time
 from typing import Any, Type
 
-from litellm import batch_completion
+from litellm import batch_completion, completion
 from pydantic import BaseModel
 from tqdm import tqdm
 
@@ -12,18 +12,53 @@ def get_structured_outputs(
     response_format: Type[BaseModel],
     temperature: float = 0.0,
     max_tokens: int = 1000,
+    reasoning_effort: str | None = None,
 ) -> list[BaseModel]:
+    is_gpt5 = model_name.startswith("gpt-5")
+
+    completion_kwargs: dict[str, Any] = {}
+    if is_gpt5:
+        completion_kwargs["max_completion_tokens"] = max_tokens
+        if reasoning_effort is not None:
+            completion_kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+    else:
+        completion_kwargs["temperature"] = temperature
+        completion_kwargs["max_tokens"] = max_tokens
+        if reasoning_effort is not None:
+            completion_kwargs["reasoning_effort"] = reasoning_effort
+
+    def parse_response(response: Any) -> BaseModel:
+        if not hasattr(response, "choices"):
+            raise TypeError(f"Unexpected LiteLLM response: {response!r}")
+
+        content = response.choices[0].message.content
+        if not content:
+            raise ValueError(f"Empty LiteLLM content: {response!r}")
+        return response_format.model_validate_json(content)
+
     raw_responses = batch_completion(
         model=model_name,
         messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
         response_format=response_format,
+        **completion_kwargs,
     )
-    return [
-        response_format.model_validate_json(response.choices[0].message.content)
-        for response in raw_responses
-    ]
+
+    parsed_responses = []
+    for message, response in zip(messages, raw_responses):
+        try:
+            parsed_responses.append(parse_response(response))
+        except (TypeError, ValueError):
+            fallback_kwargs = completion_kwargs.copy()
+            if is_gpt5:
+                fallback_kwargs["max_completion_tokens"] = max(max_tokens, 4000)
+            fallback_response = completion(
+                model=model_name,
+                messages=message,
+                response_format=response_format,
+                **fallback_kwargs,
+            )
+            parsed_responses.append(parse_response(fallback_response))
+    return parsed_responses
 
 
 def rerank_by_llm(
@@ -32,6 +67,7 @@ def rerank_by_llm(
     *,
     topn: int = 10,
     model_name: str = "gpt-4o-mini",
+    reasoning_effort: str | None = None,
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
@@ -97,6 +133,7 @@ def rerank_by_llm(
             temperature=temperature,
             max_tokens=1000,
             response_format=RerankedWordlist,
+            reasoning_effort=reasoning_effort,
         )
         for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
             reranked_wordlist = []
