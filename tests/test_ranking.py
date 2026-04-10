@@ -1,4 +1,5 @@
 from soramimi_phonetic_search_dataset import (
+    rank_by_distinctive_feature_distance,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
@@ -63,3 +64,34 @@ def test_rank_by_kanasim():
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
+
+
+def test_rank_by_distinctive_feature_distance():
+    """弁別素性ベース距離によるランキングのテスト"""
+    query_texts = ["ギュウ", "サン", "ガッツ", "スキ"]
+    wordlist_texts = [
+        "ギュウ",
+        "キュウ",
+        "サン",
+        "ガン",
+        "ガッツ",
+        "ガス",
+        "スキ",
+        "ハナコ",
+    ]
+    ranked_wordlists = rank_by_distinctive_feature_distance(query_texts, wordlist_texts)
+
+    assert len(ranked_wordlists) == len(query_texts)
+    assert ranked_wordlists[0][0] == "ギュウ"
+    assert ranked_wordlists[1][0] == "サン"
+    assert ranked_wordlists[2][0] == "ガッツ"
+    assert ranked_wordlists[3][0] == "スキ"
+    assert ranked_wordlists[0].index("キュウ") < ranked_wordlists[0].index("ハナコ")
+    assert ranked_wordlists[1].index("ガン") < ranked_wordlists[1].index("ハナコ")
+    assert ranked_wordlists[2].index("ガス") < ranked_wordlists[2].index("ハナコ")
+
+    ranked_wordlists = rank_by_distinctive_feature_distance(
+        query_texts, wordlist_texts, vowel_ratio=0.8
+    )
+    assert len(ranked_wordlists) == len(query_texts)
+    assert ranked_wordlists[0][0] == "ギュウ"

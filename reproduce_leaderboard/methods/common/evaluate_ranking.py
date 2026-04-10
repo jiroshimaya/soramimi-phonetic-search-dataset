@@ -7,6 +7,7 @@ from reranker import rerank_by_llm
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
     load_default_dataset,
+    rank_by_distinctive_feature_distance,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
@@ -109,9 +110,15 @@ def main():
         "-r",
         "--rank_func",
         type=str,
-        choices=["kanasim", "vowel_consonant", "phoneme", "mora"],
+        choices=[
+            "kanasim",
+            "vowel_consonant",
+            "phoneme",
+            "mora",
+            "distinctive_feature",
+        ],
         default="vowel_consonant",
-        help="Rank function: kanasim, vowel_consonant, phoneme, mora",
+        help="Rank function: kanasim, vowel_consonant, phoneme, mora, distinctive_feature",
     )
     parser.add_argument(
         "-n",
@@ -125,7 +132,7 @@ def main():
         "--vowel_ratio",
         type=float,
         default=0.5,
-        help="Vowel ratio, which is used only when rank_func is vowel_consonant",
+        help="Vowel ratio, which is used when rank_func is vowel_consonant or distinctive_feature",
     )
     parser.add_argument(
         "--rerank",
@@ -188,6 +195,9 @@ def main():
     elif args.rank_func == "phoneme":
         base_rank_func = rank_by_phoneme_editdistance
         rank_kwargs = {}
+    elif args.rank_func == "distinctive_feature":
+        base_rank_func = rank_by_distinctive_feature_distance
+        rank_kwargs = {"vowel_ratio": args.vowel_ratio}
 
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
@@ -224,7 +234,9 @@ def main():
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
     results.parameters.vowel_ratio = (
-        args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
+        args.vowel_ratio
+        if args.rank_func in ["kanasim", "vowel_consonant", "distinctive_feature"]
+        else None
     )
     results.parameters.rerank = args.rerank
     results.parameters.rerank_model_name = (
