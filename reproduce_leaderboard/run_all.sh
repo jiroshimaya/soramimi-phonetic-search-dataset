@@ -26,4 +26,7 @@ uv run methods/006_llm_rerank_gemini.py
 echo "=== LLM Rerank (gpt-4.5-preview) ==="
 uv run methods/007_llm_rerank_gpt45preview.py
 
-echo "Done!" 
+echo "=== LLM Rerank (gpt-5.4) ==="
+uv run methods/008_llm_rerank_gpt54.py
+
+echo "Done!"

@@ -18,6 +18,7 @@ def create_reranking_function(
     base_rank_func: Callable[[list[str], list[str]], list[list[str]]],
     rerank_input_size: int,
     rerank_model_name: str,
+    rerank_reasoning_effort: str | None,
     rerank_batch_size: int,
     rerank_interval: int,
     topn: int,
@@ -31,6 +32,7 @@ def create_reranking_function(
         base_rank_func: ベースのランキング関数
         rerank_input_size: リランクに使用する候補数
         rerank_model_name: リランクに使用するモデル名
+        rerank_reasoning_effort: リランクに使用するreasoning effort
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
         topn: 最終的な出力数
@@ -74,6 +76,7 @@ def create_reranking_function(
             topk_ranked_wordlists,
             topn=topn,
             model_name=rerank_model_name,
+            reasoning_effort=rerank_reasoning_effort,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
@@ -88,12 +91,15 @@ def get_default_output_path(
     rerank: bool = False,
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
+    rerank_reasoning_effort: str | None = None,
 ) -> str:
     suffix = f"_{rank_func}_top{topn}"
     if rerank:
         # スラッシュを含む場合はハイフンに変換
         model_name_safe = rerank_model_name.replace("/", "-")
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
+        if rerank_reasoning_effort:
+            suffix += f"_reasoning{rerank_reasoning_effort}"
     return f"output{suffix}.json"
 
 
@@ -145,6 +151,12 @@ def main():
         help="Model name for reranking",
     )
     parser.add_argument(
+        "--rerank_reasoning_effort",
+        type=str,
+        choices=["low", "medium", "high"],
+        help="Reasoning effort for reranking models that support it",
+    )
+    parser.add_argument(
         "--rerank_interval",
         type=int,
         default=0,
@@ -187,6 +199,7 @@ def main():
             base_rank_func=base_rank_func,
             rerank_input_size=args.rerank_input_size,
             rerank_model_name=args.rerank_model_name,
+            rerank_reasoning_effort=args.rerank_reasoning_effort,
             rerank_batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
             topn=args.topn,
@@ -217,6 +230,9 @@ def main():
     results.parameters.rerank_model_name = (
         args.rerank_model_name if args.rerank else None
     )
+    results.parameters.rerank_reasoning_effort = (
+        args.rerank_reasoning_effort if args.rerank else None
+    )
     results.parameters.rerank_input_size = (
         args.rerank_input_size if args.rerank else None
     )
@@ -233,6 +249,7 @@ def main():
             args.rerank,
             args.rerank_input_size,
             args.rerank_model_name,
+            args.rerank_reasoning_effort,
         )
 
     if not args.no_save:
