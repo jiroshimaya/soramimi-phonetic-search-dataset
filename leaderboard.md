@@ -13,6 +13,7 @@
 | LLM Rerank (gemini-2.0-flash) | 0.496 |
 | LLM Rerank (gpt-4.5-preview) | 0.583 |
 | LLM Rerank (gpt-5.4) | 0.573 |
+| Distinctive Feature Distance (pyphone) | 0.428 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
