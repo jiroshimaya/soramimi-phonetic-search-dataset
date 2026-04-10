@@ -35,7 +35,9 @@ source = "vcs"
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "ruff>=0.11.5",
     "taskipy>=1.14.1",
+    "ty>=0.0.29",
 ]
 eval = [
     "litellm>=1.63.3",
@@ -52,10 +54,8 @@ test-workflow-py = "pytest -m 'workflow' --override-ini=addopts="
 test-workflow = "bats tests/workflow/test_workflow.bats"
 act-sample = "act -j publish -W .github/workflows/publish-to-testpypi.yaml -e tests/workflow/event.json"
 test = "pytest"
-lint = "uvx ruff check . && uvx mypy ."
-format = "uvx ruff format ."
+lint = "ruff check . && ty check ."
+format = "ruff format ."
 
-[tool.mypy]
-# スタブが無いパッケージのエラーは無視させる.サードパーティのライブラリに型情報がないケースもあるため
-ignore_missing_imports = true
-
+[tool.ty.environment]
+extra-paths = ["./reproduce_leaderboard/methods/common"]
