@@ -40,6 +40,9 @@ uv run methods/005_llm_rerank_gpt4o.py  # LLMリランク (gpt-4o)
 uv run methods/006_llm_rerank_gemini.py  # LLMリランク (gemini-2.0-flash)
 uv run methods/007_llm_rerank_gpt45preview.py  # LLMリランク (gpt-4.5-preview)
 uv run methods/008_llm_rerank_gpt54.py  # LLMリランク (gpt-5.4)
+uv run methods/008_01_llm_rerank_gpt54_simple.py  # LLMリランク (gpt-5.4, prompt 008_01 simple)
+uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed)
+uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
 ```
 
 ### カスタム評価の実行
@@ -62,6 +65,9 @@ uv run methods/common/evaluate_ranking.py -r kanasim --rerank --rerank_model_nam
 # GPT-5.4でLLMリランク
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4
 
+# GPT-5.4で reasoning effort none と prompt variant を指定
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed
+
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
 
@@ -78,7 +84,8 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_input_size`: リランクに使用する候補数
 - `--rerank_batch_size`: リランクのバッチサイズ
 - `--rerank_model_name`: リランクに使用するモデル名
-- `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（low, medium, high）
+- `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
+- `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
 - `--no_save`: 評価結果を保存しない
@@ -97,7 +104,10 @@ results/
 ├── 005_llm_rerank_gpt4o.json
 ├── 006_llm_rerank_gemini.json
 ├── 007_llm_rerank_gpt45preview.json
-└── 008_llm_rerank_gpt54.json
+├── 008_llm_rerank_gpt54.json
+├── 008_01_llm_rerank_gpt54_simple.json
+├── 008_02_llm_rerank_gpt54_detailed.json
+└── 008_03_llm_rerank_gpt54_step_by_step.json
 ```
 
 ## 注意事項
