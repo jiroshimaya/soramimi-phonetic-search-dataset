@@ -6,6 +6,9 @@ on:
       - main  # ここでPRをトリガーするブランチを指定
     paths:
       - '**/*.py'  # .pyファイルに変更があったときのみトリガー
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python-check.yaml'
 
 jobs:
   test:
