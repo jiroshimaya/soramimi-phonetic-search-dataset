@@ -1,6 +1,8 @@
 import time
+from dataclasses import dataclass
 from typing import Any, Type
 
+from litellm import cost_per_token
 from litellm import batch_completion, completion
 from pydantic import BaseModel
 from tqdm import tqdm
@@ -58,12 +60,86 @@ Reranked: 6, 4, 5, 7, 2
 """
 
 
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+
+    @property
+    def output_tokens(self) -> int:
+        return max(self.completion_tokens - self.reasoning_tokens, 0)
+
+
+@dataclass
+class TokenCost:
+    input_cost: float = 0.0
+    output_cost: float = 0.0
+    reasoning_cost: float = 0.0
+    total_cost: float = 0.0
+
+
+_last_token_usage = TokenUsage()
+
+
 def build_system_prompt(prompt_template: str = "default") -> str:
     try:
         prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
     except KeyError as exc:
         raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
     return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
+
+
+def reset_token_usage() -> None:
+    global _last_token_usage
+    _last_token_usage = TokenUsage()
+
+
+def get_last_token_usage() -> TokenUsage:
+    return TokenUsage(
+        input_tokens=_last_token_usage.input_tokens,
+        completion_tokens=_last_token_usage.completion_tokens,
+        reasoning_tokens=_last_token_usage.reasoning_tokens,
+        total_tokens=_last_token_usage.total_tokens,
+    )
+
+
+def calculate_token_cost(model_name: str, token_usage: TokenUsage) -> TokenCost:
+    input_cost, completion_cost = cost_per_token(
+        model=model_name,
+        prompt_tokens=token_usage.input_tokens,
+        completion_tokens=token_usage.completion_tokens,
+    )
+    if token_usage.completion_tokens == 0:
+        reasoning_cost = 0.0
+    else:
+        reasoning_cost = completion_cost * (
+            token_usage.reasoning_tokens / token_usage.completion_tokens
+        )
+    output_cost = completion_cost - reasoning_cost
+    return TokenCost(
+        input_cost=input_cost,
+        output_cost=output_cost,
+        reasoning_cost=reasoning_cost,
+        total_cost=input_cost + completion_cost,
+    )
+
+
+def accumulate_token_usage(response: Any) -> None:
+    usage = getattr(response, "usage", None)
+    if usage is None:
+        return
+
+    completion_details = getattr(usage, "completion_tokens_details", None)
+    reasoning_tokens = getattr(completion_details, "reasoning_tokens", 0) or 0
+
+    _last_token_usage.input_tokens += getattr(usage, "prompt_tokens", 0) or 0
+    _last_token_usage.completion_tokens += (
+        getattr(usage, "completion_tokens", 0) or 0
+    )
+    _last_token_usage.reasoning_tokens += reasoning_tokens
+    _last_token_usage.total_tokens += getattr(usage, "total_tokens", 0) or 0
 
 
 def get_gpt5_max_completion_tokens(
@@ -87,6 +163,7 @@ def get_structured_outputs(
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
 ) -> list[BaseModel]:
+    reset_token_usage()
     is_gpt5 = model_name.startswith("gpt-5")
     normalized_reasoning_effort = (
         None if reasoning_effort in (None, "none") else reasoning_effort
@@ -126,6 +203,7 @@ def get_structured_outputs(
     parsed_responses = []
     for message, response in zip(messages, raw_responses):
         try:
+            accumulate_token_usage(response)
             parsed_responses.append(parse_response(response))
         except (TypeError, ValueError):
             fallback_kwargs = completion_kwargs.copy()
@@ -143,6 +221,7 @@ def get_structured_outputs(
                 response_format=response_format,
                 **fallback_kwargs,
             )
+            accumulate_token_usage(fallback_response)
             parsed_responses.append(parse_response(fallback_response))
     return parsed_responses
 
