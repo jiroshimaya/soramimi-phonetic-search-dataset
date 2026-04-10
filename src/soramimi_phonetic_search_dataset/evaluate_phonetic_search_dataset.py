@@ -18,6 +18,11 @@ from soramimi_phonetic_search_dataset.schemas import PhoneticSearchDataset
 dotenv.load_dotenv()
 
 
+def _split_phonemes(text: str) -> list[str]:
+    phonemes = pyopenjtalk.g2p(text)
+    return phonemes if isinstance(phonemes, list) else phonemes.split()
+
+
 def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
     with open(path, "r") as f:
         dataset = json.load(f)
@@ -85,8 +90,8 @@ def rank_by_vowel_consonant_editdistance(
 def rank_by_phoneme_editdistance(
     query_texts: list[str], wordlist_texts: list[str]
 ) -> list[list[str]]:
-    query_phonemes = [pyopenjtalk.g2p(text).split() for text in query_texts]
-    wordlist_phonemes = [pyopenjtalk.g2p(text).split() for text in wordlist_texts]
+    query_phonemes = [_split_phonemes(text) for text in query_texts]
+    wordlist_phonemes = [_split_phonemes(text) for text in wordlist_texts]
 
     filnal_results = []
     for query_phoneme in query_phonemes:
