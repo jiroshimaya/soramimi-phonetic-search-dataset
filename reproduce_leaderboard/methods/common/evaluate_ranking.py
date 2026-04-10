@@ -2,7 +2,7 @@ import argparse
 import json
 from typing import Callable
 
-from reranker import rerank_by_llm
+from reranker import calculate_token_cost, get_last_token_usage, rerank_by_llm
 
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
@@ -253,6 +253,17 @@ def main():
     results.parameters.rerank_input_size = (
         args.rerank_input_size if args.rerank else None
     )
+    if args.rerank:
+        token_usage = get_last_token_usage()
+        token_cost = calculate_token_cost(args.rerank_model_name, token_usage)
+        results.metrics.rerank_input_tokens = token_usage.input_tokens
+        results.metrics.rerank_output_tokens = token_usage.output_tokens
+        results.metrics.rerank_reasoning_tokens = token_usage.reasoning_tokens
+        results.metrics.rerank_total_tokens = token_usage.total_tokens
+        results.metrics.rerank_input_cost = token_cost.input_cost
+        results.metrics.rerank_output_cost = token_cost.output_cost
+        results.metrics.rerank_reasoning_cost = token_cost.reasoning_cost
+        results.metrics.rerank_total_cost = token_cost.total_cost
 
     print("Recall: ", results.metrics.recall)
     print("Execution time: ", results.metrics.execution_time)
