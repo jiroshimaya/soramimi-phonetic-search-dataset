@@ -11,7 +11,7 @@ dependencies = [
     "editdistance>=0.8.1",
     "jamorasep>=0.0.1",
     "kanasim>=0.0.4",
-    "litellm>=1.63.3",
+    "litellm>=1.83.0",
     "pyopenjtalk-plus>=0.4.1.post8",
     "python-dotenv>=1.0.1",
     "tqdm>=4.67.1",
@@ -38,7 +38,7 @@ dev = [
     "taskipy>=1.14.1",
 ]
 eval = [
-    "litellm>=1.63.3",
+    "litellm>=1.83.0",
 ]
 
 [tool.pytest.ini_options]
