@@ -6,10 +6,15 @@ on:
       - main  # ここでPRをトリガーするブランチを指定
     paths:
       - '**/*.py'  # .pyファイルに変更があったときのみトリガー
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/python-check.yaml'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CMAKE_POLICY_VERSION_MINIMUM: "3.5"
 
     steps:
     - uses: actions/checkout@v4

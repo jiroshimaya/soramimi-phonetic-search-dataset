@@ -42,6 +42,7 @@ class PhoneticSearchParameters:
     vowel_ratio: float | None = None
     rerank: bool = False
     rerank_model_name: str | None = None
+    rerank_reasoning_effort: str | None = None
     rerank_input_size: int | None = None
     execution_timestamp: str | None = None
 

@@ -39,6 +39,7 @@ uv run methods/004_llm_rerank_gpt4o_mini.py  # LLMリランク (gpt-4o-mini)
 uv run methods/005_llm_rerank_gpt4o.py  # LLMリランク (gpt-4o)
 uv run methods/006_llm_rerank_gemini.py  # LLMリランク (gemini-2.0-flash)
 uv run methods/007_llm_rerank_gpt45preview.py  # LLMリランク (gpt-4.5-preview)
+uv run methods/008_llm_rerank_gpt54.py  # LLMリランク (gpt-5.4)
 ```
 
 ### カスタム評価の実行
@@ -58,6 +59,9 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant -vr 0.7
 # KanaSimとLLMリランクを組み合わせて評価
 uv run methods/common/evaluate_ranking.py -r kanasim --rerank --rerank_model_name gpt-4o-mini
 
+# GPT-5.4でLLMリランク
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4
+
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
 
@@ -74,6 +78,7 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_input_size`: リランクに使用する候補数
 - `--rerank_batch_size`: リランクのバッチサイズ
 - `--rerank_model_name`: リランクに使用するモデル名
+- `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（low, medium, high）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
 - `--no_save`: 評価結果を保存しない
@@ -91,7 +96,8 @@ results/
 ├── 004_llm_rerank_gpt4o_mini.json
 ├── 005_llm_rerank_gpt4o.json
 ├── 006_llm_rerank_gemini.json
-└── 007_llm_rerank_gpt45preview.json
+├── 007_llm_rerank_gpt45preview.json
+└── 008_llm_rerank_gpt54.json
 ```
 
 ## 注意事項
@@ -99,7 +105,7 @@ results/
 - 評価には`baseball.json`データセットが使用されます。
 - 各ランキング関数のパラメータは必要に応じて調整できます。
 - LLMリランクを使用する場合は、以下の環境変数を設定してください：
-  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview）を使用する場合：
+  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4）を使用する場合：
     - `OPENAI_API_KEY`: OpenAIのAPIキー
   - Gemini API（gemini-2.0-flash）を使用する場合：
     - `GEMINI_API_KEY`: Google Cloud PlatformのAPIキー
