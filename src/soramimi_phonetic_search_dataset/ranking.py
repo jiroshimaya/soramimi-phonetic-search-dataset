@@ -4,6 +4,11 @@ import pyopenjtalk
 from kanasim import create_kana_distance_calculator
 
 
+def _split_phonemes(text: str) -> list[str]:
+    phonemes = pyopenjtalk.g2p(text)
+    return phonemes if isinstance(phonemes, list) else phonemes.split()
+
+
 def rank_by_mora_editdistance(
     query_texts: list[str], wordlist_texts: list[str]
 ) -> list[list[str]]:
@@ -96,8 +101,8 @@ def rank_by_phoneme_editdistance(
     Returns:
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
-    query_phonemes = [pyopenjtalk.g2p(text).split() for text in query_texts]
-    wordlist_phonemes = [pyopenjtalk.g2p(text).split() for text in wordlist_texts]
+    query_phonemes = [_split_phonemes(text) for text in query_texts]
+    wordlist_phonemes = [_split_phonemes(text) for text in wordlist_texts]
 
     final_results = []
     for query_phoneme in query_phonemes:

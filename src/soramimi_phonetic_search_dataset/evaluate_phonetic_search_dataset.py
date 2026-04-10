@@ -9,13 +9,18 @@ import editdistance as ed
 import jamorasep
 import pyopenjtalk
 from kanasim import create_kana_distance_calculator
-from litellm import batch_completion
+from litellm import batch_completion, completion
 from pydantic import BaseModel
 from tqdm import tqdm
 
 from soramimi_phonetic_search_dataset.schemas import PhoneticSearchDataset
 
 dotenv.load_dotenv()
+
+
+def _split_phonemes(text: str) -> list[str]:
+    phonemes = pyopenjtalk.g2p(text)
+    return phonemes if isinstance(phonemes, list) else phonemes.split()
 
 
 def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
@@ -85,8 +90,8 @@ def rank_by_vowel_consonant_editdistance(
 def rank_by_phoneme_editdistance(
     query_texts: list[str], wordlist_texts: list[str]
 ) -> list[list[str]]:
-    query_phonemes = [pyopenjtalk.g2p(text).split() for text in query_texts]
-    wordlist_phonemes = [pyopenjtalk.g2p(text).split() for text in wordlist_texts]
+    query_phonemes = [_split_phonemes(text) for text in query_texts]
+    wordlist_phonemes = [_split_phonemes(text) for text in wordlist_texts]
 
     filnal_results = []
     for query_phoneme in query_phonemes:
@@ -125,18 +130,53 @@ def get_structured_outputs(
     response_format: Type[BaseModel],
     temperature: float = 0.0,
     max_tokens: int = 1000,
+    reasoning_effort: str | None = None,
 ) -> list[BaseModel]:
+    is_gpt5 = model_name.startswith("gpt-5")
+
+    completion_kwargs: dict[str, Any] = {}
+    if is_gpt5:
+        completion_kwargs["max_completion_tokens"] = max_tokens
+        if reasoning_effort is not None:
+            completion_kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+    else:
+        completion_kwargs["temperature"] = temperature
+        completion_kwargs["max_tokens"] = max_tokens
+        if reasoning_effort is not None:
+            completion_kwargs["reasoning_effort"] = reasoning_effort
+
+    def parse_response(response: Any) -> BaseModel:
+        if not hasattr(response, "choices"):
+            raise TypeError(f"Unexpected LiteLLM response: {response!r}")
+
+        content = response.choices[0].message.content
+        if not content:
+            raise ValueError(f"Empty LiteLLM content: {response!r}")
+        return response_format.model_validate_json(content)
+
     raw_responses = batch_completion(
         model=model_name,
         messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
         response_format=response_format,
+        **completion_kwargs,
     )
-    return [
-        response_format.model_validate_json(response.choices[0].message.content)
-        for response in raw_responses
-    ]
+
+    parsed_responses = []
+    for message, response in zip(messages, raw_responses):
+        try:
+            parsed_responses.append(parse_response(response))
+        except (TypeError, ValueError):
+            fallback_kwargs = completion_kwargs.copy()
+            if is_gpt5:
+                fallback_kwargs["max_completion_tokens"] = max(max_tokens, 4000)
+            fallback_response = completion(
+                model=model_name,
+                messages=message,
+                response_format=response_format,
+                **fallback_kwargs,
+            )
+            parsed_responses.append(parse_response(fallback_response))
+    return parsed_responses
 
 
 def rerank_by_llm(
@@ -145,6 +185,7 @@ def rerank_by_llm(
     *,
     topn: int = 10,
     model_name: str = "gpt-4o-mini",
+    reasoning_effort: str | None = None,
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
@@ -212,6 +253,7 @@ def rerank_by_llm(
             temperature=temperature,
             max_tokens=1000,
             response_format=RerankedWordlist,
+            reasoning_effort=reasoning_effort,
         )
         for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
             reranked_wordlist = []
@@ -265,11 +307,14 @@ def get_default_output_path(
     rerank: bool = False,
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
+    rerank_reasoning_effort: str | None = None,
 ) -> str:
     input_path_lib = Path(input_path)
     suffix = f"_{rank_func}_top{topn}"
     if rerank:
         suffix += f"_reranked_top{rerank_topn}_model{rerank_model_name}"
+        if rerank_reasoning_effort:
+            suffix += f"_reasoning{rerank_reasoning_effort}"
     return str(input_path_lib.parent / f"{input_path_lib.stem}{suffix}.json")
 
 
@@ -328,6 +373,12 @@ def main():
         help="Model name for reranking",
     )
     parser.add_argument(
+        "--rerank_reasoning_effort",
+        type=str,
+        choices=["low", "medium", "high"],
+        help="Reasoning effort for reranking models that support it",
+    )
+    parser.add_argument(
         "--rerank_interval",
         type=int,
         default=0,
@@ -377,6 +428,7 @@ def main():
             topk_ranked_wordlists,
             topn=args.topn,
             model_name=args.rerank_model_name,
+            reasoning_effort=args.rerank_reasoning_effort,
             batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
         )
@@ -395,6 +447,7 @@ def main():
             args.rerank,
             args.rerank_input_size,
             args.rerank_model_name,
+            args.rerank_reasoning_effort,
         )
 
     if not args.no_save:
@@ -409,6 +462,9 @@ def main():
                 "rerank": args.rerank,
                 "rerank_input_size": args.rerank_input_size if args.rerank else None,
                 "rerank_model_name": args.rerank_model_name if args.rerank else None,
+                "rerank_reasoning_effort": args.rerank_reasoning_effort
+                if args.rerank
+                else None,
             },
             "metrics": {
                 "recall": recall,
