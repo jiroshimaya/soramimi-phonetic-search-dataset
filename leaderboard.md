@@ -13,7 +13,7 @@
 | LLM Rerank (gemini-2.0-flash) | 0.496 |
 | LLM Rerank (gpt-4.5-preview) | 0.583 |
 | LLM Rerank (gpt-5.4) | 0.573 |
-| Distinctive Feature Distance (pyphone) | 0.428 |
+| Distinctive Feature Distance (pyphone) | 0.584 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
@@ -21,6 +21,7 @@
 - パラメータ設定:
   - Vowel Consonant EditDistance: vowel_ratio=0.8
   - KanaSim EditDistance: vowel_ratio=0.8
+  - Distinctive Feature Distance (pyphone): vowel_ratio=0.8
   - LLM Rerank: 以下の手順でリランクを行う
     1. Vowel Consonant EditDistance (vowel_ratio=0.5) で上位100件を取得
     2. 正解が100件に含まれない場合は、下位のものと入れ替え
