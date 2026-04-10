@@ -38,6 +38,7 @@ The following ranking functions are provided:
 - `rank_by_mora_editdistance`: Ranking based on mora edit distance
 - `rank_by_vowel_consonant_editdistance`: Ranking based on separate vowel and consonant edit distances
 - `rank_by_phoneme_editdistance`: Ranking based on phoneme edit distance
+- `rank_by_distinctive_feature_distance`: Ranking based on phoneme distinctive-feature distance
 - `rank_by_kanasim`: Ranking using KanaSim algorithm
 
 ```python

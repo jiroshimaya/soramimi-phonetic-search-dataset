@@ -29,4 +29,7 @@ uv run methods/007_llm_rerank_gpt45preview.py
 echo "=== LLM Rerank (gpt-5.4) ==="
 uv run methods/008_llm_rerank_gpt54.py
 
+echo "=== Distinctive Feature Distance (pyphone) ==="
+uv run methods/009_distinctive_feature.py
+
 echo "Done!"

@@ -40,6 +40,7 @@ print(f"Recall@10: {recall}")
 - `rank_by_mora_editdistance`: モーラ編集距離によるランキング
 - `rank_by_vowel_consonant_editdistance`: 母音と子音の編集距離によるランキング
 - `rank_by_phoneme_editdistance`: 音素編集距離によるランキング
+- `rank_by_distinctive_feature_distance`: 音素の弁別素性に基づく距離によるランキング
 - `rank_by_kanasim`: [KanaSim](https://github.com/jiroshimaya/kanasim)によるランキング
 
 ```python
