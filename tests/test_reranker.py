@@ -35,7 +35,7 @@ def test_get_structured_outputs_passes_reasoning_effort_for_gpt5(monkeypatch):
         reasoning_effort="medium",
     )
 
-    assert captured_kwargs["max_completion_tokens"] == 1000
+    assert captured_kwargs["max_completion_tokens"] == 16000
     assert captured_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert "max_tokens" not in captured_kwargs
     assert "temperature" not in captured_kwargs
@@ -109,9 +109,15 @@ def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
 
     assert batch_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert completion_kwargs["extra_body"] == {"reasoning_effort": "medium"}
-    assert batch_kwargs["max_completion_tokens"] == 1000
-    assert completion_kwargs["max_completion_tokens"] == 4000
+    assert batch_kwargs["max_completion_tokens"] == 16000
+    assert completion_kwargs["max_completion_tokens"] == 24000
     assert results == [SampleResponse(reranked=[2])]
+
+
+def test_get_gpt5_max_completion_tokens_scales_with_reasoning_effort():
+    assert reranker.get_gpt5_max_completion_tokens(1000, None) == 1000
+    assert reranker.get_gpt5_max_completion_tokens(1000, "medium") == 16000
+    assert reranker.get_gpt5_max_completion_tokens(1000, "medium", is_fallback=True) == 24000
 
 
 def test_build_system_prompt_reuses_example_suffix():
