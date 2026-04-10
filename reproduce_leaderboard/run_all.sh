@@ -38,4 +38,13 @@ uv run methods/008_02_llm_rerank_gpt54_detailed.py
 echo "=== LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) ==="
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py
 
+echo "=== LLM Rerank (gpt-5.4, reasoning medium, prompt 010_01 simple) ==="
+uv run methods/010_01_llm_rerank_gpt54_medium_simple.py
+
+echo "=== LLM Rerank (gpt-5.4, reasoning medium, prompt 010_02 detailed) ==="
+uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py
+
+echo "=== LLM Rerank (gpt-5.4, reasoning medium, prompt 010_03 step-by-step) ==="
+uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py
+
 echo "Done!"

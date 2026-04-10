@@ -43,6 +43,9 @@ uv run methods/008_llm_rerank_gpt54.py  # LLMリランク (gpt-5.4)
 uv run methods/008_01_llm_rerank_gpt54_simple.py  # LLMリランク (gpt-5.4, prompt 008_01 simple)
 uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed)
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
+uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
+uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
+uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
 ```
 
 ### カスタム評価の実行
@@ -107,8 +110,12 @@ results/
 ├── 008_llm_rerank_gpt54.json
 ├── 008_01_llm_rerank_gpt54_simple.json
 ├── 008_02_llm_rerank_gpt54_detailed.json
-└── 008_03_llm_rerank_gpt54_step_by_step.json
+├── 008_03_llm_rerank_gpt54_step_by_step.json
+├── 010_01_llm_rerank_gpt54_medium_simple.json
+└── 010_03_llm_rerank_gpt54_medium_step_by_step.json
 ```
+
+現在のリポジトリには `010_02_llm_rerank_gpt54_medium_detailed.json` を含めていません。OpenAI API の quota 制限により、実行途中で停止したためです。スクリプト自体は `methods/010_02_llm_rerank_gpt54_medium_detailed.py` として追加されています。
 
 ## 注意事項
 

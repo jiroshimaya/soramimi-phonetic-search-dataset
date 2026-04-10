@@ -66,6 +66,19 @@ def build_system_prompt(prompt_template: str = "default") -> str:
     return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
 
 
+def get_gpt5_max_completion_tokens(
+    max_tokens: int,
+    reasoning_effort: str | None,
+    *,
+    is_fallback: bool = False,
+) -> int:
+    if reasoning_effort == "medium":
+        return max(max_tokens, 24000 if is_fallback else 16000)
+    if reasoning_effort == "high":
+        return max(max_tokens, 32000 if is_fallback else 24000)
+    return max(max_tokens, 4000) if is_fallback else max_tokens
+
+
 def get_structured_outputs(
     model_name: str,
     messages: list[list[dict[str, Any]]],
@@ -81,7 +94,9 @@ def get_structured_outputs(
 
     completion_kwargs: dict[str, Any] = {}
     if is_gpt5:
-        completion_kwargs["max_completion_tokens"] = max_tokens
+        completion_kwargs["max_completion_tokens"] = get_gpt5_max_completion_tokens(
+            max_tokens, normalized_reasoning_effort
+        )
         if normalized_reasoning_effort is not None:
             completion_kwargs["extra_body"] = {
                 "reasoning_effort": normalized_reasoning_effort
@@ -115,7 +130,13 @@ def get_structured_outputs(
         except (TypeError, ValueError):
             fallback_kwargs = completion_kwargs.copy()
             if is_gpt5:
-                fallback_kwargs["max_completion_tokens"] = max(max_tokens, 4000)
+                fallback_kwargs["max_completion_tokens"] = (
+                    get_gpt5_max_completion_tokens(
+                        max_tokens,
+                        normalized_reasoning_effort,
+                        is_fallback=True,
+                    )
+                )
             fallback_response = completion(
                 model=model_name,
                 messages=message,
