@@ -54,7 +54,7 @@ uv run methods/common/evaluate_ranking.py --help
 # 母音子音編集距離でtop10を評価
 uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10
 
-# 母音の重みを変更（kanasim, vowel_consonantの場合のみ有効）
+# 母音の重みを変更（kanasim, vowel_consonant, distinctive_feature の場合に有効）
 uv run methods/common/evaluate_ranking.py -r vowel_consonant -vr 0.7
 
 # KanaSimとLLMリランクを組み合わせて評価
@@ -74,7 +74,7 @@ uv run methods/common/evaluate_ranking.py --no_save
 
 - `-r`, `--rank_func`: ランキング関数の種類（kanasim, vowel_consonant, phoneme, mora, distinctive_feature）
 - `-n`, `--topn`: 評価に使用する上位n件
-- `-vr`, `--vowel_ratio`: 母音の重み（kanasim, vowel_consonantの場合のみ使用）
+- `-vr`, `--vowel_ratio`: 母音の重み（kanasim, vowel_consonant, distinctive_feature の場合に使用）
 - `--rerank`: LLMによるリランキングを使用
 - `--rerank_input_size`: リランクに使用する候補数
 - `--rerank_batch_size`: リランクのバッチサイズ

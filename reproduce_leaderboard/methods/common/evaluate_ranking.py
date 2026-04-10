@@ -132,7 +132,7 @@ def main():
         "--vowel_ratio",
         type=float,
         default=0.5,
-        help="Vowel ratio, which is used only when rank_func is vowel_consonant",
+        help="Vowel ratio, which is used when rank_func is vowel_consonant or distinctive_feature",
     )
     parser.add_argument(
         "--rerank",
@@ -197,7 +197,7 @@ def main():
         rank_kwargs = {}
     elif args.rank_func == "distinctive_feature":
         base_rank_func = rank_by_distinctive_feature_distance
-        rank_kwargs = {}
+        rank_kwargs = {"vowel_ratio": args.vowel_ratio}
 
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
@@ -234,7 +234,9 @@ def main():
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
     results.parameters.vowel_ratio = (
-        args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
+        args.vowel_ratio
+        if args.rank_func in ["kanasim", "vowel_consonant", "distinctive_feature"]
+        else None
     )
     results.parameters.rerank = args.rerank
     results.parameters.rerank_model_name = (

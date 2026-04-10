@@ -89,3 +89,9 @@ def test_rank_by_distinctive_feature_distance():
     assert ranked_wordlists[0].index("キュウ") < ranked_wordlists[0].index("ハナコ")
     assert ranked_wordlists[1].index("ガン") < ranked_wordlists[1].index("ハナコ")
     assert ranked_wordlists[2].index("ガス") < ranked_wordlists[2].index("ハナコ")
+
+    ranked_wordlists = rank_by_distinctive_feature_distance(
+        query_texts, wordlist_texts, vowel_ratio=0.8
+    )
+    assert len(ranked_wordlists) == len(query_texts)
+    assert ranked_wordlists[0][0] == "ギュウ"

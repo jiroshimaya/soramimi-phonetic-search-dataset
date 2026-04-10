@@ -20,6 +20,8 @@ def main():
         "distinctive_feature",
         "--topn",
         "10",
+        "--vowel_ratio",
+        "0.8",
         "--output_file_path",
         str(output_path),
     ]
