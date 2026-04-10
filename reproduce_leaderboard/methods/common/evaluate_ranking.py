@@ -19,6 +19,7 @@ def create_reranking_function(
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
+    rerank_prompt_template: str,
     rerank_batch_size: int,
     rerank_interval: int,
     topn: int,
@@ -33,6 +34,7 @@ def create_reranking_function(
         rerank_input_size: リランクに使用する候補数
         rerank_model_name: リランクに使用するモデル名
         rerank_reasoning_effort: リランクに使用するreasoning effort
+        rerank_prompt_template: リランクに使用するプロンプトテンプレート
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
         topn: 最終的な出力数
@@ -77,6 +79,7 @@ def create_reranking_function(
             topn=topn,
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
+            prompt_template=rerank_prompt_template,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
@@ -92,6 +95,7 @@ def get_default_output_path(
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
     rerank_reasoning_effort: str | None = None,
+    rerank_prompt_template: str = "default",
 ) -> str:
     suffix = f"_{rank_func}_top{topn}"
     if rerank:
@@ -100,6 +104,8 @@ def get_default_output_path(
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
         if rerank_reasoning_effort:
             suffix += f"_reasoning{rerank_reasoning_effort}"
+        if rerank_prompt_template != "default":
+            suffix += f"_prompt{rerank_prompt_template}"
     return f"output{suffix}.json"
 
 
@@ -153,8 +159,15 @@ def main():
     parser.add_argument(
         "--rerank_reasoning_effort",
         type=str,
-        choices=["low", "medium", "high"],
+        choices=["none", "low", "medium", "high"],
         help="Reasoning effort for reranking models that support it",
+    )
+    parser.add_argument(
+        "--rerank_prompt_template",
+        type=str,
+        choices=["default", "008_01_simple", "008_02_detailed", "008_03_step_by_step"],
+        default="default",
+        help="System prompt template for LLM reranking",
     )
     parser.add_argument(
         "--rerank_interval",
@@ -200,6 +213,7 @@ def main():
             rerank_input_size=args.rerank_input_size,
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
+            rerank_prompt_template=args.rerank_prompt_template,
             rerank_batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
             topn=args.topn,
@@ -233,6 +247,9 @@ def main():
     results.parameters.rerank_reasoning_effort = (
         args.rerank_reasoning_effort if args.rerank else None
     )
+    results.parameters.rerank_prompt_template = (
+        args.rerank_prompt_template if args.rerank else None
+    )
     results.parameters.rerank_input_size = (
         args.rerank_input_size if args.rerank else None
     )
@@ -250,6 +267,7 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
+            args.rerank_prompt_template,
         )
 
     if not args.no_save:
