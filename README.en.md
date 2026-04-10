@@ -16,8 +16,6 @@ For evaluation results of different methods, please see the [leaderboard](https:
 pip install soramimi-phonetic-search-dataset
 ```
 
-This package uses `pyopenjtalk-plus` for phoneme conversion while keeping the compatible `pyopenjtalk.g2p()` API.
-
 ### Basic Usage
 
 ```python
