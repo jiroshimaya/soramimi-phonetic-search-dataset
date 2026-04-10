@@ -18,6 +18,8 @@
 pip install soramimi-phonetic-search-dataset
 ```
 
+内部の音素変換には `pyopenjtalk-plus` を利用しており、`pyopenjtalk.g2p()` 互換 API を前提にしています。
+
 ### 基本的な使用例
 
 ```python
