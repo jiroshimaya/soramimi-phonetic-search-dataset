@@ -17,6 +17,7 @@
 | LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.561 |
 | LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.524 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.598 |
+| LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.859 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 0.936 |
 
 ## 評価方法
@@ -30,5 +31,3 @@
     2. 正解が100件に含まれない場合は、下位のものと入れ替え
      3. 順序によるバイアスを避けるため、候補をあいうえお順にソート
      4. LLMに候補を渡して上位10件を選択させる
-
-注: `010_02`（gpt-5.4, medium, prompt 010_02 detailed）は OpenAI quota 制限により未計測です。

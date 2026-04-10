@@ -112,10 +112,9 @@ results/
 ├── 008_02_llm_rerank_gpt54_detailed.json
 ├── 008_03_llm_rerank_gpt54_step_by_step.json
 ├── 010_01_llm_rerank_gpt54_medium_simple.json
+├── 010_02_llm_rerank_gpt54_medium_detailed.json
 └── 010_03_llm_rerank_gpt54_medium_step_by_step.json
 ```
-
-現在のリポジトリには `010_02_llm_rerank_gpt54_medium_detailed.json` を含めていません。OpenAI API の quota 制限により、実行途中で停止したためです。スクリプト自体は `methods/010_02_llm_rerank_gpt54_medium_detailed.py` として追加されています。
 
 ## 注意事項
 
