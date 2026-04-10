@@ -1,6 +1,10 @@
+import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 from pydantic import BaseModel
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from reproduce_leaderboard.methods.common import reranker
 
