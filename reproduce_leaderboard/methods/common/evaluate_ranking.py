@@ -2,7 +2,7 @@ import argparse
 import json
 from typing import Callable
 
-from reranker import rerank_by_llm
+from reranker import calculate_token_cost, get_last_token_usage, rerank_by_llm
 
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
@@ -19,6 +19,7 @@ def create_reranking_function(
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
+    rerank_prompt_template: str,
     rerank_batch_size: int,
     rerank_interval: int,
     topn: int,
@@ -33,6 +34,7 @@ def create_reranking_function(
         rerank_input_size: リランクに使用する候補数
         rerank_model_name: リランクに使用するモデル名
         rerank_reasoning_effort: リランクに使用するreasoning effort
+        rerank_prompt_template: リランクに使用するプロンプトテンプレート
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
         topn: 最終的な出力数
@@ -77,6 +79,7 @@ def create_reranking_function(
             topn=topn,
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
+            prompt_template=rerank_prompt_template,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
@@ -92,6 +95,7 @@ def get_default_output_path(
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
     rerank_reasoning_effort: str | None = None,
+    rerank_prompt_template: str = "default",
 ) -> str:
     suffix = f"_{rank_func}_top{topn}"
     if rerank:
@@ -100,6 +104,8 @@ def get_default_output_path(
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
         if rerank_reasoning_effort:
             suffix += f"_reasoning{rerank_reasoning_effort}"
+        if rerank_prompt_template != "default":
+            suffix += f"_prompt{rerank_prompt_template}"
     return f"output{suffix}.json"
 
 
@@ -153,8 +159,15 @@ def main():
     parser.add_argument(
         "--rerank_reasoning_effort",
         type=str,
-        choices=["low", "medium", "high"],
+        choices=["none", "low", "medium", "high"],
         help="Reasoning effort for reranking models that support it",
+    )
+    parser.add_argument(
+        "--rerank_prompt_template",
+        type=str,
+        choices=["default", "008_01_simple", "008_02_detailed", "008_03_step_by_step"],
+        default="default",
+        help="System prompt template for LLM reranking",
     )
     parser.add_argument(
         "--rerank_interval",
@@ -200,6 +213,7 @@ def main():
             rerank_input_size=args.rerank_input_size,
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
+            rerank_prompt_template=args.rerank_prompt_template,
             rerank_batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
             topn=args.topn,
@@ -233,9 +247,23 @@ def main():
     results.parameters.rerank_reasoning_effort = (
         args.rerank_reasoning_effort if args.rerank else None
     )
+    results.parameters.rerank_prompt_template = (
+        args.rerank_prompt_template if args.rerank else None
+    )
     results.parameters.rerank_input_size = (
         args.rerank_input_size if args.rerank else None
     )
+    if args.rerank:
+        token_usage = get_last_token_usage()
+        token_cost = calculate_token_cost(args.rerank_model_name, token_usage)
+        results.metrics.rerank_input_tokens = token_usage.input_tokens
+        results.metrics.rerank_output_tokens = token_usage.output_tokens
+        results.metrics.rerank_reasoning_tokens = token_usage.reasoning_tokens
+        results.metrics.rerank_total_tokens = token_usage.total_tokens
+        results.metrics.rerank_input_cost = token_cost.input_cost
+        results.metrics.rerank_output_cost = token_cost.output_cost
+        results.metrics.rerank_reasoning_cost = token_cost.reasoning_cost
+        results.metrics.rerank_total_cost = token_cost.total_cost
 
     print("Recall: ", results.metrics.recall)
     print("Execution time: ", results.metrics.execution_time)
@@ -250,6 +278,7 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
+            args.rerank_prompt_template,
         )
 
     if not args.no_save:

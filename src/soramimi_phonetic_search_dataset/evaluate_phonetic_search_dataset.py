@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Type
 
@@ -14,6 +15,37 @@ from pydantic import BaseModel
 from tqdm import tqdm
 
 from soramimi_phonetic_search_dataset.schemas import PhoneticSearchDataset
+
+
+@dataclass
+class TokenUsage:
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+
+
+_last_token_usage = TokenUsage()
+
+
+def reset_token_usage() -> None:
+    global _last_token_usage
+    _last_token_usage = TokenUsage()
+
+
+def accumulate_token_usage(response: Any) -> None:
+    usage = getattr(response, "usage", None)
+    if usage is None:
+        return
+
+    completion_details = getattr(usage, "completion_tokens_details", None)
+    reasoning_tokens = getattr(completion_details, "reasoning_tokens", 0) or 0
+
+    _last_token_usage.prompt_tokens += getattr(usage, "prompt_tokens", 0) or 0
+    _last_token_usage.completion_tokens += getattr(usage, "completion_tokens", 0) or 0
+    _last_token_usage.reasoning_tokens += reasoning_tokens
+    _last_token_usage.total_tokens += getattr(usage, "total_tokens", 0) or 0
+
 
 dotenv.load_dotenv()
 
@@ -132,18 +164,31 @@ def get_structured_outputs(
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
 ) -> list[BaseModel]:
+    reset_token_usage()
     is_gpt5 = model_name.startswith("gpt-5")
+    normalized_reasoning_effort = (
+        None if reasoning_effort in (None, "none") else reasoning_effort
+    )
+
+    def get_gpt5_max_completion_tokens(*, is_fallback: bool = False) -> int:
+        if normalized_reasoning_effort == "medium":
+            return max(max_tokens, 24000 if is_fallback else 16000)
+        if normalized_reasoning_effort == "high":
+            return max(max_tokens, 32000 if is_fallback else 24000)
+        return max(max_tokens, 4000) if is_fallback else max_tokens
 
     completion_kwargs: dict[str, Any] = {}
     if is_gpt5:
-        completion_kwargs["max_completion_tokens"] = max_tokens
-        if reasoning_effort is not None:
-            completion_kwargs["extra_body"] = {"reasoning_effort": reasoning_effort}
+        completion_kwargs["max_completion_tokens"] = get_gpt5_max_completion_tokens()
+        if normalized_reasoning_effort is not None:
+            completion_kwargs["extra_body"] = {
+                "reasoning_effort": normalized_reasoning_effort
+            }
     else:
         completion_kwargs["temperature"] = temperature
         completion_kwargs["max_tokens"] = max_tokens
-        if reasoning_effort is not None:
-            completion_kwargs["reasoning_effort"] = reasoning_effort
+        if normalized_reasoning_effort is not None:
+            completion_kwargs["reasoning_effort"] = normalized_reasoning_effort
 
     def parse_response(response: Any) -> BaseModel:
         if not hasattr(response, "choices"):
@@ -164,17 +209,21 @@ def get_structured_outputs(
     parsed_responses = []
     for message, response in zip(messages, raw_responses):
         try:
+            accumulate_token_usage(response)
             parsed_responses.append(parse_response(response))
         except (TypeError, ValueError):
             fallback_kwargs = completion_kwargs.copy()
             if is_gpt5:
-                fallback_kwargs["max_completion_tokens"] = max(max_tokens, 4000)
+                fallback_kwargs["max_completion_tokens"] = (
+                    get_gpt5_max_completion_tokens(is_fallback=True)
+                )
             fallback_response = completion(
                 model=model_name,
                 messages=message,
                 response_format=response_format,
                 **fallback_kwargs,
             )
+            accumulate_token_usage(fallback_response)
             parsed_responses.append(parse_response(fallback_response))
     return parsed_responses
 

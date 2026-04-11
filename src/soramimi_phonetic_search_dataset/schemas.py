@@ -33,6 +33,14 @@ class PhoneticSearchResult:
 class PhoneticSearchMetrics:
     recall: float
     execution_time: float
+    rerank_input_tokens: int | None = None
+    rerank_output_tokens: int | None = None
+    rerank_reasoning_tokens: int | None = None
+    rerank_total_tokens: int | None = None
+    rerank_input_cost: float | None = None
+    rerank_output_cost: float | None = None
+    rerank_reasoning_cost: float | None = None
+    rerank_total_cost: float | None = None
 
 
 @dataclass
@@ -43,6 +51,7 @@ class PhoneticSearchParameters:
     rerank: bool = False
     rerank_model_name: str | None = None
     rerank_reasoning_effort: str | None = None
+    rerank_prompt_template: str | None = None
     rerank_input_size: int | None = None
     execution_timestamp: str | None = None
 

@@ -13,6 +13,12 @@
 | LLM Rerank (gemini-2.0-flash) | 0.496 |
 | LLM Rerank (gpt-4.5-preview) | 0.583 |
 | LLM Rerank (gpt-5.4) | 0.573 |
+| LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.520 |
+| LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.561 |
+| LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.524 |
+| LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.598 |
+| LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.859 |
+| LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 0.936 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
@@ -23,5 +29,5 @@
   - LLM Rerank: 以下の手順でリランクを行う
     1. Vowel Consonant EditDistance (vowel_ratio=0.5) で上位100件を取得
     2. 正解が100件に含まれない場合は、下位のものと入れ替え
-    3. 順序によるバイアスを避けるため、候補をあいうえお順にソート
-    4. LLMに候補を渡して上位10件を選択させる
+     3. 順序によるバイアスを避けるため、候補をあいうえお順にソート
+     4. LLMに候補を渡して上位10件を選択させる
