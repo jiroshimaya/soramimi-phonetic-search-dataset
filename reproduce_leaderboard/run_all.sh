@@ -47,4 +47,7 @@ uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py
 echo "=== LLM Rerank (gpt-5.4, reasoning medium, prompt 010_03 step-by-step) ==="
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py
 
+echo "=== LLM Rerank (gpt-5.1, reasoning medium, prompt 011_03 step-by-step) ==="
+uv run methods/011_03_llm_rerank_gpt51_medium_step_by_step.py
+
 echo "Done!"
