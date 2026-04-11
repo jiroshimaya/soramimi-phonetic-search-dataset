@@ -53,7 +53,12 @@ def test_get_structured_outputs_passes_reasoning_effort_for_gpt5(monkeypatch):
         reasoning_tokens=7,
         total_tokens=30,
     )
-    assert reranker.calculate_token_cost("gpt-5.4", reranker.get_last_token_usage()).total_cost > 0
+    assert (
+        reranker.calculate_token_cost(
+            "gpt-5.4", reranker.get_last_token_usage()
+        ).total_cost
+        > 0
+    )
 
 
 def test_get_structured_outputs_omits_reasoning_effort_when_unspecified(monkeypatch):
@@ -144,7 +149,10 @@ def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
 def test_get_gpt5_max_completion_tokens_scales_with_reasoning_effort():
     assert reranker.get_gpt5_max_completion_tokens(1000, None) == 1000
     assert reranker.get_gpt5_max_completion_tokens(1000, "medium") == 16000
-    assert reranker.get_gpt5_max_completion_tokens(1000, "medium", is_fallback=True) == 24000
+    assert (
+        reranker.get_gpt5_max_completion_tokens(1000, "medium", is_fallback=True)
+        == 24000
+    )
 
 
 def test_token_usage_exposes_output_tokens():
