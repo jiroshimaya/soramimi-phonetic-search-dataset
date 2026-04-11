@@ -42,11 +42,10 @@ def accumulate_token_usage(response: Any) -> None:
     reasoning_tokens = getattr(completion_details, "reasoning_tokens", 0) or 0
 
     _last_token_usage.prompt_tokens += getattr(usage, "prompt_tokens", 0) or 0
-    _last_token_usage.completion_tokens += (
-        getattr(usage, "completion_tokens", 0) or 0
-    )
+    _last_token_usage.completion_tokens += getattr(usage, "completion_tokens", 0) or 0
     _last_token_usage.reasoning_tokens += reasoning_tokens
     _last_token_usage.total_tokens += getattr(usage, "total_tokens", 0) or 0
+
 
 dotenv.load_dotenv()
 
