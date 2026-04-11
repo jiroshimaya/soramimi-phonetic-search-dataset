@@ -1,0 +1,28 @@
+{
+  "experiment_id": "010_01_medium_simple_sample10",
+  "estimate": true,
+  "based_on_result_file": "010_01_llm_rerank_gpt54_medium_simple.json",
+  "note": "先頭10件のクエリで計測した token/cost を 150 件全体に線形外挿した試算値です。full run の実測 token/cost ではありません。",
+  "sample": {
+    "queries": 10,
+    "input_tokens": 928,
+    "output_tokens": 72,
+    "reasoning_tokens": 2735,
+    "total_tokens": 3735,
+    "input_cost": 0.00232,
+    "output_cost": 0.00108,
+    "reasoning_cost": 0.041025,
+    "total_cost": 0.044425
+  },
+  "estimate_for_full_dataset": {
+    "queries": 150,
+    "input_tokens": 13920,
+    "output_tokens": 1080,
+    "reasoning_tokens": 41025,
+    "total_tokens": 56025,
+    "input_cost": 0.0348,
+    "output_cost": 0.0162,
+    "reasoning_cost": 0.615375,
+    "total_cost": 0.666375
+  }
+}

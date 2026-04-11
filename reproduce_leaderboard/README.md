@@ -112,9 +112,13 @@ results/
 ├── 008_02_llm_rerank_gpt54_detailed.json
 ├── 008_03_llm_rerank_gpt54_step_by_step.json
 ├── 010_01_llm_rerank_gpt54_medium_simple.json
+├── 010_01_llm_rerank_gpt54_medium_simple_cost_estimate.json
 ├── 010_02_llm_rerank_gpt54_medium_detailed.json
-└── 010_03_llm_rerank_gpt54_medium_step_by_step.json
+├── 010_03_llm_rerank_gpt54_medium_step_by_step.json
+└── 010_03_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
 ```
+
+`*_cost_estimate.json` は、先頭10件で計測した token/cost を全150件へ線形外挿した**試算**です。full run の実測値ではありません。
 
 ## 注意事項
 
