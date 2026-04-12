@@ -71,6 +71,12 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_m
 # GPT-5.4で reasoning effort none と prompt variant を指定
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed
 
+# OpenAI Batch API で submit（結果はまだ出ない）
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action submit
+
+# OpenAI Batch API の完了後に retrieve して結果 JSON を生成
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action retrieve
+
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
 
@@ -89,6 +95,9 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_model_name`: リランクに使用するモデル名
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
 - `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step）
+- `--rerank_backend`: リランク backend（litellm, openai_batch）
+- `--rerank_batch_action`: OpenAI Batch API の操作（submit, retrieve）
+- `--rerank_batch_state_path`: OpenAI Batch API の state JSON のパス
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
 - `--no_save`: 評価結果を保存しない
@@ -124,8 +133,10 @@ results/
 
 - 評価には`baseball.json`データセットが使用されます。
 - 各ランキング関数のパラメータは必要に応じて調整できます。
+- `openai_batch` backend は OpenAI 系モデル専用です。`submit` 実行時には `*_openai_batch_state.json` と request JSONL が保存され、`retrieve` 実行時に batch の output file を取得して最終結果 JSON を生成します。
+- OpenAI Batch API は最大24時間の非同期実行です。`submit` 直後には Recall@10 は計算されません。
 - LLMリランクを使用する場合は、以下の環境変数を設定してください：
-  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4）を使用する場合：
+  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4 など）を使用する場合：
     - `OPENAI_API_KEY`: OpenAIのAPIキー
   - Gemini API（gemini-2.0-flash）を使用する場合：
     - `GEMINI_API_KEY`: Google Cloud PlatformのAPIキー
