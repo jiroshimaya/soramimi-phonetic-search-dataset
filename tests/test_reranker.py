@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -201,23 +202,36 @@ def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
         model_name="gpt-5.4",
         messages=[[{"role": "user", "content": "hello"}]],
         custom_ids=["rerank-0000"],
+        response_format=SampleResponse,
         reasoning_effort="medium",
     )
 
-    assert requests == [
-        {
-            "custom_id": "rerank-0000",
-            "method": "POST",
-            "url": "/v1/chat/completions",
-            "body": {
-                "model": "gpt-5.4",
-                "messages": [{"role": "user", "content": "hello"}],
-                "max_completion_tokens": 16000,
-                "reasoning_effort": "medium",
-                "response_format": {"type": "json_object"},
-            },
-        }
-    ]
+    assert requests[0]["custom_id"] == "rerank-0000"
+    assert requests[0]["method"] == "POST"
+    assert requests[0]["url"] == "/v1/chat/completions"
+    assert requests[0]["body"]["model"] == "gpt-5.4"
+    assert requests[0]["body"]["max_completion_tokens"] == 16000
+    assert requests[0]["body"]["reasoning_effort"] == "medium"
+    assert requests[0]["body"]["messages"] == [{"role": "user", "content": "hello"}]
+    assert requests[0]["body"]["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "SampleResponse",
+            "strict": True,
+            "schema": SampleResponse.model_json_schema(),
+        },
+    }
+
+
+def test_build_openai_json_schema_response_format_uses_pydantic_schema():
+    assert reranker._build_openai_json_schema_response_format(SampleResponse) == {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "SampleResponse",
+            "strict": True,
+            "schema": SampleResponse.model_json_schema(),
+        },
+    }
 
 
 def test_submit_openai_batch_rerank_job_writes_state_and_requests(tmp_path):
@@ -245,6 +259,7 @@ def test_submit_openai_batch_rerank_job_writes_state_and_requests(tmp_path):
         topn=10,
         model_name="gpt-5.4",
         prompt_template="008_03_step_by_step",
+        response_format=SampleResponse,
         state_path=str(state_path),
         output_file_path=str(tmp_path / "results.json"),
         reasoning_effort="medium",
@@ -358,6 +373,87 @@ def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_p
     assert result.reranked_wordlists == [["カケイ", "アベ"]]
     assert result.batch_status == "completed"
     assert result.execution_time == 60.0
+
+
+def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
+    state_path = tmp_path / "rerank_state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "backend": "openai_batch",
+                "endpoint": "/v1/chat/completions",
+                "batch_id": "batch-123",
+                "batch_status": "validating",
+                "input_file_id": "file-input",
+                "request_file_path": str(tmp_path / "requests.jsonl"),
+                "output_file_path": str(tmp_path / "results.json"),
+                "result_file_path": None,
+                "error_file_path": None,
+                "submitted_at": "2026-04-12T00:00:00",
+                "parameters": {
+                    "topn": 10,
+                    "rerank_model_name": "gpt-5.4",
+                    "rerank_reasoning_effort": "medium",
+                    "rerank_prompt_template": "008_03_step_by_step",
+                },
+                "items": [
+                    {
+                        "custom_id": "rerank-0000",
+                        "query": "アケ",
+                        "candidate_words": ["アベ", "カケイ"],
+                        "positive_words": ["アベ"],
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    error_row = {
+        "custom_id": "rerank-0000",
+        "response": {
+            "status_code": 400,
+            "body": {
+                "error": {
+                    "message": "schema validation failed for reranked",
+                }
+            },
+        },
+        "error": None,
+    }
+
+    class FakeFiles:
+        def content(self, file_id):
+            assert file_id == "file-error"
+            return SimpleNamespace(
+                content=(json.dumps(error_row, ensure_ascii=False) + "\n").encode("utf-8")
+            )
+
+    class FakeBatches:
+        def retrieve(self, batch_id):
+            assert batch_id == "batch-123"
+            return SimpleNamespace(
+                id=batch_id,
+                status="completed",
+                output_file_id=None,
+                error_file_id="file-error",
+                created_at=100,
+                in_progress_at=110,
+                completed_at=170,
+                request_counts={"total": 1, "completed": 0, "failed": 1},
+                usage=None,
+            )
+
+    fake_client = SimpleNamespace(files=FakeFiles(), batches=FakeBatches())
+
+    with pytest.raises(RuntimeError, match="sample_errors=.*schema validation failed"):
+        reranker.retrieve_openai_batch_rerank_job(
+            state_path=str(state_path),
+            response_format=SampleResponse,
+            client=fake_client,
+        )
     assert reranker.get_last_token_usage() == reranker.TokenUsage(
         input_tokens=11,
         completion_tokens=22,
