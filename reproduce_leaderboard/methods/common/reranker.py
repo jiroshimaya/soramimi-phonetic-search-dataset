@@ -353,14 +353,34 @@ def _build_openai_chat_completion_body(
 def _build_openai_json_schema_response_format(
     response_format: Type[BaseModel],
 ) -> dict[str, Any]:
+    schema = _normalize_openai_json_schema(response_format.model_json_schema())
     return {
         "type": "json_schema",
         "json_schema": {
             "name": response_format.__name__,
             "strict": True,
-            "schema": response_format.model_json_schema(),
+            "schema": schema,
         },
     }
+
+
+def _normalize_openai_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    normalized: dict[str, Any] = {}
+    for key, value in schema.items():
+        if isinstance(value, dict):
+            normalized[key] = _normalize_openai_json_schema(value)
+        elif isinstance(value, list):
+            normalized[key] = [
+                _normalize_openai_json_schema(item) if isinstance(item, dict) else item
+                for item in value
+            ]
+        else:
+            normalized[key] = value
+
+    if normalized.get("type") == "object" and "additionalProperties" not in normalized:
+        normalized["additionalProperties"] = False
+
+    return normalized
 
 
 def build_openai_batch_requests(
@@ -528,6 +548,20 @@ def _get_batch_execution_time(batch: Any) -> float:
     return max(float(completed_at) - float(started_at), 0.0)
 
 
+def _jsonify_openai_value(value: Any) -> Any:
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    if isinstance(value, dict):
+        return {key: _jsonify_openai_value(inner) for key, inner in value.items()}
+    if isinstance(value, list):
+        return [_jsonify_openai_value(item) for item in value]
+    if hasattr(value, "model_dump"):
+        return _jsonify_openai_value(value.model_dump())
+    if hasattr(value, "__dict__"):
+        return _jsonify_openai_value(vars(value))
+    return value
+
+
 def _summarize_batch_errors(error_file_path: str | None, *, limit: int = 3) -> str | None:
     if error_file_path is None:
         return None
@@ -563,7 +597,7 @@ def retrieve_openai_batch_rerank_job(
     state["batch_status"] = _get_value(batch, "status")
     state["output_file_id"] = _get_value(batch, "output_file_id")
     state["error_file_id"] = _get_value(batch, "error_file_id")
-    state["request_counts"] = _get_value(batch, "request_counts")
+    state["request_counts"] = _jsonify_openai_value(_get_value(batch, "request_counts"))
 
     if state["output_file_id"]:
         result_file_path = state_file_path.with_suffix(".results.jsonl")
