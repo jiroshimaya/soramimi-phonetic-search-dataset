@@ -1,4 +1,5 @@
 import sys
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -193,3 +194,173 @@ def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
 
     assert "以下の手順で判断してください。" in captured_messages[0][0]["content"]
     assert reranked == [["カケイ", "アベ"]]
+
+
+def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
+    requests = reranker.build_openai_batch_requests(
+        model_name="gpt-5.4",
+        messages=[[{"role": "user", "content": "hello"}]],
+        custom_ids=["rerank-0000"],
+        reasoning_effort="medium",
+    )
+
+    assert requests == [
+        {
+            "custom_id": "rerank-0000",
+            "method": "POST",
+            "url": "/v1/chat/completions",
+            "body": {
+                "model": "gpt-5.4",
+                "messages": [{"role": "user", "content": "hello"}],
+                "max_completion_tokens": 16000,
+                "reasoning_effort": "medium",
+                "response_format": {"type": "json_object"},
+            },
+        }
+    ]
+
+
+def test_submit_openai_batch_rerank_job_writes_state_and_requests(tmp_path):
+    class FakeFiles:
+        def create(self, *, file, purpose):
+            assert purpose == "batch"
+            assert file.read()
+            file.seek(0)
+            return SimpleNamespace(id="file-input")
+
+    class FakeBatches:
+        def create(self, *, input_file_id, endpoint, completion_window):
+            assert input_file_id == "file-input"
+            assert endpoint == "/v1/chat/completions"
+            assert completion_window == "24h"
+            return SimpleNamespace(id="batch-123", status="validating")
+
+    fake_client = SimpleNamespace(files=FakeFiles(), batches=FakeBatches())
+    state_path = tmp_path / "rerank_state.json"
+
+    state = reranker.submit_openai_batch_rerank_job(
+        query_texts=["アケ"],
+        wordlist_texts=[["アベ", "カケイ"]],
+        positive_texts=[["アベ"]],
+        topn=10,
+        model_name="gpt-5.4",
+        prompt_template="008_03_step_by_step",
+        state_path=str(state_path),
+        output_file_path=str(tmp_path / "results.json"),
+        reasoning_effort="medium",
+        client=fake_client,
+    )
+
+    assert state["batch_id"] == "batch-123"
+    assert state_path.exists()
+    request_path = state_path.with_suffix(".requests.jsonl")
+    assert request_path.exists()
+    saved_state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert saved_state["parameters"]["rerank_model_name"] == "gpt-5.4"
+    assert saved_state["items"][0]["candidate_words"] == ["アベ", "カケイ"]
+    request_row = json.loads(request_path.read_text(encoding="utf-8").strip())
+    assert request_row["custom_id"] == "rerank-0000"
+
+
+def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_path):
+    state_path = tmp_path / "rerank_state.json"
+    state_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "backend": "openai_batch",
+                "endpoint": "/v1/chat/completions",
+                "batch_id": "batch-123",
+                "batch_status": "validating",
+                "input_file_id": "file-input",
+                "request_file_path": str(tmp_path / "requests.jsonl"),
+                "output_file_path": str(tmp_path / "results.json"),
+                "result_file_path": None,
+                "error_file_path": None,
+                "submitted_at": "2026-04-12T00:00:00",
+                "parameters": {
+                    "topn": 10,
+                    "rerank_model_name": "gpt-5.4",
+                    "rerank_reasoning_effort": "medium",
+                    "rerank_prompt_template": "008_03_step_by_step",
+                },
+                "items": [
+                    {
+                        "custom_id": "rerank-0000",
+                        "query": "アケ",
+                        "candidate_words": ["アベ", "カケイ"],
+                        "positive_words": ["アベ"],
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    response_row = {
+        "custom_id": "rerank-0000",
+        "response": {
+            "status_code": 200,
+            "body": {
+                "choices": [
+                    {
+                        "message": {
+                            "content": '{"reranked": [1, 0]}',
+                        }
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "total_tokens": 30,
+                    "completion_tokens_details": {"reasoning_tokens": 7},
+                },
+            },
+        },
+    }
+
+    class FakeFiles:
+        def content(self, file_id):
+            assert file_id == "file-output"
+            return SimpleNamespace(
+                content=(json.dumps(response_row, ensure_ascii=False) + "\n").encode("utf-8")
+            )
+
+    class FakeBatches:
+        def retrieve(self, batch_id):
+            assert batch_id == "batch-123"
+            return SimpleNamespace(
+                id=batch_id,
+                status="completed",
+                output_file_id="file-output",
+                error_file_id=None,
+                created_at=100,
+                in_progress_at=110,
+                completed_at=170,
+                request_counts={"total": 1, "completed": 1, "failed": 0},
+                usage=SimpleNamespace(
+                    input_tokens=11,
+                    output_tokens=22,
+                    total_tokens=33,
+                    output_tokens_details=SimpleNamespace(reasoning_tokens=9),
+                ),
+            )
+
+    fake_client = SimpleNamespace(files=FakeFiles(), batches=FakeBatches())
+
+    result = reranker.retrieve_openai_batch_rerank_job(
+        state_path=str(state_path),
+        response_format=SampleResponse,
+        client=fake_client,
+    )
+
+    assert result.reranked_wordlists == [["カケイ", "アベ"]]
+    assert result.batch_status == "completed"
+    assert result.execution_time == 60.0
+    assert reranker.get_last_token_usage() == reranker.TokenUsage(
+        input_tokens=11,
+        completion_tokens=22,
+        reasoning_tokens=9,
+        total_tokens=33,
+    )
