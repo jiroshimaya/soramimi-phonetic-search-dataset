@@ -49,7 +49,9 @@ class PhoneticSearchParameters:
     rank_func: str
     vowel_ratio: float | None = None
     rerank: bool = False
+    rerank_backend: str | None = None
     rerank_model_name: str | None = None
+    rerank_batch_id: str | None = None
     rerank_reasoning_effort: str | None = None
     rerank_prompt_template: str | None = None
     rerank_input_size: int | None = None
