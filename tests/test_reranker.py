@@ -198,6 +198,9 @@ def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
 
 
 def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
+    expected_schema = reranker._normalize_openai_json_schema(
+        SampleResponse.model_json_schema()
+    )
     requests = reranker.build_openai_batch_requests(
         model_name="gpt-5.4",
         messages=[[{"role": "user", "content": "hello"}]],
@@ -218,20 +221,45 @@ def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
         "json_schema": {
             "name": "SampleResponse",
             "strict": True,
-            "schema": SampleResponse.model_json_schema(),
+            "schema": expected_schema,
         },
     }
 
 
 def test_build_openai_json_schema_response_format_uses_pydantic_schema():
+    expected_schema = reranker._normalize_openai_json_schema(
+        SampleResponse.model_json_schema()
+    )
     assert reranker._build_openai_json_schema_response_format(SampleResponse) == {
         "type": "json_schema",
         "json_schema": {
             "name": "SampleResponse",
             "strict": True,
-            "schema": SampleResponse.model_json_schema(),
+            "schema": expected_schema,
         },
     }
+
+
+def test_normalize_openai_json_schema_adds_additional_properties_false():
+    schema = {
+        "type": "object",
+        "properties": {
+            "reranked": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {"index": {"type": "integer"}},
+                },
+            }
+        },
+    }
+
+    normalized = reranker._normalize_openai_json_schema(schema)
+
+    assert normalized["additionalProperties"] is False
+    assert (
+        normalized["properties"]["reranked"]["items"]["additionalProperties"] is False
+    )
 
 
 def test_submit_openai_batch_rerank_job_writes_state_and_requests(tmp_path):
