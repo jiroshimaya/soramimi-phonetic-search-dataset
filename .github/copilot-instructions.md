@@ -3,9 +3,11 @@
 - コーディング時、mainブランチの直接編集は避けること
   - git worktreeで作業用ブランチを`../worktrees/[リポジトリ名]`に作成し作業すること
   - 不要になったworktreeブランチはこまめに削除すること
+  - 作業は原則pushやPR作成まで終わらせてください。
 - uvを使えるところ（pythonパッケージの追加、削除、実行など）はuvを使ってください。
 - GitHub CLI（gh）を使用してください。
-- 作業は原則pushやPR作成まで終わらせてください。
+- OpenAI APIを使いたい場合は`source ~/.bashexports`などを実行し、OPENAI_API_KEYを環境変数に入れてください。
+
 
 ## ADR
 
