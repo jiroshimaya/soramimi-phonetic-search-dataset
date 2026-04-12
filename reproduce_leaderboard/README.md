@@ -46,6 +46,7 @@ uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5
 uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
 uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
+uv run methods/011_03_llm_rerank_gpt51_medium_step_by_step.py  # LLMリランク (gpt-5.1, reasoning medium, prompt 011_03 step-by-step)
 ```
 
 ### カスタム評価の実行
@@ -115,7 +116,8 @@ results/
 ├── 010_01_llm_rerank_gpt54_medium_simple_cost_estimate.json
 ├── 010_02_llm_rerank_gpt54_medium_detailed.json
 ├── 010_03_llm_rerank_gpt54_medium_step_by_step.json
-└── 010_03_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
+├── 010_03_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
+└── 011_03_llm_rerank_gpt51_medium_step_by_step.json
 ```
 
 `*_cost_estimate.json` は、先頭10件で計測した token/cost を全150件へ線形外挿した**試算**です。full run の実測値ではありません。
@@ -125,7 +127,7 @@ results/
 - 評価には`baseball.json`データセットが使用されます。
 - 各ランキング関数のパラメータは必要に応じて調整できます。
 - LLMリランクを使用する場合は、以下の環境変数を設定してください：
-  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4）を使用する場合：
+  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4, gpt-5.1）を使用する場合：
     - `OPENAI_API_KEY`: OpenAIのAPIキー
   - Gemini API（gemini-2.0-flash）を使用する場合：
     - `GEMINI_API_KEY`: Google Cloud PlatformのAPIキー
