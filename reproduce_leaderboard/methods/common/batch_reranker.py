@@ -110,6 +110,7 @@ def submit_openai_batch_evaluation(
         topn=topn,
         model_name=model_name,
         prompt_template=prompt_template,
+        response_format=RerankedWordlist,
         state_path=state_path,
         output_file_path=output_file_path,
         reasoning_effort=reasoning_effort,
