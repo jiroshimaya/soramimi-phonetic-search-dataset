@@ -326,7 +326,7 @@ def _build_openai_chat_completion_body(
     temperature: float,
     max_tokens: int,
     reasoning_effort: str | None,
-    json_mode: bool,
+    response_format: Type[BaseModel] | None,
 ) -> dict[str, Any]:
     body: dict[str, Any] = {
         "model": model_name,
@@ -343,9 +343,24 @@ def _build_openai_chat_completion_body(
         body["max_tokens"] = max_tokens
     if normalized_reasoning_effort is not None:
         body["reasoning_effort"] = normalized_reasoning_effort
-    if json_mode:
-        body["response_format"] = {"type": "json_object"}
+    if response_format is not None:
+        body["response_format"] = _build_openai_json_schema_response_format(
+            response_format
+        )
     return body
+
+
+def _build_openai_json_schema_response_format(
+    response_format: Type[BaseModel],
+) -> dict[str, Any]:
+    return {
+        "type": "json_schema",
+        "json_schema": {
+            "name": response_format.__name__,
+            "strict": True,
+            "schema": response_format.model_json_schema(),
+        },
+    }
 
 
 def build_openai_batch_requests(
@@ -353,6 +368,7 @@ def build_openai_batch_requests(
     model_name: str,
     messages: list[list[dict[str, str]]],
     custom_ids: list[str],
+    response_format: Type[BaseModel],
     temperature: float = 0.0,
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
@@ -375,7 +391,7 @@ def build_openai_batch_requests(
                     temperature=temperature,
                     max_tokens=max_tokens,
                     reasoning_effort=reasoning_effort,
-                    json_mode=True,
+                    response_format=response_format,
                 ),
             }
         )
@@ -412,6 +428,7 @@ def submit_openai_batch_rerank_job(
     topn: int,
     model_name: str,
     prompt_template: str,
+    response_format: Type[BaseModel],
     state_path: str,
     output_file_path: str,
     reasoning_effort: str | None = None,
@@ -443,6 +460,7 @@ def submit_openai_batch_rerank_job(
         model_name=model_name,
         messages=messages,
         custom_ids=custom_ids,
+        response_format=response_format,
         temperature=temperature,
         max_tokens=max_tokens,
         reasoning_effort=reasoning_effort,
@@ -510,6 +528,26 @@ def _get_batch_execution_time(batch: Any) -> float:
     return max(float(completed_at) - float(started_at), 0.0)
 
 
+def _summarize_batch_errors(error_file_path: str | None, *, limit: int = 3) -> str | None:
+    if error_file_path is None:
+        return None
+
+    rows = _read_jsonl(Path(error_file_path))
+    summaries = []
+    for row in rows[:limit]:
+        custom_id = row.get("custom_id", "unknown")
+        response = row.get("response")
+        response_error = _get_value(_get_value(response, "body"), "error")
+        error = row.get("error")
+        message = _get_value(response_error, "message") or _get_value(error, "message")
+        if message is not None:
+            summaries.append(f"{custom_id}: {message}")
+
+    if not summaries:
+        return None
+    return "; ".join(summaries)
+
+
 def retrieve_openai_batch_rerank_job(
     *,
     state_path: str,
@@ -548,7 +586,17 @@ def retrieve_openai_batch_rerank_job(
         )
 
     if not state.get("result_file_path"):
-        raise RuntimeError(f"OpenAI batch completed without result file: {state['batch_id']}")
+        error_summary = _summarize_batch_errors(state.get("error_file_path"))
+        error_context = (
+            f" error_file_path={state.get('error_file_path')}"
+            if state.get("error_file_path")
+            else ""
+        )
+        if error_summary:
+            error_context += f" sample_errors={error_summary}"
+        raise RuntimeError(
+            f"OpenAI batch completed without result file: {state['batch_id']}{error_context}"
+        )
 
     result_rows = _read_jsonl(Path(state["result_file_path"]))
     row_by_custom_id = {row["custom_id"]: row for row in result_rows}
