@@ -4,6 +4,7 @@ from typing import Callable
 
 from soramimi_phonetic_search_dataset.dataset import load_default_dataset
 from soramimi_phonetic_search_dataset.schemas import (
+    PhoneticSearchDataset,
     PhoneticSearchMetrics,
     PhoneticSearchParameters,
     PhoneticSearchResult,
@@ -41,6 +42,7 @@ def calculate_recall(
 def evaluate_ranking_function_with_details(
     ranking_func: Callable[[list[str], list[str]], list[list[str]]],
     topn: int = 10,
+    dataset: PhoneticSearchDataset | None = None,
 ) -> PhoneticSearchResults:
     """
     ランキング関数の評価を行う
@@ -53,8 +55,8 @@ def evaluate_ranking_function_with_details(
     Returns:
         PhoneticSearchResults: 評価結果
     """
-    # デフォルトのデータセットを読み込む
-    dataset = load_default_dataset()
+    if dataset is None:
+        dataset = load_default_dataset()
 
     # クエリと正解を取得
     query_texts = [query.query for query in dataset.queries]
@@ -102,5 +104,8 @@ def evaluate_ranking_function_with_details(
 def evaluate_ranking_function(
     ranking_func: Callable[[list[str], list[str]], list[list[str]]],
     topn: int = 10,
+    dataset: PhoneticSearchDataset | None = None,
 ) -> float:
-    return evaluate_ranking_function_with_details(ranking_func, topn).metrics.recall
+    return evaluate_ranking_function_with_details(
+        ranking_func, topn, dataset=dataset
+    ).metrics.recall
