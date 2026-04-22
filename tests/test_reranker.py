@@ -44,7 +44,7 @@ def test_get_structured_outputs_passes_reasoning_effort_for_gpt5(monkeypatch):
         reasoning_effort="medium",
     )
 
-    assert captured_kwargs["max_completion_tokens"] == 16000
+    assert captured_kwargs["max_completion_tokens"] == 24000
     assert captured_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert "max_tokens" not in captured_kwargs
     assert "temperature" not in captured_kwargs
@@ -137,8 +137,8 @@ def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
 
     assert batch_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert completion_kwargs["extra_body"] == {"reasoning_effort": "medium"}
-    assert batch_kwargs["max_completion_tokens"] == 16000
-    assert completion_kwargs["max_completion_tokens"] == 24000
+    assert batch_kwargs["max_completion_tokens"] == 24000
+    assert completion_kwargs["max_completion_tokens"] == 32000
     assert results == [SampleResponse(reranked=[2])]
     assert reranker.get_last_token_usage() == reranker.TokenUsage(
         input_tokens=11,
@@ -150,10 +150,10 @@ def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
 
 def test_get_gpt5_max_completion_tokens_scales_with_reasoning_effort():
     assert reranker.get_gpt5_max_completion_tokens(1000, None) == 1000
-    assert reranker.get_gpt5_max_completion_tokens(1000, "medium") == 16000
+    assert reranker.get_gpt5_max_completion_tokens(1000, "medium") == 24000
     assert (
         reranker.get_gpt5_max_completion_tokens(1000, "medium", is_fallback=True)
-        == 24000
+        == 32000
     )
 
 
@@ -213,7 +213,7 @@ def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
     assert requests[0]["method"] == "POST"
     assert requests[0]["url"] == "/v1/chat/completions"
     assert requests[0]["body"]["model"] == "gpt-5.4"
-    assert requests[0]["body"]["max_completion_tokens"] == 16000
+    assert requests[0]["body"]["max_completion_tokens"] == 24000
     assert requests[0]["body"]["reasoning_effort"] == "medium"
     assert requests[0]["body"]["messages"] == [{"role": "user", "content": "hello"}]
     assert requests[0]["body"]["response_format"] == {

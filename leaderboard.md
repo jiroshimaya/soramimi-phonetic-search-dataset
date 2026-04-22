@@ -19,10 +19,12 @@
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.598 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.859 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 0.936 |
+| LLM Rerank (gpt-5.1, medium, prompt 008_03 step-by-step) | 0.891 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
 - データセット: soramimi-phonetic-search-dataset v0.0
+- `LLM Rerank (gpt-5.1, medium, prompt 008_03 step-by-step)` は OpenAI Batch API の実測値。元の15 batchでは server_error 24件、finish_reason=length / empty content 25件が発生し、追加の recovery も Batch API のみで実施して全150件を回収。
 - パラメータ設定:
   - Vowel Consonant EditDistance: vowel_ratio=0.8
   - KanaSim EditDistance: vowel_ratio=0.8

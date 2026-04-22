@@ -279,9 +279,9 @@ def get_gpt5_max_completion_tokens(
     is_fallback: bool = False,
 ) -> int:
     if reasoning_effort == "medium":
-        return max(max_tokens, 24000 if is_fallback else 16000)
-    if reasoning_effort == "high":
         return max(max_tokens, 32000 if is_fallback else 24000)
+    if reasoning_effort == "high":
+        return max(max_tokens, 40000 if is_fallback else 32000)
     return max(max_tokens, 4000) if is_fallback else max_tokens
 
 

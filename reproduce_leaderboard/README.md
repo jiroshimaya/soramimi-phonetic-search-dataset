@@ -46,7 +46,7 @@ uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5
 uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
 uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
-uv run methods/011_03_llm_rerank_gpt51_medium_step_by_step.py  # LLMリランク (gpt-5.1, reasoning medium, prompt 011_03 step-by-step)
+uv run methods/011_03_llm_rerank_gpt51_medium_step_by_step.py  # LLMリランク (gpt-5.1, reasoning medium, prompt 008_03 step-by-step)
 ```
 
 ### カスタム評価の実行
@@ -130,6 +130,8 @@ results/
 ```
 
 `*_cost_estimate.json` は、先頭10件で計測した token/cost を全150件へ線形外挿した**試算**です。full run の実測値ではありません。
+
+`011_03_llm_rerank_gpt51_medium_step_by_step.json` は OpenAI Batch API の実測値です。metadata に元15 batchと追加 retry batch の ID / usage 集計を記録しています。
 
 ## 注意事項
 
