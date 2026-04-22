@@ -31,6 +31,25 @@ recall = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
 print(f"Recall@10: {recall}")
 ```
 
+If you want a cheaper LLM smoke test, you can use the bundled small dataset, which keeps the original word list and limits evaluation to the first 10 queries.
+
+```python
+from soramimi_phonetic_search_dataset import (
+    evaluate_ranking_function,
+    load_small_dataset,
+)
+
+small_dataset = load_small_dataset()
+recall = evaluate_ranking_function(
+    ranking_func=my_ranking_function,
+    topn=10,
+    dataset=small_dataset,
+)
+print(f"Recall@10 on small dataset: {recall}")
+```
+
+The sample script in this repository also supports `--dataset_size small`.
+
 ### Sample Ranking Functions
 
 The following ranking functions are provided:
