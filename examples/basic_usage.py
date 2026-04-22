@@ -5,6 +5,8 @@ from typing import Callable
 from reproduce_leaderboard.methods.common.reranker import rerank_by_llm
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
+    load_default_dataset,
+    load_small_dataset,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
@@ -72,6 +74,7 @@ def create_reranking_function(
 def get_default_output_path(
     rank_func: str,
     topn: int,
+    dataset_size: str = "default",
     rerank: bool = False,
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
@@ -84,6 +87,8 @@ def get_default_output_path(
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
         if rerank_reasoning_effort:
             suffix += f"_reasoning{rerank_reasoning_effort}"
+    if dataset_size != "default":
+        suffix += f"_dataset{dataset_size}"
     return f"output{suffix}.json"
 
 
@@ -110,6 +115,13 @@ def main():
         type=float,
         default=0.5,
         help="Vowel ratio, which is used only when rank_func is vowel_consonant",
+    )
+    parser.add_argument(
+        "--dataset_size",
+        type=str,
+        choices=["default", "small"],
+        default="default",
+        help="Dataset size: default (150 queries) or small (10 queries)",
     )
     parser.add_argument(
         "--rerank",
@@ -194,10 +206,15 @@ def main():
         def rank_func(q, w):
             return base_rank_func(q, w, **rank_kwargs)
 
+    dataset = (
+        load_small_dataset() if args.dataset_size == "small" else load_default_dataset()
+    )
+
     # 評価を実行
     results = evaluate_ranking_function_with_details(
         ranking_func=rank_func,
         topn=args.topn,
+        dataset=dataset,
     )
 
     # パラメータを設定
@@ -224,6 +241,7 @@ def main():
         output_path = get_default_output_path(
             args.rank_func,
             args.topn,
+            args.dataset_size,
             args.rerank,
             args.rerank_input_size,
             args.rerank_model_name,
