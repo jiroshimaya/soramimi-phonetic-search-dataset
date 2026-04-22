@@ -42,6 +42,14 @@ PROMPT_INSTRUCTIONS = {
     - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
     出力は上位Top N件のインデックスのみ返してください。
     """,
+    "008_05_detailed_romaji_explicit": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
 }
 
 PROMPT_EXAMPLE_SUFFIX = """
@@ -91,6 +99,9 @@ def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
         phonemes = pyopenjtalk.g2p(text)
         phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
         return " ".join(phoneme_text.lower().split())
+    if input_transform == "kana_and_pyopenjtalk_romaji":
+        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
+        return f"{text}（{romaji}）"
     raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
