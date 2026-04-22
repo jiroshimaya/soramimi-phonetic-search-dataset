@@ -16,6 +16,7 @@
 | LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.520 |
 | LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.561 |
 | LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.524 |
+| LLM Rerank (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input) | 0.527 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.598 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.859 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 0.936 |

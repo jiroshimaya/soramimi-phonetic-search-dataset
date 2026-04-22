@@ -52,6 +52,7 @@ class PhoneticSearchParameters:
     rerank_model_name: str | None = None
     rerank_reasoning_effort: str | None = None
     rerank_prompt_template: str | None = None
+    rerank_input_transform: str | None = None
     rerank_input_size: int | None = None
     execution_timestamp: str | None = None
 
