@@ -1,31 +1,33 @@
 # Small Leaderboard
 
-開発者・研究者が手元で試行錯誤しやすいように、**先頭10クエリ**だけで見た軽量版 leaderboard です。
+開発者・研究者が手元で試行錯誤しやすいように、**先頭10クエリ**だけで評価した軽量版 leaderboard です。
 
 - 正式な比較や引用には、リポジトリ直下の [`leaderboard.md`](../leaderboard.md) を使ってください
-- こちらは既存の `reproduce_leaderboard/results/*.json` に入っている各 run の**先頭10件**から Recall@10 を再計算した補助ビューです
+- こちらは **small dataset (`--dataset_size small`)** を使ったスモークテスト寄りの結果です
 - 目立ちすぎないよう、`reproduce_leaderboard/` 配下にのみ置いています
 
-| Method | Recall@10 | Notes |
-|--------|-----------|-------|
-| Mora EditDistance | 0.450 | `results/000_mora.json` の先頭10件 |
-| Phoneme EditDistance | 0.750 | `results/001_phoneme.json` の先頭10件 |
-| Vowel Consonant EditDistance | 0.750 | `results/002_vowel_consonant.json` の先頭10件 |
-| KanaSim EditDistance | 0.650 | `results/003_kanasim.json` の先頭10件 |
-| LLM Rerank (gpt-4o-mini) | 0.500 | `results/004_llm_rerank_gpt4o_mini.json` の先頭10件 |
-| LLM Rerank (gpt-4o) | 0.750 | `results/005_llm_rerank_gpt4o.json` の先頭10件 |
-| LLM Rerank (gemini-2.0-flash) | 0.550 | `results/006_llm_rerank_gemini.json` の先頭10件 |
-| LLM Rerank (gpt-4.5-preview) | 0.750 | `results/007_llm_rerank_gpt45preview.json` の先頭10件 |
-| LLM Rerank (gpt-5.4) | 0.650 | `results/008_llm_rerank_gpt54.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.500 | `results/008_01_llm_rerank_gpt54_simple.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.600 | `results/008_02_llm_rerank_gpt54_detailed.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.600 | `results/008_03_llm_rerank_gpt54_step_by_step.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.750 | `results/010_01_llm_rerank_gpt54_medium_simple.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 1.000 | `results/010_02_llm_rerank_gpt54_medium_detailed.json` の先頭10件 |
-| LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 1.000 | `results/010_03_llm_rerank_gpt54_medium_step_by_step.json` の先頭10件 |
+| Method | Recall@10 | Time (s) | API Cost (USD) | Notes |
+|--------|-----------|----------|----------------|-------|
+| Mora EditDistance | 0.450 | 0.3 | - | 先頭10クエリ |
+| Phoneme EditDistance | 0.750 | 0.6 | - | 先頭10クエリ |
+| Vowel Consonant EditDistance | 0.750 | 0.5 | - | `vowel_ratio=0.8` |
+| KanaSim EditDistance | 0.650 | 1.9 | - | `vowel_ratio=0.8` |
+| LLM Rerank (gpt-4o-mini) | 0.500 | 3.9 | 0.0015 | `gpt-4o-mini` |
+| LLM Rerank (gpt-4o) | 0.650 | 2.4 | 0.0246 | `gpt-4o` |
+| LLM Rerank (gemini-2.0-flash) | 0.550 | - | - | score は `results/006_llm_rerank_gemini.json` の先頭10件から補完 |
+| LLM Rerank (gpt-4.5-preview) | 0.750 | - | - | score は `results/007_llm_rerank_gpt45preview.json` の先頭10件から補完 |
+| LLM Rerank (gpt-5.4) | 0.600 | 3.8 | 0.0272 | default prompt |
+| LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.550 | 5.8 | 0.0254 | `008_01_simple` |
+| LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.450 | 3.7 | 0.0281 | `008_02_detailed` |
+| LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.650 | 3.5 | 0.0312 | `008_03_step_by_step` |
+| LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.650 | 126.0 | 0.6511 | `reasoning_effort=medium` |
+| LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.900 | 230.0 | 0.9312 | `reasoning_effort=medium` |
+| LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 1.000 | 186.4 | 1.0800 | `reasoning_effort=medium` |
 
 ## メモ
 
-- これは **small dataset を新規実行した結果ではなく**、既存の full run 結果を query 単位で先頭10件に切って再集計した値です
-- そのため、Time や API Cost はこの表には載せていません
-- LLM 系は run ごとにゆらぎうるため、`--dataset_size small` で再実行した値と完全一致しない場合があります
+- 実測日時: 2026-04-22
+- API Cost は各 small run の `rerank_total_cost` を丸めた値です
+- Time は `execution_time` の実測値で、ネットワークやプロバイダ状態でぶれます
+- `gemini-2.0-flash` と `gpt-4.5-preview` は small 実測がないため、Recall@10 のみ `results/*.json` の先頭10件から補完しています
+- full leaderboard の `*_cost_estimate.json` は **small での実測から 150 件へ外挿**したものです
