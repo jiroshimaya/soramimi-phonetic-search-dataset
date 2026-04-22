@@ -5,6 +5,7 @@ from typing import Any, Type
 from litellm import cost_per_token
 from litellm import batch_completion, completion
 from pydantic import BaseModel
+import pyopenjtalk
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
@@ -81,6 +82,16 @@ class TokenCost:
 
 
 _last_token_usage = TokenUsage()
+
+
+def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
+    if input_transform == "none":
+        return text
+    if input_transform == "pyopenjtalk_romaji":
+        phonemes = pyopenjtalk.g2p(text)
+        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
+        return " ".join(phoneme_text.lower().split())
+    raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
 def build_system_prompt(prompt_template: str = "default") -> str:
@@ -232,6 +243,7 @@ def rerank_by_llm(
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
     prompt_template: str = "default",
+    input_transform: str = "none",
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
@@ -251,14 +263,20 @@ def rerank_by_llm(
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
-        wordlist_str = "\n".join([f"{i}. {word}" for i, word in enumerate(wordlist)])
+        transformed_query = transform_text_for_rerank(query, input_transform)
+        transformed_wordlist = [
+            transform_text_for_rerank(word, input_transform) for word in wordlist
+        ]
+        wordlist_str = "\n".join(
+            [f"{i}. {word}" for i, word in enumerate(transformed_wordlist)]
+        )
         message = []
         message.append({"role": "system", "content": prompt})
         message.append(
             {
                 "role": "user",
                 "content": user_prompt.format(
-                    query=query, wordlist=wordlist_str, topn=topn
+                    query=transformed_query, wordlist=wordlist_str, topn=topn
                 ),
             }
         )

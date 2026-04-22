@@ -45,6 +45,7 @@ uv run methods/008_llm_rerank_gpt54.py  # LLMリランク (gpt-5.4)
 uv run methods/008_01_llm_rerank_gpt54_simple.py  # LLMリランク (gpt-5.4, prompt 008_01 simple)
 uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed)
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
+uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input)
 uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
 uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
@@ -76,6 +77,9 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_m
 # GPT-5.4で reasoning effort none と prompt variant を指定
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed
 
+# GPT-5.4で pyopenjtalk ローマ字入力を使って rerank
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed --rerank_input_transform pyopenjtalk_romaji
+
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
 
@@ -95,6 +99,7 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_model_name`: リランクに使用するモデル名
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
 - `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step）
+- `--rerank_input_transform`: LLMへ渡す前の query / candidate 変換（none, pyopenjtalk_romaji）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
 - `--no_save`: 評価結果を保存しない
@@ -117,6 +122,7 @@ results/
 ├── 008_01_llm_rerank_gpt54_simple.json
 ├── 008_02_llm_rerank_gpt54_detailed.json
 ├── 008_03_llm_rerank_gpt54_step_by_step.json
+├── 008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.json
 ├── 010_01_llm_rerank_gpt54_medium_simple.json
 ├── 010_01_llm_rerank_gpt54_medium_simple_cost_estimate.json
 ├── 010_02_llm_rerank_gpt54_medium_detailed.json
