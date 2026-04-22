@@ -4,8 +4,10 @@ Soramimi Phonetic Search Dataset package
 
 from .dataset import (
     DEFAULT_DATASET_PATH,
+    SMALL_DATASET_QUERY_COUNT,
     load_default_dataset,
     load_phonetic_search_dataset,
+    load_small_dataset,
 )
 from .evaluate import evaluate_ranking_function, evaluate_ranking_function_with_details
 from .ranking import (
@@ -27,5 +29,7 @@ __all__ = [
     "PhoneticSearchQuery",
     "load_phonetic_search_dataset",
     "load_default_dataset",
+    "load_small_dataset",
     "DEFAULT_DATASET_PATH",
+    "SMALL_DATASET_QUERY_COUNT",
 ]
