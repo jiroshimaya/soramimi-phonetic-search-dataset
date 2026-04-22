@@ -182,14 +182,20 @@ def main():
     parser.add_argument(
         "--rerank_prompt_template",
         type=str,
-        choices=["default", "008_01_simple", "008_02_detailed", "008_03_step_by_step"],
+        choices=[
+            "default",
+            "008_01_simple",
+            "008_02_detailed",
+            "008_03_step_by_step",
+            "008_05_detailed_romaji_explicit",
+        ],
         default="default",
         help="System prompt template for LLM reranking",
     )
     parser.add_argument(
         "--rerank_input_transform",
         type=str,
-        choices=["none", "pyopenjtalk_romaji"],
+        choices=["none", "pyopenjtalk_romaji", "kana_and_pyopenjtalk_romaji"],
         default="none",
         help="Transform query/candidates before reranking",
     )

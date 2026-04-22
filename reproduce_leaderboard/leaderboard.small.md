@@ -20,6 +20,9 @@
 | LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.550 | 5.8 | 0.0254 | `008_01_simple` |
 | LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.450 | 3.7 | 0.0281 | `008_02_detailed` |
 | LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.650 | 3.5 | 0.0312 | `008_03_step_by_step` |
+| LLM Rerank (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input) | 0.650 | 4.0 | 0.0328 | `008_02_detailed` + `pyopenjtalk_romaji` |
+| LLM Rerank (gpt-5.4, prompt 008_05 detailed romaji explicit, pyopenjtalk romaji input) | 0.650 | 3.7 | 0.0334 | `008_05_detailed_romaji_explicit` + `pyopenjtalk_romaji` |
+| LLM Rerank (gpt-5.4, prompt 008_02 detailed, kana+pyopenjtalk romaji input) | 0.750 | 3.5 | 0.0424 | `008_02_detailed` + `kana_and_pyopenjtalk_romaji` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.650 | 126.0 | 0.6511 | `reasoning_effort=medium` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.900 | 230.0 | 0.9312 | `reasoning_effort=medium` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 1.000 | 186.4 | 1.0800 | `reasoning_effort=medium` |

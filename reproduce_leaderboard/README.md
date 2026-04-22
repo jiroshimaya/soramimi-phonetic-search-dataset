@@ -46,6 +46,9 @@ uv run methods/008_01_llm_rerank_gpt54_simple.py  # LLMリランク (gpt-5.4, pr
 uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed)
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
 uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input)
+uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input, small dataset)
+uv run methods/008_05_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_explicit_small.py  # LLMリランク (gpt-5.4, prompt with explicit romaji note, small dataset)
+uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, kana+romaji input, small dataset)
 uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
 uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
@@ -80,6 +83,12 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_m
 # GPT-5.4で pyopenjtalk ローマ字入力を使って rerank
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed --rerank_input_transform pyopenjtalk_romaji
 
+# GPT-5.4でローマ字入力であることを明示した detailed prompt を使って rerank
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_05_detailed_romaji_explicit --rerank_input_transform pyopenjtalk_romaji
+
+# GPT-5.4でカナとローマ字をセットで与えて rerank
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
+
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
 
@@ -98,8 +107,8 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_batch_size`: リランクのバッチサイズ
 - `--rerank_model_name`: リランクに使用するモデル名
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
-- `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step）
-- `--rerank_input_transform`: LLMへ渡す前の query / candidate 変換（none, pyopenjtalk_romaji）
+- `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step, 008_05_detailed_romaji_explicit）
+- `--rerank_input_transform`: LLMへ渡す前の query / candidate 変換（none, pyopenjtalk_romaji, kana_and_pyopenjtalk_romaji）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
 - `--no_save`: 評価結果を保存しない
@@ -133,6 +142,17 @@ results/
 `*_cost_estimate.json` は、先頭10件で計測した token/cost を全150件へ線形外挿した**試算**です。full run の実測値ではありません。
 
 small dataset を使って試した結果は、`results_small/` に保存すると整理しやすいです。リポジトリには small 実測のサンプルとして `leaderboard.small.md` に対応する JSON を配置しています。
+
+### small dataset 向け追加実験
+
+`results_small/` には以下の追加実験も保存します。
+
+```
+results_small/
+├── 008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.json
+├── 008_05_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_explicit.json
+└── 008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.json
+```
 
 ## 注意事項
 
