@@ -12,6 +12,7 @@ dependencies = [
     "jamorasep>=0.0.1",
     "kanasim>=0.0.4",
     "litellm>=1.83.0",
+    "openai>=2.30.0",
     "pyopenjtalk-plus>=0.4.1.post8",
     "python-dotenv>=1.0.1",
     "tqdm>=4.67.1",

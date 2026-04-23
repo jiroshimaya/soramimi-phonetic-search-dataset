@@ -52,6 +52,7 @@ uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji_smal
 uv run methods/010_01_llm_rerank_gpt54_medium_simple.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_01 simple)
 uv run methods/010_02_llm_rerank_gpt54_medium_detailed.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_02 detailed)
 uv run methods/010_03_llm_rerank_gpt54_medium_step_by_step.py  # LLMリランク (gpt-5.4, reasoning medium, prompt 010_03 step-by-step)
+uv run methods/011_03_llm_rerank_gpt51_medium_step_by_step.py  # LLMリランク (gpt-5.1, reasoning medium, prompt 008_03 step-by-step)
 ```
 
 ### カスタム評価の実行
@@ -79,6 +80,12 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_m
 
 # GPT-5.4で reasoning effort none と prompt variant を指定
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed
+
+# OpenAI Batch API で submit（結果はまだ出ない）
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action submit
+
+# OpenAI Batch API の完了後に retrieve して結果 JSON を生成
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action retrieve
 
 # GPT-5.4で pyopenjtalk ローマ字入力を使って rerank
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform pyopenjtalk_romaji
@@ -108,6 +115,9 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_model_name`: リランクに使用するモデル名
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
 - `--rerank_prompt_template`: LLMリランクに使う system prompt（default, simple, detailed, step_by_step, detailed_romaji_explicit）
+- `--rerank_backend`: リランク backend（litellm, openai_batch）
+- `--rerank_batch_action`: OpenAI Batch API の操作（submit, retrieve）
+- `--rerank_batch_state_path`: OpenAI Batch API の state JSON のパス
 - `--rerank_input_transform`: LLMへ渡す前の query / candidate 変換（none, pyopenjtalk_romaji, kana_and_pyopenjtalk_romaji）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
@@ -136,7 +146,8 @@ results/
 ├── 010_01_llm_rerank_gpt54_medium_simple_cost_estimate.json
 ├── 010_02_llm_rerank_gpt54_medium_detailed.json
 ├── 010_03_llm_rerank_gpt54_medium_step_by_step.json
-└── 010_03_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
+├── 010_03_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
+└── 011_03_llm_rerank_gpt51_medium_step_by_step.json
 ```
 
 `*_cost_estimate.json` は、先頭10件で計測した token/cost を全150件へ線形外挿した**試算**です。full run の実測値ではありません。
@@ -154,13 +165,17 @@ results_small/
 └── 008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.json
 ```
 
+`011_03_llm_rerank_gpt51_medium_step_by_step.json` は OpenAI Batch API の実測値を含む結果です。
+
 ## 注意事項
 
 - 評価には`baseball.json`データセットが使用されます。
 - `--dataset_size small` を使うと、同じ単語リストのまま先頭10クエリだけで評価できます。
 - 各ランキング関数のパラメータは必要に応じて調整できます。
+- `openai_batch` backend は OpenAI 系モデル専用です。`submit` 実行時には `*_openai_batch_state.json` と request JSONL が保存され、`retrieve` 実行時に batch の output file を取得して最終結果 JSON を生成します。
+- OpenAI Batch API は最大24時間の非同期実行です。`submit` 直後には Recall@10 は計算されません。
 - LLMリランクを使用する場合は、以下の環境変数を設定してください：
-  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4）を使用する場合：
+  - OpenAI API（gpt-4o-mini, gpt-4o, gpt-4.5-preview, gpt-5.4, gpt-5.1 など）を使用する場合：
     - `OPENAI_API_KEY`: OpenAIのAPIキー
   - Gemini API（gemini-2.0-flash）を使用する場合：
     - `GEMINI_API_KEY`: Google Cloud PlatformのAPIキー

@@ -2,12 +2,17 @@ import argparse
 import json
 from typing import Callable
 
+from batch_reranker import (
+    get_default_batch_state_path,
+    prepare_rerank_candidates,
+    retrieve_openai_batch_evaluation_results,
+    submit_openai_batch_evaluation,
+)
 from reranker import (
     calculate_token_cost,
     get_last_token_usage,
     rerank_by_llm,
 )
-
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
     load_default_dataset,
@@ -61,24 +66,11 @@ def create_reranking_function(
         )
 
         # 上位N件を取得してリランク
-        topk_ranked_wordlists = []
-        for wordlist, positive_text in zip(base_ranked_wordlists, positive_texts):
-            # 上位N件を取得
-            topk = wordlist[:rerank_input_size]
-            # topkに含まれていないpositive_textの数を数える
-            missing_positive_count = sum(
-                1 for text in positive_text if text not in topk
-            )
-            # 含まれていないpositive_textがある場合のみ、低い順位のものを削除
-            if missing_positive_count > 0:
-                topk = topk[:-missing_positive_count]
-                # 含まれていないpositive_textを追加
-                for text in positive_text:
-                    if text not in topk:
-                        topk.append(text)
-            # あいうえお順に並べ替え
-            topk = sorted(topk)
-            topk_ranked_wordlists.append(topk)
+        topk_ranked_wordlists = prepare_rerank_candidates(
+            base_ranked_wordlists,
+            positive_texts,
+            rerank_input_size,
+        )
 
         reranked_wordlists = rerank_by_llm(
             query_texts,
@@ -197,6 +189,25 @@ def main():
         help="System prompt template for LLM reranking",
     )
     parser.add_argument(
+        "--rerank_backend",
+        type=str,
+        choices=["litellm", "openai_batch"],
+        default="litellm",
+        help="Backend for LLM reranking",
+    )
+    parser.add_argument(
+        "--rerank_batch_action",
+        type=str,
+        choices=["submit", "retrieve"],
+        default="submit",
+        help="Action for OpenAI Batch reranking",
+    )
+    parser.add_argument(
+        "--rerank_batch_state_path",
+        type=str,
+        help="Path to the OpenAI Batch state JSON file",
+    )
+    parser.add_argument(
         "--rerank_input_transform",
         type=str,
         choices=["none", "pyopenjtalk_romaji", "kana_and_pyopenjtalk_romaji"],
@@ -235,10 +246,79 @@ def main():
         base_rank_func = rank_by_phoneme_editdistance
         rank_kwargs = {}
 
+    if args.output_file_path:
+        output_path = args.output_file_path
+    else:
+        output_path = get_default_output_path(
+            args.rank_func,
+            args.topn,
+            args.dataset_size,
+            args.rerank,
+            args.rerank_input_size,
+            args.rerank_model_name,
+            args.rerank_reasoning_effort,
+            args.rerank_prompt_template,
+            args.rerank_input_transform,
+        )
+    batch_state_path = args.rerank_batch_state_path or get_default_batch_state_path(
+        output_path
+    )
+
     dataset = (
         load_small_dataset() if args.dataset_size == "small" else load_default_dataset()
     )
 
+    if args.rerank and args.rerank_backend == "openai_batch":
+        query_texts = [query.query for query in dataset.queries]
+        positive_texts = [query.positive for query in dataset.queries]
+
+        if args.rerank_batch_action == "submit":
+            batch_state = submit_openai_batch_evaluation(
+                base_rank_func=base_rank_func,
+                query_texts=query_texts,
+                word_texts=dataset.words,
+                positive_texts=positive_texts,
+                rank_kwargs=rank_kwargs,
+                rerank_input_size=args.rerank_input_size,
+                topn=args.topn,
+                model_name=args.rerank_model_name,
+                prompt_template=args.rerank_prompt_template,
+                input_transform=args.rerank_input_transform,
+                state_path=batch_state_path,
+                output_file_path=output_path,
+                reasoning_effort=args.rerank_reasoning_effort,
+            )
+            print("OpenAI batch submitted: ", batch_state["batch_id"])
+            print("Batch state path: ", batch_state_path)
+            return
+
+        results = retrieve_openai_batch_evaluation_results(
+            state_path=batch_state_path,
+            query_texts=query_texts,
+            positive_texts=positive_texts,
+            rank_func=args.rank_func,
+            vowel_ratio=args.vowel_ratio,
+            topn=args.topn,
+            rerank_input_size=args.rerank_input_size,
+            model_name=args.rerank_model_name,
+            reasoning_effort=args.rerank_reasoning_effort,
+            prompt_template=args.rerank_prompt_template,
+            input_transform=args.rerank_input_transform,
+            backend=args.rerank_backend,
+        )
+
+        print("Recall: ", results.metrics.recall)
+        print("Execution time: ", results.metrics.execution_time)
+        if not args.no_save:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(
+                    results,
+                    f,
+                    ensure_ascii=False,
+                    indent=2,
+                    default=lambda x: x.__dict__,
+                )
+        return
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
         positive_texts = [query.positive for query in dataset.queries]
@@ -293,6 +373,8 @@ def main():
     results.parameters.rerank_input_size = (
         args.rerank_input_size if args.rerank else None
     )
+    results.parameters.rerank_backend = args.rerank_backend if args.rerank else None
+    results.parameters.rerank_batch_id = None
     if args.rerank:
         token_usage = get_last_token_usage()
         token_cost = calculate_token_cost(args.rerank_model_name, token_usage)
@@ -322,7 +404,6 @@ def main():
             args.rerank_prompt_template,
             args.rerank_input_transform,
         )
-
     if not args.no_save:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(
