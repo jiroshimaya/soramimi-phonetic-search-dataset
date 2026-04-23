@@ -20,19 +20,19 @@ PROMPT_INSTRUCTIONS = {
     You need to return only the reranked list of index numbers of the words, no other text.
     You need to return only topn index numbers.
     """,
-    "008_01_simple": """
+    "simple": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     出力は上位Top N件のインデックスのみ返してください。
     """,
-    "008_02_detailed": """
+    "detailed": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     - 子音より母音の一致を優先してください
     - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
     出力は上位Top N件のインデックスのみ返してください。
     """,
-    "008_03_step_by_step": """
+    "step_by_step": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     以下の手順で判断してください。
@@ -42,7 +42,7 @@ PROMPT_INSTRUCTIONS = {
     - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
     出力は上位Top N件のインデックスのみ返してください。
     """,
-    "008_05_detailed_romaji_explicit": """
+    "detailed_romaji_explicit": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
