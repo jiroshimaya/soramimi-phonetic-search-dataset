@@ -2,7 +2,11 @@ import argparse
 import json
 from typing import Callable
 
-from reranker import calculate_token_cost, get_last_token_usage, rerank_by_llm
+from reranker import (
+    calculate_token_cost,
+    get_last_token_usage,
+    rerank_by_llm,
+)
 
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function_with_details,
@@ -184,10 +188,10 @@ def main():
         type=str,
         choices=[
             "default",
-            "008_01_simple",
-            "008_02_detailed",
-            "008_03_step_by_step",
-            "008_05_detailed_romaji_explicit",
+            "simple",
+            "detailed",
+            "step_by_step",
+            "detailed_romaji_explicit",
         ],
         default="default",
         help="System prompt template for LLM reranking",
@@ -217,7 +221,6 @@ def main():
         help="Do not save results to file",
     )
     args = parser.parse_args()
-
     # ベースのランキング関数を選択
     if args.rank_func == "kanasim":
         base_rank_func = rank_by_kanasim

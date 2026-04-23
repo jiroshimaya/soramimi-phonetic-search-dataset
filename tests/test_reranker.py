@@ -167,7 +167,7 @@ def test_token_usage_exposes_output_tokens():
 
 
 def test_build_system_prompt_reuses_example_suffix():
-    prompt = reranker.build_system_prompt("008_02_detailed")
+    prompt = reranker.build_system_prompt("detailed")
 
     assert "子音より母音の一致を優先してください" in prompt
     assert "Example:" in prompt
@@ -203,7 +203,7 @@ def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="008_03_step_by_step",
+        prompt_template="step_by_step",
         rerank_interval=0,
     )
 
@@ -229,7 +229,7 @@ def test_rerank_by_llm_transforms_query_and_candidates_before_prompt(monkeypatch
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="008_02_detailed",
+        prompt_template="detailed",
         input_transform="pyopenjtalk_romaji",
         rerank_interval=0,
     )
@@ -241,7 +241,7 @@ def test_rerank_by_llm_transforms_query_and_candidates_before_prompt(monkeypatch
 
 
 def test_build_system_prompt_supports_romaji_explicit_template():
-    prompt = reranker.build_system_prompt("008_05_detailed_romaji_explicit")
+    prompt = reranker.build_system_prompt("detailed_romaji_explicit")
 
     assert "元のカタカナ表記をローマ字変換したものです" in prompt
     assert "子音より母音の一致を優先してください" in prompt
@@ -265,7 +265,7 @@ def test_rerank_by_llm_supports_kana_and_romaji_pair_input(monkeypatch):
         query_texts=["アウマル"],
         wordlist_texts=[["アニマル", "タクマル"]],
         model_name="gpt-5.4",
-        prompt_template="008_02_detailed",
+        prompt_template="detailed",
         input_transform="kana_and_pyopenjtalk_romaji",
         rerank_interval=0,
     )
