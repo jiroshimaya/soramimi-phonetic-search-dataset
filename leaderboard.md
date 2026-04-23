@@ -20,6 +20,7 @@
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.598 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.859 |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 0.936 |
+| LLM Rerank (gpt-5.1, medium, prompt 008_03 step-by-step) | 0.891 |
 
 ## 評価方法
 - 各手法について、トップ10件の検索結果に対するリコール値を計算
