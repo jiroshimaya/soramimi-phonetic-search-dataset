@@ -38,7 +38,7 @@ def main():
         "--rerank_reasoning_effort",
         "none",
         "--rerank_prompt_template",
-        "008_05_detailed_romaji_explicit",
+        "detailed_romaji_explicit",
         "--rerank_input_transform",
         "pyopenjtalk_romaji",
         "--output_file_path",

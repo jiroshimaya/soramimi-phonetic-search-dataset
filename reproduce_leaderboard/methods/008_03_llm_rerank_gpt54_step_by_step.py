@@ -34,7 +34,7 @@ def main():
         "--rerank_reasoning_effort",
         "none",
         "--rerank_prompt_template",
-        "008_03_step_by_step",
+        "step_by_step",
         "--output_file_path",
         str(output_path),
     ]

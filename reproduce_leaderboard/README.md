@@ -78,16 +78,16 @@ uv run methods/common/evaluate_ranking.py -r kanasim --rerank --rerank_model_nam
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4
 
 # GPT-5.4で reasoning effort none と prompt variant を指定
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed
 
 # GPT-5.4で pyopenjtalk ローマ字入力を使って rerank
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed --rerank_input_transform pyopenjtalk_romaji
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform pyopenjtalk_romaji
 
 # GPT-5.4でローマ字入力であることを明示した detailed prompt を使って rerank
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_05_detailed_romaji_explicit --rerank_input_transform pyopenjtalk_romaji
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed_romaji_explicit --rerank_input_transform pyopenjtalk_romaji
 
 # GPT-5.4でカナとローマ字をセットで与えて rerank
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template 008_02_detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
+uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
 
 # 評価結果の保存先を指定
 uv run methods/common/evaluate_ranking.py -o output.json
@@ -107,7 +107,7 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_batch_size`: リランクのバッチサイズ
 - `--rerank_model_name`: リランクに使用するモデル名
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
-- `--rerank_prompt_template`: LLMリランクに使う system prompt（default, 008_01_simple, 008_02_detailed, 008_03_step_by_step, 008_05_detailed_romaji_explicit）
+- `--rerank_prompt_template`: LLMリランクに使う system prompt（default, simple, detailed, step_by_step, detailed_romaji_explicit）
 - `--rerank_input_transform`: LLMへ渡す前の query / candidate 変換（none, pyopenjtalk_romaji, kana_and_pyopenjtalk_romaji）
 - `--rerank_interval`: リランクのインターバル（秒）
 - `-o`, `--output_file_path`: 出力ファイルのパス
