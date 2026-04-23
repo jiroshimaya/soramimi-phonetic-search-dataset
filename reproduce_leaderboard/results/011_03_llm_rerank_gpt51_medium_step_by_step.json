@@ -1,0 +1,3469 @@
+{
+  "parameters": {
+    "topn": 10,
+    "rank_func": "vowel_consonant",
+    "vowel_ratio": 0.5,
+    "rerank": true,
+    "rerank_backend": "openai_batch",
+    "rerank_model_name": "gpt-5.1",
+    "rerank_batch_id": "batch_69e63265403881909aa2b77cf640e67d,batch_69e632679f40819093273bd9ce50568f,batch_69e63268748c81908b3c71048749472e,batch_69e632697cac819094249c17fb511bd3,batch_69e6326b82108190b80525e8378752c4,batch_69e6326c6a8c819094ff241c5210feae,batch_69e6326d34748190998dadf1ac6cb384,batch_69e6326eee4881909edb3654e60f5d36,batch_69e6326fac508190b74458771404bcff,batch_69e63270a60c81909a7bea129ffdb368,batch_69e63271bd408190bd8f1981b11b6dbb,batch_69e632729dd08190af13412b22eb5dbd,batch_69e632737e808190bb880e3100ea1877,batch_69e63274bcb88190a220c3f8220d12be,batch_69e63275bec4819081f6df2cebe10f2e,batch_69e8e51f344c81908519eb74068f8df5,batch_69e8f60ae45c81908f847a1e48b403e0",
+    "rerank_reasoning_effort": "medium",
+    "rerank_prompt_template": "008_03_step_by_step",
+    "rerank_input_size": 100,
+    "execution_timestamp": "2026-04-22T17:26:04.297445"
+  },
+  "metrics": {
+    "recall": 0.8905555555555554,
+    "execution_time": 279827.0,
+    "rerank_input_tokens": 187275,
+    "rerank_output_tokens": 6063,
+    "rerank_reasoning_tokens": 2047616,
+    "rerank_total_tokens": 2240954,
+    "rerank_input_cost": 0.11704687500000001,
+    "rerank_output_cost": 0.03031499999999987,
+    "rerank_reasoning_cost": 10.238080000000002,
+    "rerank_total_cost": 10.385441875000001
+  },
+  "metadata": {
+    "rerank_batch_ids": [
+      "batch_69e63265403881909aa2b77cf640e67d",
+      "batch_69e632679f40819093273bd9ce50568f",
+      "batch_69e63268748c81908b3c71048749472e",
+      "batch_69e632697cac819094249c17fb511bd3",
+      "batch_69e6326b82108190b80525e8378752c4",
+      "batch_69e6326c6a8c819094ff241c5210feae",
+      "batch_69e6326d34748190998dadf1ac6cb384",
+      "batch_69e6326eee4881909edb3654e60f5d36",
+      "batch_69e6326fac508190b74458771404bcff",
+      "batch_69e63270a60c81909a7bea129ffdb368",
+      "batch_69e63271bd408190bd8f1981b11b6dbb",
+      "batch_69e632729dd08190af13412b22eb5dbd",
+      "batch_69e632737e808190bb880e3100ea1877",
+      "batch_69e63274bcb88190a220c3f8220d12be",
+      "batch_69e63275bec4819081f6df2cebe10f2e",
+      "batch_69e8e51f344c81908519eb74068f8df5",
+      "batch_69e8f60ae45c81908f847a1e48b403e0"
+    ],
+    "rerank_batch_count": 17,
+    "completion_notes": "元15 batchの有効出力に追加Batch API retryのみを重ねて全150件を回収。同期completionへの切り替えは未使用。",
+    "original_batch_issue_summary": {
+      "valid_outputs": 101,
+      "server_error_rows": 24,
+      "length_or_empty_rows": 25
+    },
+    "batch_summaries": [
+      {
+        "batch_id": "batch_69e63265403881909aa2b77cf640e67d",
+        "status": "completed",
+        "execution_time": 19825.0,
+        "usage": {
+          "input_tokens": 9429,
+          "completion_tokens": 107561,
+          "reasoning_tokens": 107276,
+          "total_tokens": 116990
+        },
+        "valid_indices": [
+          1,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9
+        ],
+        "invalid_indices": [
+          0,
+          5
+        ],
+        "failed_indices": [
+          2
+        ],
+        "server_error_indices": [
+          2
+        ],
+        "request_counts": {
+          "completed": 9,
+          "failed": 1,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/input.jsonl",
+        "submitted_at": 1776693861
+      },
+      {
+        "batch_id": "batch_69e632679f40819093273bd9ce50568f",
+        "status": "completed",
+        "execution_time": 12403.0,
+        "usage": {
+          "input_tokens": 10519,
+          "completion_tokens": 111624,
+          "reasoning_tokens": 111300,
+          "total_tokens": 122143
+        },
+        "valid_indices": [
+          10,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19
+        ],
+        "invalid_indices": [
+          11,
+          17
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/input.jsonl",
+        "submitted_at": 1776693863
+      },
+      {
+        "batch_id": "batch_69e63268748c81908b3c71048749472e",
+        "status": "completed",
+        "execution_time": 12400.0,
+        "usage": {
+          "input_tokens": 11024,
+          "completion_tokens": 132898,
+          "reasoning_tokens": 132698,
+          "total_tokens": 143922
+        },
+        "valid_indices": [
+          20,
+          21,
+          23,
+          24,
+          25
+        ],
+        "invalid_indices": [
+          22,
+          26,
+          27,
+          28,
+          29
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/input.jsonl",
+        "submitted_at": 1776693864
+      },
+      {
+        "batch_id": "batch_69e632697cac819094249c17fb511bd3",
+        "status": "completed",
+        "execution_time": 25499.0,
+        "usage": {
+          "input_tokens": 4100,
+          "completion_tokens": 42511,
+          "reasoning_tokens": 42389,
+          "total_tokens": 46611
+        },
+        "valid_indices": [
+          35,
+          36,
+          37
+        ],
+        "invalid_indices": [
+          31
+        ],
+        "failed_indices": [
+          30,
+          32,
+          33,
+          34,
+          38,
+          39
+        ],
+        "server_error_indices": [
+          30,
+          32,
+          33,
+          34,
+          38,
+          39
+        ],
+        "request_counts": {
+          "completed": 4,
+          "failed": 6,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/input.jsonl",
+        "submitted_at": 1776693865
+      },
+      {
+        "batch_id": "batch_69e6326b82108190b80525e8378752c4",
+        "status": "completed",
+        "execution_time": 12370.0,
+        "usage": {
+          "input_tokens": 10504,
+          "completion_tokens": 108423,
+          "reasoning_tokens": 108060,
+          "total_tokens": 118927
+        },
+        "valid_indices": [
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          49
+        ],
+        "invalid_indices": [
+          48
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/input.jsonl",
+        "submitted_at": 1776693867
+      },
+      {
+        "batch_id": "batch_69e6326c6a8c819094ff241c5210feae",
+        "status": "completed",
+        "execution_time": 12389.0,
+        "usage": {
+          "input_tokens": 10531,
+          "completion_tokens": 114229,
+          "reasoning_tokens": 113817,
+          "total_tokens": 124760
+        },
+        "valid_indices": [
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59
+        ],
+        "invalid_indices": [],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/input.jsonl",
+        "submitted_at": 1776693868
+      },
+      {
+        "batch_id": "batch_69e6326d34748190998dadf1ac6cb384",
+        "status": "completed",
+        "execution_time": 25495.0,
+        "usage": {
+          "input_tokens": 7356,
+          "completion_tokens": 83075,
+          "reasoning_tokens": 82836,
+          "total_tokens": 90431
+        },
+        "valid_indices": [
+          60,
+          62,
+          63,
+          66,
+          67,
+          68
+        ],
+        "invalid_indices": [
+          64
+        ],
+        "failed_indices": [
+          61,
+          65,
+          69
+        ],
+        "server_error_indices": [
+          61,
+          65,
+          69
+        ],
+        "request_counts": {
+          "completed": 7,
+          "failed": 3,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/input.jsonl",
+        "submitted_at": 1776693869
+      },
+      {
+        "batch_id": "batch_69e6326eee4881909edb3654e60f5d36",
+        "status": "completed",
+        "execution_time": 16255.0,
+        "usage": {
+          "input_tokens": 10360,
+          "completion_tokens": 106201,
+          "reasoning_tokens": 105838,
+          "total_tokens": 116561
+        },
+        "valid_indices": [
+          70,
+          71,
+          72,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79
+        ],
+        "invalid_indices": [
+          73
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/input.jsonl",
+        "submitted_at": 1776693870
+      },
+      {
+        "batch_id": "batch_69e6326fac508190b74458771404bcff",
+        "status": "completed",
+        "execution_time": 12365.0,
+        "usage": {
+          "input_tokens": 10410,
+          "completion_tokens": 119495,
+          "reasoning_tokens": 119124,
+          "total_tokens": 129905
+        },
+        "valid_indices": [
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88
+        ],
+        "invalid_indices": [
+          89
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/input.jsonl",
+        "submitted_at": 1776693871
+      },
+      {
+        "batch_id": "batch_69e63270a60c81909a7bea129ffdb368",
+        "status": "completed",
+        "execution_time": 21536.0,
+        "usage": {
+          "input_tokens": 8656,
+          "completion_tokens": 109313,
+          "reasoning_tokens": 109151,
+          "total_tokens": 117969
+        },
+        "valid_indices": [
+          90,
+          93,
+          94,
+          97
+        ],
+        "invalid_indices": [
+          91,
+          92,
+          95,
+          96
+        ],
+        "failed_indices": [
+          98,
+          99
+        ],
+        "server_error_indices": [
+          98,
+          99
+        ],
+        "request_counts": {
+          "completed": 8,
+          "failed": 2,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/input.jsonl",
+        "submitted_at": 1776693872
+      },
+      {
+        "batch_id": "batch_69e63271bd408190bd8f1981b11b6dbb",
+        "status": "completed",
+        "execution_time": 25492.0,
+        "usage": {
+          "input_tokens": 7188,
+          "completion_tokens": 73929,
+          "reasoning_tokens": 73644,
+          "total_tokens": 81117
+        },
+        "valid_indices": [
+          100,
+          101,
+          103,
+          104,
+          107,
+          108,
+          109
+        ],
+        "invalid_indices": [],
+        "failed_indices": [
+          102,
+          105,
+          106
+        ],
+        "server_error_indices": [
+          102,
+          105,
+          106
+        ],
+        "request_counts": {
+          "completed": 7,
+          "failed": 3,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/input.jsonl",
+        "submitted_at": 1776693873
+      },
+      {
+        "batch_id": "batch_69e632729dd08190af13412b22eb5dbd",
+        "status": "completed",
+        "execution_time": 17479.0,
+        "usage": {
+          "input_tokens": 10783,
+          "completion_tokens": 114857,
+          "reasoning_tokens": 114537,
+          "total_tokens": 125640
+        },
+        "valid_indices": [
+          110,
+          111,
+          112,
+          113,
+          114,
+          116,
+          118,
+          119
+        ],
+        "invalid_indices": [
+          115,
+          117
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 10,
+          "failed": 0,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/input.jsonl",
+        "submitted_at": 1776693874
+      },
+      {
+        "batch_id": "batch_69e632737e808190bb880e3100ea1877",
+        "status": "completed",
+        "execution_time": 18698.0,
+        "usage": {
+          "input_tokens": 9472,
+          "completion_tokens": 99446,
+          "reasoning_tokens": 99120,
+          "total_tokens": 108918
+        },
+        "valid_indices": [
+          121,
+          122,
+          123,
+          124,
+          126,
+          127,
+          128,
+          129
+        ],
+        "invalid_indices": [
+          125
+        ],
+        "failed_indices": [
+          120
+        ],
+        "server_error_indices": [
+          120
+        ],
+        "request_counts": {
+          "completed": 9,
+          "failed": 1,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/input.jsonl",
+        "submitted_at": 1776693875
+      },
+      {
+        "batch_id": "batch_69e63274bcb88190a220c3f8220d12be",
+        "status": "completed",
+        "execution_time": 25489.0,
+        "usage": {
+          "input_tokens": 3148,
+          "completion_tokens": 34536,
+          "reasoning_tokens": 34413,
+          "total_tokens": 37684
+        },
+        "valid_indices": [
+          132,
+          133,
+          134
+        ],
+        "invalid_indices": [],
+        "failed_indices": [
+          130,
+          131,
+          135,
+          136,
+          137,
+          138,
+          139
+        ],
+        "server_error_indices": [
+          130,
+          131,
+          135,
+          136,
+          137,
+          138,
+          139
+        ],
+        "request_counts": {
+          "completed": 3,
+          "failed": 7,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/input.jsonl",
+        "submitted_at": 1776693876
+      },
+      {
+        "batch_id": "batch_69e63275bec4819081f6df2cebe10f2e",
+        "status": "completed",
+        "execution_time": 20537.0,
+        "usage": {
+          "input_tokens": 9657,
+          "completion_tokens": 123481,
+          "reasoning_tokens": 123283,
+          "total_tokens": 133138
+        },
+        "valid_indices": [
+          143,
+          144,
+          145,
+          146,
+          148
+        ],
+        "invalid_indices": [
+          140,
+          141,
+          142,
+          149
+        ],
+        "failed_indices": [
+          147
+        ],
+        "server_error_indices": [
+          147
+        ],
+        "request_counts": {
+          "completed": 9,
+          "failed": 1,
+          "total": 10
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/output.jsonl",
+        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/error.jsonl",
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/input.jsonl",
+        "submitted_at": 1776693877
+      },
+      {
+        "batch_id": "batch_69e8e51f344c81908519eb74068f8df5",
+        "status": "completed",
+        "execution_time": 1342.0,
+        "usage": {
+          "input_tokens": 52011,
+          "completion_tokens": 550473,
+          "reasoning_tokens": 548581,
+          "total_tokens": 602484
+        },
+        "valid_indices": [
+          0,
+          2,
+          5,
+          11,
+          17,
+          22,
+          26,
+          27,
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          38,
+          39,
+          61,
+          64,
+          65,
+          69,
+          73,
+          89,
+          91,
+          92,
+          95,
+          96,
+          98,
+          99,
+          102,
+          105,
+          106,
+          115,
+          117,
+          120,
+          125,
+          130,
+          131,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          147,
+          149
+        ],
+        "invalid_indices": [
+          30,
+          48
+        ],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 49,
+          "failed": 0,
+          "total": 49
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/input.jsonl",
+        "submitted_at": 1776870687
+      },
+      {
+        "batch_id": "batch_69e8f60ae45c81908f847a1e48b403e0",
+        "status": "completed",
+        "execution_time": 253.0,
+        "usage": {
+          "input_tokens": 2127,
+          "completion_tokens": 21627,
+          "reasoning_tokens": 21549,
+          "total_tokens": 23754
+        },
+        "valid_indices": [
+          30,
+          48
+        ],
+        "invalid_indices": [],
+        "failed_indices": [],
+        "server_error_indices": [],
+        "request_counts": {
+          "completed": 2,
+          "failed": 0,
+          "total": 2
+        },
+        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/output.jsonl",
+        "error_file_path": null,
+        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/input.jsonl",
+        "submitted_at": 1776875018
+      }
+    ]
+  },
+  "results": [
+    {
+      "query": "アイ",
+      "ranked_words": [
+        "アイ",
+        "アイキ",
+        "アカイ",
+        "アギー",
+        "アサイ",
+        "アライ",
+        "カイ",
+        "タイ",
+        "ダイ",
+        "ツァイ"
+      ],
+      "positive_words": [
+        "アイ"
+      ]
+    },
+    {
+      "query": "アウマル",
+      "ranked_words": [
+        "タクマル",
+        "アキマル",
+        "アニマル",
+        "カネマル",
+        "サコマル",
+        "アオマツ",
+        "アズマ",
+        "アヅマ",
+        "アサムラ",
+        "サムラ"
+      ],
+      "positive_words": [
+        "タクマル"
+      ]
+    },
+    {
+      "query": "アケ",
+      "ranked_words": [
+        "アベ",
+        "アレン",
+        "カケイ",
+        "カセ",
+        "カンベ",
+        "タベ",
+        "ダテ",
+        "マエ",
+        "ヤベ",
+        "ミケ"
+      ],
+      "positive_words": [
+        "アベ",
+        "カケイ"
+      ]
+    },
+    {
+      "query": "アシオト",
+      "ranked_words": [
+        "ハシモト",
+        "アイモト",
+        "アキモト",
+        "アリモト",
+        "アイト",
+        "アキト",
+        "アリトウ",
+        "カキモト",
+        "カジモト",
+        "タキモト"
+      ],
+      "positive_words": [
+        "ハシモト"
+      ]
+    },
+    {
+      "query": "アッテ",
+      "ranked_words": [
+        "ダテ",
+        "ガラテ",
+        "ザラテ",
+        "サファテ",
+        "アベ",
+        "カンベ",
+        "アヤベ",
+        "サンチェ",
+        "マエ",
+        "イダテ"
+      ],
+      "positive_words": [
+        "マルテ"
+      ]
+    },
+    {
+      "query": "アト",
+      "ranked_words": [
+        "アオト",
+        "カトウ",
+        "ガント",
+        "サト",
+        "バート",
+        "マント",
+        "アソウ",
+        "アノ",
+        "タオ",
+        "タゴ"
+      ],
+      "positive_words": [
+        "カトウ"
+      ]
+    },
+    {
+      "query": "アノ",
+      "ranked_words": [
+        "アノ",
+        "カノ",
+        "カンノ",
+        "サノ",
+        "タンノ",
+        "ダンノ",
+        "チャノ",
+        "マノ",
+        "ヤノ",
+        "アオノ"
+      ],
+      "positive_words": [
+        "アノ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "カセ",
+        "カンベ",
+        "サンチェ",
+        "タベ",
+        "ダテ",
+        "マエ",
+        "ヤベ",
+        "アヤベ"
+      ],
+      "positive_words": [
+        "アレン",
+        "アベ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "アヤベ",
+        "カセ",
+        "カンベ",
+        "ガラテ",
+        "サンチェ",
+        "ザラテ",
+        "タベ",
+        "ダテ"
+      ],
+      "positive_words": [
+        "アレン"
+      ]
+    },
+    {
+      "query": "アレクルウ",
+      "ranked_words": [
+        "アレックス",
+        "ラファエルクルス",
+        "パークル",
+        "アンラク",
+        "マルク",
+        "アルー",
+        "ラルー",
+        "レルー",
+        "アラカキ",
+        "ダレルメイ"
+      ],
+      "positive_words": [
+        "アレックス"
+      ]
+    },
+    {
+      "query": "アレホド",
+      "ranked_words": [
+        "バレット",
+        "マレット",
+        "バレント",
+        "マレーロ",
+        "ラベロ",
+        "ギャレット",
+        "タケモト",
+        "カネモト",
+        "タケトラ",
+        "アレン"
+      ],
+      "positive_words": [
+        "カネモト"
+      ]
+    },
+    {
+      "query": "イキ",
+      "ranked_words": [
+        "イッキ",
+        "ニキ",
+        "ミキ",
+        "シイキ",
+        "キシ",
+        "ギンジ",
+        "ウィティ",
+        "イチイ",
+        "イイシ",
+        "イシイ"
+      ],
+      "positive_words": [
+        "イッキ"
+      ]
+    },
+    {
+      "query": "イキテ",
+      "ranked_words": [
+        "イリエ",
+        "イシゲ",
+        "イヒネ",
+        "ニシエ",
+        "ニシデ",
+        "イケベ",
+        "イダテ",
+        "ヒキジ",
+        "ヒキチ",
+        "ヒキマ"
+      ],
+      "positive_words": [
+        "イシゲ"
+      ]
+    },
+    {
+      "query": "イコウ",
+      "ranked_words": [
+        "イコウ",
+        "イトウ",
+        "イド",
+        "イソ",
+        "イノ",
+        "イノウ",
+        "イオウ",
+        "イイオ",
+        "キコウ",
+        "キトウ"
+      ],
+      "positive_words": [
+        "イコウ",
+        "イトウ"
+      ]
+    },
+    {
+      "query": "イタノ",
+      "ranked_words": [
+        "イタノ",
+        "キタノ",
+        "シカノ",
+        "シバノ",
+        "シマノ",
+        "シラノ",
+        "ヒサノ",
+        "ヒラノ",
+        "キタオ",
+        "キタド"
+      ],
+      "positive_words": [
+        "イタノ"
+      ]
+    },
+    {
+      "query": "イチ",
+      "ranked_words": [
+        "イチイ",
+        "リーチ",
+        "イシイ",
+        "イイシ",
+        "シイ",
+        "キシ",
+        "ニシ",
+        "イッキ",
+        "イ",
+        "ギンジ"
+      ],
+      "positive_words": [
+        "ニシ"
+      ]
+    },
+    {
+      "query": "イッタ",
+      "ranked_words": [
+        "ニッタ",
+        "キタ",
+        "イイダ",
+        "イナ",
+        "イバ",
+        "イバタ",
+        "イワタ",
+        "イシタ",
+        "イチタ",
+        "ヒラタ"
+      ],
+      "positive_words": [
+        "ニッタ"
+      ]
+    },
+    {
+      "query": "イツカ",
+      "ranked_words": [
+        "ミツカ",
+        "イイヅカ",
+        "キヅカ",
+        "イシヅカ",
+        "ミツマ",
+        "ミズタ",
+        "イクタ",
+        "キクタ",
+        "イグマ",
+        "ヒグマ"
+      ],
+      "positive_words": [
+        "キヅカ"
+      ]
+    },
+    {
+      "query": "イツモ",
+      "ranked_words": [
+        "イツボ",
+        "イボムホ",
+        "イモト",
+        "イム",
+        "イムラ",
+        "イズミ",
+        "イクミ",
+        "イグマ",
+        "イヅツ",
+        "イノツメ"
+      ],
+      "positive_words": [
+        "イツボ",
+        "ミズノ"
+      ]
+    },
+    {
+      "query": "イマ",
+      "ranked_words": [
+        "イマイ",
+        "イマエ",
+        "イマヅ",
+        "ミマ",
+        "ティマ",
+        "ウチマ",
+        "エジマ",
+        "オジマ",
+        "イバ",
+        "イナ"
+      ],
+      "positive_words": [
+        "ミマ"
+      ]
+    },
+    {
+      "query": "イヤ",
+      "ranked_words": [
+        "イイダ",
+        "イナ",
+        "イバ",
+        "キヤ",
+        "ミヤ",
+        "キタ",
+        "キダ",
+        "キラ",
+        "シンヤ",
+        "ティマ"
+      ],
+      "positive_words": [
+        "ミヤ"
+      ]
+    },
+    {
+      "query": "イヨッ",
+      "ranked_words": [
+        "イヨノ",
+        "イヨダ",
+        "キヨ",
+        "イリョウ",
+        "イソ",
+        "イド",
+        "イノ",
+        "イイオ",
+        "イオウ",
+        "イコウ"
+      ],
+      "positive_words": [
+        "イオウ",
+        "イリョウ"
+      ]
+    },
+    {
+      "query": "イラ",
+      "ranked_words": [
+        "キラ",
+        "ウィーラー",
+        "イバ",
+        "イイダ",
+        "イナ",
+        "ディサ",
+        "ヒダ",
+        "ヒガ",
+        "キタ",
+        "キダ"
+      ],
+      "positive_words": [
+        "ウィーラー"
+      ]
+    },
+    {
+      "query": "イラナイ",
+      "ranked_words": [
+        "イマナリ",
+        "イマナミ",
+        "イナガキ",
+        "イガラシ",
+        "イバラギ",
+        "イチヤナギ",
+        "イマニシ",
+        "イシタニ",
+        "イタニ",
+        "イマイ"
+      ],
+      "positive_words": [
+        "イマナリ"
+      ]
+    },
+    {
+      "query": "イロイロ",
+      "ranked_words": [
+        "イトウシンゴ",
+        "キオリ",
+        "ヒロイケ",
+        "ヒロキ",
+        "ヒロシマ",
+        "シモヒラ",
+        "シロイシ",
+        "イオキ",
+        "イトイ",
+        "シオミ"
+      ],
+      "positive_words": [
+        "イトウシンゴ"
+      ]
+    },
+    {
+      "query": "ウバッテ",
+      "ranked_words": [
+        "ムカエ",
+        "フカエ",
+        "グラッデン",
+        "ブレット",
+        "ブライト",
+        "ブラント",
+        "ダテ",
+        "イダテ",
+        "イワダテ",
+        "ブラッシュ"
+      ],
+      "positive_words": [
+        "グラッデン"
+      ]
+    },
+    {
+      "query": "オアト",
+      "ranked_words": [
+        "オオサト",
+        "オオサコ",
+        "オカノ",
+        "オダノ",
+        "オバンドー",
+        "ロバート",
+        "オカモト",
+        "オウタ",
+        "オオタ",
+        "オカ"
+      ],
+      "positive_words": [
+        "オバンドー"
+      ]
+    },
+    {
+      "query": "オサキ",
+      "ranked_words": [
+        "オオサキ",
+        "オザキ",
+        "オサナイ",
+        "オサリ",
+        "オオタキ",
+        "オオワキ",
+        "オカザキ",
+        "オクガキ",
+        "ノザキ",
+        "コサイ"
+      ],
+      "positive_words": [
+        "オザキ",
+        "オオサキ"
+      ]
+    },
+    {
+      "query": "オサキマシロキ",
+      "ranked_words": [
+        "オオサキアキオ",
+        "オザキマサシ",
+        "オザキマサヤ",
+        "オザキヤスオ",
+        "オザキユキオ",
+        "オオサカヤヒロキ",
+        "オサダヒロユキ",
+        "オノサカキヨシ",
+        "オオカワヒロシ",
+        "オガタトシアキ"
+      ],
+      "positive_words": [
+        "オカジマヒロジ"
+      ]
+    },
+    {
+      "query": "オサキモ",
+      "ranked_words": [
+        "オダキミオ",
+        "ロサリオ",
+        "ロザリオ",
+        "トマシノ",
+        "ヨナシロ",
+        "ホワイト",
+        "オオサキ",
+        "オザキ",
+        "オサナイ",
+        "オサリ"
+      ],
+      "positive_words": [
+        "ロサリオ",
+        "トマシノ"
+      ]
+    },
+    {
+      "query": "オモテ",
+      "ranked_words": [
+        "オモテ",
+        "オコエ",
+        "オモダ",
+        "オオモト",
+        "モンテ",
+        "エモト",
+        "イモト",
+        "オト",
+        "オオダテ",
+        "オカベ"
+      ],
+      "positive_words": [
+        "オモテ"
+      ]
+    },
+    {
+      "query": "オヤ",
+      "ranked_words": [
+        "オオヤ",
+        "オオカ",
+        "オオタ",
+        "オオバ",
+        "オカ",
+        "オダ",
+        "コウヤ",
+        "ゴヤ",
+        "ソヤ",
+        "ホウヤ"
+      ],
+      "positive_words": [
+        "オオヤ"
+      ]
+    },
+    {
+      "query": "カクシテ",
+      "ranked_words": [
+        "ハクジンテン",
+        "カクリ",
+        "カクライ",
+        "カクゼン",
+        "クシゲ",
+        "カシデ",
+        "カツキ",
+        "カナブシ",
+        "カリステ",
+        "シテ"
+      ],
+      "positive_words": [
+        "ハクジンテン"
+      ]
+    },
+    {
+      "query": "カミ",
+      "ranked_words": [
+        "カマイ",
+        "アカイ",
+        "アカギ",
+        "カイ",
+        "カガミ",
+        "カサイ",
+        "カナイ",
+        "カワイ",
+        "カンキ",
+        "タカミ"
+      ],
+      "positive_words": [
+        "タニ"
+      ]
+    },
+    {
+      "query": "ガッサン",
+      "ranked_words": [
+        "ガーバー",
+        "カサイ",
+        "カッタ",
+        "カーター",
+        "グラマン",
+        "ダンカン",
+        "マッカ",
+        "ラーカー",
+        "ハッタ",
+        "パーカー"
+      ],
+      "positive_words": [
+        "ランサム"
+      ]
+    },
+    {
+      "query": "ガンガン",
+      "ranked_words": [
+        "ガーバー",
+        "カンダ",
+        "ダンカン",
+        "カーター",
+        "パーカー",
+        "タンバ",
+        "ハンダ",
+        "ナンバ",
+        "サンタ",
+        "ハーパー"
+      ],
+      "positive_words": [
+        "ダンカン"
+      ]
+    },
+    {
+      "query": "キタ",
+      "ranked_words": [
+        "キタ",
+        "キタダ",
+        "キダ",
+        "キラ",
+        "キマタ",
+        "キザワ",
+        "キシダ",
+        "キヤ",
+        "キヤマ",
+        "キハラ"
+      ],
+      "positive_words": [
+        "キタ"
+      ]
+    },
+    {
+      "query": "キミ",
+      "ranked_words": [
+        "キニー",
+        "ニイミ",
+        "キシ",
+        "ミキ",
+        "ニキ",
+        "ギンジ",
+        "ウィティ",
+        "ニシ",
+        "キミノ",
+        "キナミ"
+      ],
+      "positive_words": [
+        "キニー",
+        "キシ",
+        "ニイミ",
+        "ギンジ"
+      ]
+    },
+    {
+      "query": "キミガ",
+      "ranked_words": [
+        "キマタ",
+        "キヤマ",
+        "ヒキマ",
+        "ミギタ",
+        "キタ",
+        "キダ",
+        "キザワ",
+        "キシダ",
+        "ヒガ",
+        "ミヤ"
+      ],
+      "positive_words": [
+        "キシダ"
+      ]
+    },
+    {
+      "query": "キミト",
+      "ranked_words": [
+        "キモト",
+        "キミノ",
+        "ヒモト",
+        "ミモト",
+        "イモト",
+        "キシモト",
+        "イシモト",
+        "キゴロ",
+        "キド",
+        "キヨ"
+      ],
+      "positive_words": [
+        "キミノ"
+      ]
+    },
+    {
+      "query": "キミノ",
+      "ranked_words": [
+        "キミノ",
+        "ミノ",
+        "キモト",
+        "ミソノ",
+        "ヒコノ",
+        "イノ",
+        "ヒノ",
+        "チノ",
+        "シンノ",
+        "ジンノ"
+      ],
+      "positive_words": [
+        "キミノ"
+      ]
+    },
+    {
+      "query": "キミワ",
+      "ranked_words": [
+        "キミノ",
+        "ミワ",
+        "キミナミ",
+        "ミワタ",
+        "ミヤ",
+        "ミマ",
+        "ミキ",
+        "キムラ",
+        "キヤ",
+        "キヤマ"
+      ],
+      "positive_words": [
+        "キシダ"
+      ]
+    },
+    {
+      "query": "キラリ",
+      "ranked_words": [
+        "キタイ",
+        "キタニ",
+        "キダチ",
+        "キナミ",
+        "シラキ",
+        "イザキ",
+        "イワキ",
+        "シライ",
+        "チカミ",
+        "ヒガキ"
+      ],
+      "positive_words": [
+        "キナミ",
+        "ヒライ"
+      ]
+    },
+    {
+      "query": "キレイナ",
+      "ranked_words": [
+        "ピレラ",
+        "シエラ",
+        "ビエイラ",
+        "イケダ",
+        "イケヤ",
+        "イケナガ",
+        "イケガヤ",
+        "イケザワ",
+        "イケハタ",
+        "イケヤマ"
+      ],
+      "positive_words": [
+        "ビエイラ"
+      ]
+    },
+    {
+      "query": "ギゾウ",
+      "ranked_words": [
+        "ギボ",
+        "ギボショウ",
+        "シギョウ",
+        "シオヅ",
+        "キコウ",
+        "キトウ",
+        "ジオ",
+        "イコウ",
+        "イソ",
+        "ディロン"
+      ],
+      "positive_words": [
+        "キトウ"
+      ]
+    },
+    {
+      "query": "クルウ",
+      "ranked_words": [
+        "クルーン",
+        "クルス",
+        "クルーズ",
+        "グルン",
+        "クック",
+        "ツル",
+        "ウルフ",
+        "ブルーム",
+        "シュルツ",
+        "リュウ"
+      ],
+      "positive_words": [
+        "クルーン",
+        "グルン"
+      ]
+    },
+    {
+      "query": "クレ",
+      "ranked_words": [
+        "グレン",
+        "クメ",
+        "ウエ",
+        "ウネ",
+        "ツゲ",
+        "フセ",
+        "ムネ",
+        "ユゲ",
+        "クレス",
+        "クロエ"
+      ],
+      "positive_words": [
+        "クメ"
+      ]
+    },
+    {
+      "query": "コエデ",
+      "ranked_words": [
+        "コウベ",
+        "オゼ",
+        "モンテ",
+        "トーベ",
+        "ジョウベ",
+        "ポンセ",
+        "オオエ",
+        "オコエ",
+        "コセキ",
+        "ポレダ"
+      ],
+      "positive_words": [
+        "コウエイケツ"
+      ]
+    },
+    {
+      "query": "ココニ",
+      "ranked_words": [
+        "コモリ",
+        "オオコシ",
+        "ヨコチ",
+        "ヨコイ",
+        "オノギ",
+        "モトイ",
+        "コニシ",
+        "コオリ",
+        "コイシ",
+        "コージ"
+      ],
+      "positive_words": [
+        "コモリ"
+      ]
+    },
+    {
+      "query": "コノ",
+      "ranked_words": [
+        "コンノ",
+        "コウノ",
+        "オノ",
+        "オオノ",
+        "ノモ",
+        "オト",
+        "ソト",
+        "ドド",
+        "オホ",
+        "トヨ"
+      ],
+      "positive_words": [
+        "コウノ"
+      ]
+    },
+    {
+      "query": "コンヤモ",
+      "ranked_words": [
+        "コヤノ",
+        "コマゴ",
+        "コドラド",
+        "コンラッド",
+        "オカノ",
+        "オダノ",
+        "オオサコ",
+        "オオサト",
+        "コヤマ",
+        "コウヤマ"
+      ],
+      "positive_words": [
+        "コンラッド"
+      ]
+    },
+    {
+      "query": "サイゴ",
+      "ranked_words": [
+        "サイトウ",
+        "サイノウ",
+        "サイモン",
+        "サイショ",
+        "ダイゴ",
+        "ナイト",
+        "ライト",
+        "アイコウ",
+        "アイト",
+        "カイノ"
+      ],
+      "positive_words": [
+        "サイトウ"
+      ]
+    },
+    {
+      "query": "サガシ",
+      "ranked_words": [
+        "サヤシ",
+        "アカシ",
+        "サカイ",
+        "サカキ",
+        "ハヤシ",
+        "ササキ",
+        "タガミ",
+        "ナガイ",
+        "ナガミ",
+        "カガミ"
+      ],
+      "positive_words": [
+        "サヤシ"
+      ]
+    },
+    {
+      "query": "サガシテタ",
+      "ranked_words": [
+        "チャタニケンタ",
+        "カガシゲル",
+        "タガシラ",
+        "ナガシマ",
+        "サガヤマ",
+        "タカシマ",
+        "ナカシマ",
+        "ハナシマ",
+        "ハヤシダ",
+        "ヤマシタ"
+      ],
+      "positive_words": [
+        "チャタニケンタ"
+      ]
+    },
+    {
+      "query": "サケブ",
+      "ranked_words": [
+        "マケーブ",
+        "カケフ",
+        "チャベス",
+        "タネル",
+        "サエキ",
+        "サクタ",
+        "サクマ",
+        "サクラ",
+        "バスケス",
+        "アサクラ"
+      ],
+      "positive_words": [
+        "カケフ"
+      ]
+    },
+    {
+      "query": "サラリ",
+      "ranked_words": [
+        "アサリ",
+        "アライ",
+        "ハライ",
+        "アラキ",
+        "ナラキ",
+        "サワイ",
+        "サカイ",
+        "サヤシ",
+        "サカキ",
+        "ヤサキ"
+      ],
+      "positive_words": [
+        "ササキ",
+        "アライ",
+        "サワイ",
+        "サカイ"
+      ]
+    },
+    {
+      "query": "シカク",
+      "ranked_words": [
+        "シンタク",
+        "シバクサ",
+        "シマヅ",
+        "シマムラ",
+        "イシマル",
+        "イタクラ",
+        "イナクラ",
+        "キタル",
+        "イマヅ",
+        "イラブ"
+      ],
+      "positive_words": [
+        "シンタク"
+      ]
+    },
+    {
+      "query": "シテ",
+      "ranked_words": [
+        "シテ",
+        "イシゲ",
+        "ニシエ",
+        "イセ",
+        "ヒネ",
+        "キセ",
+        "ミセ",
+        "イデ",
+        "ミネ",
+        "イベ"
+      ],
+      "positive_words": [
+        "シテ",
+        "イデ"
+      ]
+    },
+    {
+      "query": "シャン",
+      "ranked_words": [
+        "チャン",
+        "ハ",
+        "アン",
+        "カン",
+        "ジャン",
+        "バン",
+        "バーン",
+        "ファン",
+        "マン",
+        "ヤン"
+      ],
+      "positive_words": [
+        "ジャン"
+      ]
+    },
+    {
+      "query": "シラ",
+      "ranked_words": [
+        "シダ",
+        "シバ",
+        "シマ",
+        "シキタ",
+        "シナダ",
+        "シバタ",
+        "キラ",
+        "キハラ",
+        "イハラ",
+        "キシダ"
+      ],
+      "positive_words": [
+        "シマ"
+      ]
+    },
+    {
+      "query": "ジョシテキ",
+      "ranked_words": [
+        "オトシゲキ",
+        "ジョシュレイビン",
+        "ヨシエ",
+        "ヨシザキ",
+        "アベシゲキ",
+        "サノシゲキ",
+        "ヨシトシ",
+        "ヨシトミ",
+        "ヨシナリ",
+        "ヨシノリ"
+      ],
+      "positive_words": [
+        "ジョシュレイビン"
+      ]
+    },
+    {
+      "query": "スギデ",
+      "ranked_words": [
+        "スギエ",
+        "クシゲ",
+        "フジエ",
+        "フジセ",
+        "フジメ",
+        "スギ",
+        "スギタ",
+        "スギヤ",
+        "スギオ",
+        "スギモト"
+      ],
+      "positive_words": [
+        "スギエ"
+      ]
+    },
+    {
+      "query": "ステ",
+      "ranked_words": [
+        "スズエ",
+        "ツゲ",
+        "フセ",
+        "ツスエ",
+        "ウネ",
+        "ウエ",
+        "クメ",
+        "ムネ",
+        "ユゲ",
+        "スギエ"
+      ],
+      "positive_words": [
+        "ユゲ"
+      ]
+    },
+    {
+      "query": "スベテガ",
+      "ranked_words": [
+        "ツゲセナ",
+        "スエナガ",
+        "クボデラ",
+        "クニエダ",
+        "ウエオカ",
+        "ウエナカ",
+        "ウエハラ",
+        "ウエムラ",
+        "ウエヤマ",
+        "ウメザワ"
+      ],
+      "positive_words": [
+        "ツゲセナ"
+      ]
+    },
+    {
+      "query": "スル",
+      "ranked_words": [
+        "ツル",
+        "グルン",
+        "ドゥール",
+        "フク",
+        "スズエ",
+        "スズキ",
+        "スグロ",
+        "ツルタ",
+        "ツルミ",
+        "ミツル"
+      ],
+      "positive_words": [
+        "ツル"
+      ]
+    },
+    {
+      "query": "ズット",
+      "ranked_words": [
+        "ウト",
+        "ムト",
+        "ウッド",
+        "フッド",
+        "ウノ",
+        "ウンノ",
+        "クノ",
+        "ウーゴ",
+        "クボ",
+        "ウオ"
+      ],
+      "positive_words": [
+        "ウッド"
+      ]
+    },
+    {
+      "query": "セキデ",
+      "ranked_words": [
+        "セキネ",
+        "セキ",
+        "セキヤ",
+        "セイケ",
+        "セペダ",
+        "コセキ",
+        "ゴセキ",
+        "ニシデ",
+        "カシデ",
+        "イデ"
+      ],
+      "positive_words": [
+        "セキネ"
+      ]
+    },
+    {
+      "query": "ソウ",
+      "ranked_words": [
+        "ソウ",
+        "ソン",
+        "ショウ",
+        "オウ",
+        "オ",
+        "コウ",
+        "コン",
+        "ゴ",
+        "ジョウ",
+        "ヨウ"
+      ],
+      "positive_words": [
+        "ソウ"
+      ]
+    },
+    {
+      "query": "ソウダ",
+      "ranked_words": [
+        "ショウダ",
+        "ゴウダ",
+        "コウダ",
+        "ヨウダ",
+        "オダ",
+        "ソタ",
+        "ソウマ",
+        "ソーサ",
+        "コンダ",
+        "ゴンダ"
+      ],
+      "positive_words": [
+        "ショウダ"
+      ]
+    },
+    {
+      "query": "ソウナ",
+      "ranked_words": [
+        "ソノダ",
+        "ソウマ",
+        "ソタ",
+        "ソーサ",
+        "ソガワ",
+        "ショウタ",
+        "ショウダ",
+        "ボンナ",
+        "モンナ",
+        "チョウナン"
+      ],
+      "positive_words": [
+        "ソウマ"
+      ]
+    },
+    {
+      "query": "ソバデ",
+      "ranked_words": [
+        "ソガベ",
+        "ソラーテ",
+        "オカベ",
+        "コマエ",
+        "トガメ",
+        "ソブエ",
+        "ソマダ",
+        "ソガワ",
+        "ソノベ",
+        "ソメダ"
+      ],
+      "positive_words": [
+        "ソラーテ"
+      ]
+    },
+    {
+      "query": "ソレ",
+      "ranked_words": [
+        "ソネ",
+        "ホセ",
+        "トネ",
+        "トベ",
+        "ヨネ",
+        "オゼ",
+        "ソノベ",
+        "ソメダ",
+        "ソフエ",
+        "ソブエ"
+      ],
+      "positive_words": [
+        "ソネ"
+      ]
+    },
+    {
+      "query": "ソー",
+      "ranked_words": [
+        "ソウ",
+        "ソン",
+        "オ",
+        "オウ",
+        "コウ",
+        "コン",
+        "ゴ",
+        "ショウ",
+        "ジョウ",
+        "ヨウ"
+      ],
+      "positive_words": [
+        "ソウ"
+      ]
+    },
+    {
+      "query": "タイヨウ",
+      "ranked_words": [
+        "タイヨウ",
+        "タイホウ",
+        "タイロン",
+        "サイトウ",
+        "ナイトウ",
+        "ダイトウ",
+        "ハイドウ",
+        "アイト",
+        "アイコウ",
+        "アイキョウ"
+      ],
+      "positive_words": [
+        "タイヨウ"
+      ]
+    },
+    {
+      "query": "タマッ",
+      "ranked_words": [
+        "ターマン",
+        "タマイ",
+        "タマキ",
+        "タマノ",
+        "タムラ",
+        "タカ",
+        "タダ",
+        "ハマ",
+        "ヤマイ",
+        "ヤマオ"
+      ],
+      "positive_words": [
+        "ターマン"
+      ]
+    },
+    {
+      "query": "タメニ",
+      "ranked_words": [
+        "タメイケ",
+        "タネベ",
+        "タベ",
+        "タケイ",
+        "タケチ",
+        "バメイ",
+        "カメイ",
+        "マエ",
+        "マエキ",
+        "カネイ"
+      ],
+      "positive_words": [
+        "カメイ"
+      ]
+    },
+    {
+      "query": "ダレ",
+      "ranked_words": [
+        "ダテ",
+        "タベ",
+        "マレン",
+        "アレン",
+        "ナガレ",
+        "ガラテ",
+        "ザラテ",
+        "アベ",
+        "ヤベ",
+        "カセ"
+      ],
+      "positive_words": [
+        "マレン"
+      ]
+    },
+    {
+      "query": "チン",
+      "ranked_words": [
+        "チン",
+        "イチイ",
+        "シン",
+        "シイ",
+        "ジー",
+        "ギンジ",
+        "ツィ",
+        "キシ",
+        "シピン",
+        "イ"
+      ],
+      "positive_words": [
+        "チン",
+        "リン"
+      ]
+    },
+    {
+      "query": "チントン",
+      "ranked_words": [
+        "シントウ",
+        "ピント",
+        "ピート",
+        "イトウ",
+        "キトウ",
+        "ビトウ",
+        "ニトウ",
+        "ウィット",
+        "シンドウ",
+        "シンノ"
+      ],
+      "positive_words": [
+        "シンドウ",
+        "キンジョウ",
+        "シンジョウ"
+      ]
+    },
+    {
+      "query": "ツネニ",
+      "ranked_words": [
+        "ツネミ",
+        "ウエキ",
+        "ウエチ",
+        "ツネヒロ",
+        "ツゲ",
+        "ウネ",
+        "ムネ",
+        "ウエ",
+        "ウメツ",
+        "オゼキ"
+      ],
+      "positive_words": [
+        "ツネミ"
+      ]
+    },
+    {
+      "query": "ツヨイ",
+      "ranked_words": [
+        "ツヨシ",
+        "ツボイ",
+        "ツモリ",
+        "ツボウチ",
+        "ムロイ",
+        "クボキ",
+        "クロキ",
+        "クロギ",
+        "ツジ",
+        "ツツイ"
+      ],
+      "positive_words": [
+        "ツボイ"
+      ]
+    },
+    {
+      "query": "ツレ",
+      "ranked_words": [
+        "ツゲ",
+        "ツスエ",
+        "グレン",
+        "ミューレン",
+        "ウネ",
+        "ムネ",
+        "フセ",
+        "クメ",
+        "ユゲ",
+        "ウエ"
+      ],
+      "positive_words": [
+        "ツゲ",
+        "ウネ",
+        "ミューレン",
+        "グレン"
+      ]
+    },
+    {
+      "query": "デモ",
+      "ranked_words": [
+        "デイモン",
+        "レモン",
+        "デード",
+        "エモト",
+        "ネモト",
+        "セドン",
+        "エト",
+        "セト",
+        "レオ",
+        "ネオ"
+      ],
+      "positive_words": [
+        "デイモン"
+      ]
+    },
+    {
+      "query": "トウメイ",
+      "ranked_words": [
+        "トウメイ",
+        "トーベ",
+        "トウセン",
+        "ジョウベ",
+        "コウベ",
+        "ボウデン",
+        "ドウウエ",
+        "ウォーレン",
+        "ショウセイ",
+        "オオエ"
+      ],
+      "positive_words": [
+        "トウメイ"
+      ]
+    },
+    {
+      "query": "トキ",
+      "ranked_words": [
+        "トウキ",
+        "トンキン",
+        "ドキ",
+        "トニー",
+        "トイ",
+        "オキ",
+        "オオキ",
+        "トトキ",
+        "トモキ",
+        "モトキ"
+      ],
+      "positive_words": [
+        "トンキン"
+      ]
+    },
+    {
+      "query": "トナリ",
+      "ranked_words": [
+        "トマリ",
+        "オサリ",
+        "トカイ",
+        "トカジ",
+        "トガシ",
+        "ソタニ",
+        "コタニ",
+        "ノガミ",
+        "ノザキ",
+        "コマキ"
+      ],
+      "positive_words": [
+        "トマリ"
+      ]
+    },
+    {
+      "query": "トマッテ",
+      "ranked_words": [
+        "モトマエ",
+        "トガメ",
+        "コマエ",
+        "ソラーテ",
+        "オオダテ",
+        "オオタケ",
+        "オカベ",
+        "トマリ",
+        "トマソン",
+        "トマベチ"
+      ],
+      "positive_words": [
+        "ソラーテ"
+      ]
+    },
+    {
+      "query": "トワニ",
+      "ranked_words": [
+        "トカイ",
+        "トカジ",
+        "トマリ",
+        "ソタニ",
+        "コタニ",
+        "オオワキ",
+        "オオタニ",
+        "トガシ",
+        "ノガミ",
+        "ノザキ"
+      ],
+      "positive_words": [
+        "トマリ"
+      ]
+    },
+    {
+      "query": "トン",
+      "ranked_words": [
+        "チョウ",
+        "チョン",
+        "ジョウ",
+        "ショウ",
+        "ソウ",
+        "ソン",
+        "コウ",
+        "コン",
+        "ゴ",
+        "クォ"
+      ],
+      "positive_words": [
+        "ソン"
+      ]
+    },
+    {
+      "query": "ドウキ",
+      "ranked_words": [
+        "ドキ",
+        "トウキ",
+        "オオキ",
+        "オキ",
+        "ドイ",
+        "ドヒ",
+        "トトキ",
+        "トモキ",
+        "モトキ",
+        "モロキ"
+      ],
+      "positive_words": [
+        "トウキ"
+      ]
+    },
+    {
+      "query": "ドオリ",
+      "ranked_words": [
+        "ドイ",
+        "ドキ",
+        "ドヒ",
+        "コオリ",
+        "ホリ",
+        "モリ",
+        "トモリ",
+        "コモリ",
+        "ロイ",
+        "トイ"
+      ],
+      "positive_words": [
+        "コオリ"
+      ]
+    },
+    {
+      "query": "ドコ",
+      "ranked_words": [
+        "ドド",
+        "トゴウ",
+        "ゴトウ",
+        "ソト",
+        "トヨ",
+        "オト",
+        "オノ",
+        "ノモ",
+        "ポゾ",
+        "ポロ"
+      ],
+      "positive_words": [
+        "トゴウ",
+        "ゴトウ"
+      ]
+    },
+    {
+      "query": "ドコニ",
+      "ranked_words": [
+        "ドキ",
+        "ドイ",
+        "ドヒ",
+        "トトキ",
+        "トモキ",
+        "トオイ",
+        "トモリ",
+        "オクイ",
+        "ヨコイ",
+        "ヨコチ"
+      ],
+      "positive_words": [
+        "トモリ",
+        "ヨコイ"
+      ]
+    },
+    {
+      "query": "ドコマデモ",
+      "ranked_words": [
+        "オオタケンゴ",
+        "コマタヒデオ",
+        "ドンマネー",
+        "コマエ",
+        "ドイヒデト",
+        "ドドタカオ",
+        "モトマエ",
+        "コマゴ",
+        "コドラド",
+        "オカドメ"
+      ],
+      "positive_words": [
+        "オオタケンゴ"
+      ]
+    },
+    {
+      "query": "ドレ",
+      "ranked_words": [
+        "トネ",
+        "トベ",
+        "トーベ",
+        "ソネ",
+        "ホセ",
+        "ヨネ",
+        "オゼ",
+        "ノロセ",
+        "ボレス",
+        "ポレダ"
+      ],
+      "positive_words": [
+        "トーベ"
+      ]
+    },
+    {
+      "query": "ドレホド",
+      "ranked_words": [
+        "ドテモト",
+        "ホセロ",
+        "モレノ",
+        "ロメロ",
+        "イデホ",
+        "ドネルス",
+        "ドミンゴ",
+        "イデモト",
+        "ミネモト",
+        "ポレダ"
+      ],
+      "positive_words": [
+        "ドテモト"
+      ]
+    },
+    {
+      "query": "ナイタ",
+      "ranked_words": [
+        "ナニータ",
+        "ナリタ",
+        "ダイタ",
+        "マイタ",
+        "アイダ",
+        "カイダ",
+        "タイガ",
+        "タイラ",
+        "マキタ",
+        "アキタ"
+      ],
+      "positive_words": [
+        "ナリタ"
+      ]
+    },
+    {
+      "query": "ナイママボクワ",
+      "ranked_words": [
+        "マキハラコウタ",
+        "マニーアコスタ",
+        "ナカジママモル",
+        "アイハラマモル",
+        "アサイマモル",
+        "アキヤマノボル",
+        "ナリタノボル",
+        "アキバナオキ",
+        "アキヤマコウジ",
+        "ナカシマタクヤ"
+      ],
+      "positive_words": [
+        "アイカワリョウタ"
+      ]
+    },
+    {
+      "query": "ナイン",
+      "ranked_words": [
+        "ナイジ",
+        "ナカイ",
+        "ナガイ",
+        "ナシダ",
+        "ナミキ",
+        "ダイ",
+        "カイ",
+        "アイ",
+        "ツァイ",
+        "サイキ"
+      ],
+      "positive_words": [
+        "ダーウィン"
+      ]
+    },
+    {
+      "query": "ナカオ",
+      "ranked_words": [
+        "ナカオ",
+        "ナガオ",
+        "ナカゴウ",
+        "ナカジョウ",
+        "ナカトウ",
+        "ナカノ",
+        "ナガノ",
+        "タカノ",
+        "サカノ",
+        "タカジョウ"
+      ],
+      "positive_words": [
+        "ナカオ"
+      ]
+    },
+    {
+      "query": "ナカデ",
+      "ranked_words": [
+        "ナカデ",
+        "ナカネ",
+        "ナガエ",
+        "ナガセ",
+        "ナガレ",
+        "タカベ",
+        "ガラテ",
+        "サファテ",
+        "ザラテ",
+        "アヤベ"
+      ],
+      "positive_words": [
+        "ナカデ"
+      ]
+    },
+    {
+      "query": "ナカモ",
+      "ranked_words": [
+        "ナカオ",
+        "ナカノ",
+        "ナカゴウ",
+        "ナカトウ",
+        "ナカジョウ",
+        "ナガオ",
+        "ナガノ",
+        "サカノ",
+        "タカノ",
+        "カマノ"
+      ],
+      "positive_words": [
+        "ナカノ"
+      ]
+    },
+    {
+      "query": "ナクテモ",
+      "ranked_words": [
+        "バークレオ",
+        "マルセド",
+        "ナツメ",
+        "マルテ",
+        "アクネ",
+        "カクゼン",
+        "ナルセ",
+        "アズセ",
+        "バルデス",
+        "マクタ"
+      ],
+      "positive_words": [
+        "バークレオ"
+      ]
+    },
+    {
+      "query": "ナニ",
+      "ranked_words": [
+        "ナイジ",
+        "ナカイ",
+        "ナガイ",
+        "ナガミ",
+        "ナミキ",
+        "ナラキ",
+        "タニ",
+        "タニキ",
+        "チャタニ",
+        "アイ"
+      ],
+      "positive_words": [
+        "タニ"
+      ]
+    },
+    {
+      "query": "ナニガ",
+      "ranked_words": [
+        "ナニータ",
+        "タニガワ",
+        "ナリタ",
+        "ナシダ",
+        "タニダ",
+        "アニヤ",
+        "タイガ",
+        "サイガ",
+        "アリガ",
+        "ダイタ"
+      ],
+      "positive_words": [
+        "ナリタ"
+      ]
+    },
+    {
+      "query": "ナンデモ",
+      "ranked_words": [
+        "タネモ",
+        "カンセコ",
+        "ナカデ",
+        "イデモト",
+        "マエオカ",
+        "マエダ",
+        "タケダ",
+        "ダテ",
+        "イデホ",
+        "ナイト"
+      ],
+      "positive_words": [
+        "カンセコ"
+      ]
+    },
+    {
+      "query": "ナンノ",
+      "ranked_words": [
+        "ナカノ",
+        "ナガノ",
+        "ナカオ",
+        "ナガオ",
+        "アオノ",
+        "アノ",
+        "カンノ",
+        "タンノ",
+        "ダンノ",
+        "カノ"
+      ],
+      "positive_words": [
+        "カンノ",
+        "タンノ"
+      ]
+    },
+    {
+      "query": "ハイ",
+      "ranked_words": [
+        "ハジ",
+        "ハッチ",
+        "ハリ",
+        "アイ",
+        "カイ",
+        "タイ",
+        "ダイ",
+        "ツァイ",
+        "カチ",
+        "タキ"
+      ],
+      "positive_words": [
+        "カイ"
+      ]
+    },
+    {
+      "query": "ハイ",
+      "ranked_words": [
+        "ハリ",
+        "ハジ",
+        "ハッチ",
+        "アイ",
+        "ハナイ",
+        "ハライ",
+        "カイ",
+        "タイ",
+        "ダイ",
+        "ツァイ"
+      ],
+      "positive_words": [
+        "カイ",
+        "アイ"
+      ]
+    },
+    {
+      "query": "ハイテ",
+      "ranked_words": [
+        "ハイメ",
+        "カシデ",
+        "カイベ",
+        "アリメ",
+        "アカイケ",
+        "ハジ",
+        "ハッチ",
+        "ハリ",
+        "サファテ",
+        "ガラテ"
+      ],
+      "positive_words": [
+        "ハイメ"
+      ]
+    },
+    {
+      "query": "ハイニ",
+      "ranked_words": [
+        "ハナイ",
+        "ハライ",
+        "ハリ",
+        "ハマチ",
+        "ハヤシ",
+        "ハヤミ",
+        "ハジ",
+        "ハッチ",
+        "タカニ",
+        "タニ"
+      ],
+      "positive_words": [
+        "アイキ"
+      ]
+    },
+    {
+      "query": "ハイミンナ",
+      "ranked_words": [
+        "ハイジマ",
+        "ハイヤマ",
+        "ハーミッダ",
+        "ナイマン",
+        "アマミヤ",
+        "アミヤ",
+        "カミシマ",
+        "アイハラ",
+        "アキヤマ",
+        "アニヤ"
+      ],
+      "positive_words": [
+        "ハーミッダ"
+      ]
+    },
+    {
+      "query": "ハクチュウム",
+      "ranked_words": [
+        "マクブルーム",
+        "ハラシュウ",
+        "パーム",
+        "アクツ",
+        "チャンス",
+        "アンシュウ",
+        "シャウス",
+        "ハクムラ",
+        "タクマ",
+        "ナカグマ"
+      ],
+      "positive_words": [
+        "マクブルーム"
+      ]
+    },
+    {
+      "query": "ハナシ",
+      "ranked_words": [
+        "ハナイ",
+        "ハヤシ",
+        "ハマチ",
+        "ハライ",
+        "ハヤミ",
+        "カナシキ",
+        "サヤシ",
+        "アカシ",
+        "カナイ",
+        "ヤナギ"
+      ],
+      "positive_words": [
+        "ハヤシ"
+      ]
+    },
+    {
+      "query": "ヒト",
+      "ranked_words": [
+        "ヒモト",
+        "ヒノ",
+        "ヒロ",
+        "ウィット",
+        "イトウ",
+        "ニトウ",
+        "キトウ",
+        "イモト",
+        "キモト",
+        "ニホ"
+      ],
+      "positive_words": [
+        "イトウ"
+      ]
+    },
+    {
+      "query": "ヒトツモ",
+      "ranked_words": [
+        "シモクボ",
+        "イボムホ",
+        "イノクボ",
+        "イトウツトム",
+        "キタノツトム",
+        "シモツマ",
+        "イナツトム",
+        "イノツメ",
+        "シオツキ",
+        "シオムラ"
+      ],
+      "positive_words": [
+        "イボムホ"
+      ]
+    },
+    {
+      "query": "ヒトミ",
+      "ranked_words": [
+        "ヒトミ",
+        "シントミ",
+        "ミトミ",
+        "イトイ",
+        "シオミ",
+        "ヒゴシ",
+        "ヒロキ",
+        "シモジ",
+        "ミノリ",
+        "ミモリ"
+      ],
+      "positive_words": [
+        "ヒトミ"
+      ]
+    },
+    {
+      "query": "ヒビモ",
+      "ranked_words": [
+        "ヒビノ",
+        "キミノ",
+        "シイノ",
+        "シチノ",
+        "ヒメノ",
+        "ヒキマ",
+        "イリノ",
+        "シシド",
+        "ニシノ",
+        "ヒモト"
+      ],
+      "positive_words": [
+        "ヒビノ"
+      ]
+    },
+    {
+      "query": "フタリ",
+      "ranked_words": [
+        "フタキ",
+        "フタガミ",
+        "フルタニ",
+        "フカタニ",
+        "フクタニ",
+        "フカミ",
+        "フナキ",
+        "ウガリ",
+        "ムライ",
+        "ウカイ"
+      ],
+      "positive_words": [
+        "フタキ"
+      ]
+    },
+    {
+      "query": "フッテ",
+      "ranked_words": [
+        "ウンテン",
+        "フセ",
+        "フカエ",
+        "フジエ",
+        "フジセ",
+        "フジメ",
+        "フレッド",
+        "ウエ",
+        "ウネ",
+        "クメ"
+      ],
+      "positive_words": [
+        "ウンテン"
+      ]
+    },
+    {
+      "query": "ホイ",
+      "ranked_words": [
+        "ホリ",
+        "ホリイ",
+        "オオイ",
+        "ゴイ",
+        "トイ",
+        "ドイ",
+        "ロイ",
+        "ホシ",
+        "オオキ",
+        "オオギ"
+      ],
+      "positive_words": [
+        "ドイ"
+      ]
+    },
+    {
+      "query": "ホントウ",
+      "ranked_words": [
+        "ホンドウ",
+        "ホウジョウ",
+        "ホンゴウ",
+        "ヒョウドウ",
+        "ショート",
+        "コットン",
+        "コトー",
+        "ゴトウ",
+        "オオト",
+        "オト"
+      ],
+      "positive_words": [
+        "ホンドウ"
+      ]
+    },
+    {
+      "query": "ホントウオ",
+      "ranked_words": [
+        "ホンドウ",
+        "ホンゴウ",
+        "ホウジョウ",
+        "ヒョウドウ",
+        "コットン",
+        "ゴトウ",
+        "モートン",
+        "オオト",
+        "コンドウ",
+        "ゴンドウ"
+      ],
+      "positive_words": [
+        "ホンドウ"
+      ]
+    },
+    {
+      "query": "ボクモ",
+      "ranked_words": [
+        "トクモト",
+        "コクボ",
+        "オオクボ",
+        "コムロ",
+        "オオムロ",
+        "ロブロ",
+        "オルト",
+        "ホルト",
+        "イノクボ",
+        "イボムホ"
+      ],
+      "positive_words": [
+        "コクボ"
+      ]
+    },
+    {
+      "query": "ボクラ",
+      "ranked_words": [
+        "オオクラ",
+        "トクラ",
+        "トヨクラ",
+        "ヨコクラ",
+        "コブカタ",
+        "ノブハラ",
+        "コムラ",
+        "オクムラ",
+        "トムラ",
+        "ノムラ"
+      ],
+      "positive_words": [
+        "オオクラ"
+      ]
+    },
+    {
+      "query": "ボクワ",
+      "ranked_words": [
+        "コクバ",
+        "オクガワ",
+        "オクダ",
+        "トクダ",
+        "トクラ",
+        "コブカタ",
+        "コムラ",
+        "オグマ",
+        "オグラ",
+        "オスナ"
+      ],
+      "positive_words": [
+        "コクバ",
+        "オグマ"
+      ]
+    },
+    {
+      "query": "マタ",
+      "ranked_words": [
+        "マタキ",
+        "マタノ",
+        "オマタ",
+        "カマタ",
+        "コマタ",
+        "サマタ",
+        "シマタ",
+        "ヌマタ",
+        "マサ",
+        "マイタ"
+      ],
+      "positive_words": [
+        "ハタ"
+      ]
+    },
+    {
+      "query": "マッテ",
+      "ranked_words": [
+        "マエ",
+        "ダテ",
+        "マナベ",
+        "マラベ",
+        "ガラテ",
+        "サファテ",
+        "ザラテ",
+        "アベ",
+        "カンベ",
+        "アヤベ"
+      ],
+      "positive_words": [
+        "マルテ"
+      ]
+    },
+    {
+      "query": "ママ",
+      "ranked_words": [
+        "バーマ",
+        "マサ",
+        "ハマ",
+        "ババ",
+        "ハバ",
+        "カワ",
+        "ワダ",
+        "カガ",
+        "カダ",
+        "サカ"
+      ],
+      "positive_words": [
+        "ハマ",
+        "バーマ",
+        "ババ"
+      ]
+    },
+    {
+      "query": "マル",
+      "ranked_words": [
+        "マル",
+        "マルク",
+        "マサル",
+        "マス",
+        "マツ",
+        "アルー",
+        "ハル",
+        "ラム",
+        "ラス",
+        "カク"
+      ],
+      "positive_words": [
+        "マル"
+      ]
+    },
+    {
+      "query": "ミテキタ",
+      "ranked_words": [
+        "ミギタ",
+        "シキタ",
+        "ミヤシタ",
+        "ミコシバ",
+        "ミセリ",
+        "ミシマ",
+        "ミヒラ",
+        "マキタ",
+        "タキタ",
+        "トキタ"
+      ],
+      "positive_words": [
+        "ビエイラ"
+      ]
+    },
+    {
+      "query": "ミリョク",
+      "ranked_words": [
+        "リオス",
+        "ビドル",
+        "イビョンギュ",
+        "シノブ",
+        "シオヅ",
+        "イノクボ",
+        "イトカズ",
+        "ミキリョウ",
+        "ミヤコ",
+        "ミルズ"
+      ],
+      "positive_words": [
+        "イビョンギュ"
+      ]
+    },
+    {
+      "query": "メント",
+      "ranked_words": [
+        "エモト",
+        "ネモト",
+        "デントン",
+        "エト",
+        "エトウ",
+        "エンドウ",
+        "セト",
+        "テンポ",
+        "ネオ",
+        "レオ"
+      ],
+      "positive_words": [
+        "エンドウ"
+      ]
+    },
+    {
+      "query": "モグリ",
+      "ranked_words": [
+        "モギ",
+        "モリ",
+        "モリイ",
+        "モリキ",
+        "モロキ",
+        "コモリ",
+        "トモリ",
+        "モスビー",
+        "モトキ",
+        "モトイ"
+      ],
+      "positive_words": [
+        "モスビー"
+      ]
+    },
+    {
+      "query": "モドラ",
+      "ranked_words": [
+        "モトダ",
+        "モトハラ",
+        "オモダ",
+        "ボトラ",
+        "トヨダ",
+        "トコダ",
+        "ソノダ",
+        "ホソダ",
+        "オチョア",
+        "トヨタ"
+      ],
+      "positive_words": [
+        "ボトラ"
+      ]
+    },
+    {
+      "query": "モドラナイ",
+      "ranked_words": [
+        "モトヤナギ",
+        "オオマガリ",
+        "ソラタニ",
+        "モトヤシキ",
+        "モモサキ",
+        "オオトナリ",
+        "オサナイ",
+        "オオタガキ",
+        "オオタタイシ",
+        "オオダチ"
+      ],
+      "positive_words": [
+        "モトヤナギ"
+      ]
+    },
+    {
+      "query": "ヤー",
+      "ranked_words": [
+        "ヤン",
+        "アン",
+        "ワン",
+        "ジャン",
+        "チャン",
+        "ハ",
+        "ファン",
+        "バン",
+        "バーン",
+        "マン"
+      ],
+      "positive_words": [
+        "ヤン"
+      ]
+    },
+    {
+      "query": "ユウヒ",
+      "ranked_words": [
+        "ユウキ",
+        "ユキ",
+        "キュウキ",
+        "ルーキ",
+        "ユウイチ",
+        "ユグチ",
+        "フクイ",
+        "ヌクイ",
+        "イヌイ",
+        "イズミ"
+      ],
+      "positive_words": [
+        "ユウキ"
+      ]
+    },
+    {
+      "query": "ユウヒノ",
+      "ranked_words": [
+        "ウチノ",
+        "ユウジロウ",
+        "フジノ",
+        "ウミノ",
+        "ウチオ",
+        "ツジノ",
+        "フルミゾ",
+        "ヒノ",
+        "ユウイチ",
+        "ユウキ"
+      ],
+      "positive_words": [
+        "ユウジロウ"
+      ]
+    },
+    {
+      "query": "ユク",
+      "ranked_words": [
+        "ニューク",
+        "フク",
+        "クック",
+        "チューク",
+        "ツル",
+        "ユキ",
+        "ユウキ",
+        "ユ",
+        "ク",
+        "ユゲ"
+      ],
+      "positive_words": [
+        "ニューク"
+      ]
+    },
+    {
+      "query": "ヨウニ",
+      "ranked_words": [
+        "ヨギ",
+        "ヨコイ",
+        "ノウニン",
+        "ヨシイ",
+        "ヨコチ",
+        "ヨシミ",
+        "オニシ",
+        "オキ",
+        "オギ",
+        "オオイ"
+      ],
+      "positive_words": [
+        "ノウニン"
+      ]
+    },
+    {
+      "query": "ヨカ",
+      "ranked_words": [
+        "ヨコタ",
+        "オカ",
+        "オオカ",
+        "ヨザ",
+        "ヨダ",
+        "コガ",
+        "コジャ",
+        "コバ",
+        "ゴヤ",
+        "モヤ"
+      ],
+      "positive_words": [
+        "ヨダ",
+        "オカ"
+      ]
+    },
+    {
+      "query": "ヨシ",
+      "ranked_words": [
+        "ヨシイ",
+        "ヨシミ",
+        "ホシ",
+        "チョウシ",
+        "コイシ",
+        "オニシ",
+        "コニシ",
+        "ヨギ",
+        "オチ",
+        "オキ"
+      ],
+      "positive_words": [
+        "ヨシイ",
+        "ホシ"
+      ]
+    },
+    {
+      "query": "ヨット",
+      "ranked_words": [
+        "ヨコオ",
+        "オト",
+        "オオト",
+        "コットン",
+        "ソト",
+        "ノット",
+        "ポート",
+        "ショート",
+        "ジョウド",
+        "トウノ"
+      ],
+      "positive_words": [
+        "ノット"
+      ]
+    },
+    {
+      "query": "ワカリ",
+      "ranked_words": [
+        "ワカイ",
+        "アカイ",
+        "アカギ",
+        "アカシ",
+        "アサリ",
+        "サカイ",
+        "サカキ",
+        "タカイ",
+        "タカギ",
+        "タカニ"
+      ],
+      "positive_words": [
+        "ワカイ"
+      ]
+    },
+    {
+      "query": "ワカリアウ",
+      "ranked_words": [
+        "ワダイサム",
+        "ワダイサオ",
+        "カワキタ",
+        "カワシマ",
+        "カワシマリョウ",
+        "ナカシマ",
+        "ナカジマ",
+        "ナカミガワ",
+        "ナカヒガシ",
+        "カワミツ"
+      ],
+      "positive_words": [
+        "タカギバン"
+      ]
+    },
+    {
+      "query": "ワタシ",
+      "ranked_words": [
+        "ワタライ",
+        "ワカイ",
+        "タイ",
+        "タキ",
+        "タギ",
+        "タニ",
+        "タカイ",
+        "タカギ",
+        "タカニ",
+        "タカミ"
+      ],
+      "positive_words": [
+        "アカシ"
+      ]
+    },
+    {
+      "query": "ワタシモ",
+      "ranked_words": [
+        "カワシモ",
+        "マシモ",
+        "タシロ",
+        "タマシロ",
+        "タカシロ",
+        "タチノ",
+        "タキノ",
+        "タニノ",
+        "マシコ",
+        "ハシノ"
+      ],
+      "positive_words": [
+        "タカシロ"
+      ]
+    },
+    {
+      "query": "ワライタイ",
+      "ranked_words": [
+        "アライダイ",
+        "カワイタカシ",
+        "アラキタダシ",
+        "アカミナイ",
+        "カギタニ",
+        "カジタニ",
+        "ナカヒガシ",
+        "ハヤシザキ",
+        "アライサトシ",
+        "タカイサトシ"
+      ],
+      "positive_words": [
+        "アライダイ"
+      ]
+    },
+    {
+      "query": "ワラッ",
+      "ranked_words": [
+        "ワダ",
+        "ララ",
+        "ハラ",
+        "ナラ",
+        "バラー",
+        "ラガ",
+        "アナン",
+        "ワカイ",
+        "ワン",
+        "ワタベ"
+      ],
+      "positive_words": [
+        "バラー"
+      ]
+    }
+  ]
+}
