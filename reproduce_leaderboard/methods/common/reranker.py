@@ -8,6 +8,7 @@ from typing import Any, Type
 from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
+import pyopenjtalk
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
@@ -100,6 +101,16 @@ class OpenAIBatchRerankResult:
 _last_token_usage = TokenUsage()
 
 
+def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
+    if input_transform == "none":
+        return text
+    if input_transform == "pyopenjtalk_romaji":
+        phonemes = pyopenjtalk.g2p(text)
+        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
+        return " ".join(phoneme_text.lower().split())
+    raise ValueError(f"Unknown input_transform: {input_transform}")
+
+
 def build_system_prompt(prompt_template: str = "default") -> str:
     try:
         prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
@@ -114,6 +125,7 @@ def build_rerank_messages(
     *,
     topn: int,
     prompt_template: str,
+    input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
     prompt = build_system_prompt(prompt_template)
     user_prompt = """
@@ -126,14 +138,20 @@ def build_rerank_messages(
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
-        wordlist_str = "\n".join([f"{i}. {word}" for i, word in enumerate(wordlist)])
+        transformed_query = transform_text_for_rerank(query, input_transform)
+        transformed_wordlist = [
+            transform_text_for_rerank(word, input_transform) for word in wordlist
+        ]
+        wordlist_str = "\n".join(
+            [f"{i}. {word}" for i, word in enumerate(transformed_wordlist)]
+        )
         messages.append(
             [
                 {"role": "system", "content": prompt},
                 {
                     "role": "user",
                     "content": user_prompt.format(
-                        query=query, wordlist=wordlist_str, topn=topn
+                        query=transformed_query, wordlist=wordlist_str, topn=topn
                     ),
                 },
             ]
@@ -215,9 +233,9 @@ def accumulate_token_usage(response: Any) -> None:
         completion_details = _get_value(usage, "output_tokens_details")
     reasoning_tokens = _get_value(completion_details, "reasoning_tokens", 0) or 0
 
-    _last_token_usage.input_tokens += _get_value(usage, "prompt_tokens", 0) or _get_value(
-        usage, "input_tokens", 0
-    )
+    _last_token_usage.input_tokens += _get_value(
+        usage, "prompt_tokens", 0
+    ) or _get_value(usage, "input_tokens", 0)
     _last_token_usage.completion_tokens += _get_value(
         usage, "completion_tokens", 0
     ) or _get_value(usage, "output_tokens", 0)
@@ -520,7 +538,9 @@ def submit_openai_batch_rerank_job(
     return state
 
 
-def _build_reranked_wordlist(wordlist: list[str], reranked_indices: list[int]) -> list[str]:
+def _build_reranked_wordlist(
+    wordlist: list[str], reranked_indices: list[int]
+) -> list[str]:
     reranked_wordlist = []
     for index in reranked_indices:
         if 0 <= index < len(wordlist):
@@ -562,7 +582,9 @@ def _jsonify_openai_value(value: Any) -> Any:
     return value
 
 
-def _summarize_batch_errors(error_file_path: str | None, *, limit: int = 3) -> str | None:
+def _summarize_batch_errors(
+    error_file_path: str | None, *, limit: int = 3
+) -> str | None:
     if error_file_path is None:
         return None
 
@@ -640,10 +662,14 @@ def retrieve_openai_batch_rerank_job(
     for item in state["items"]:
         row = row_by_custom_id.get(item["custom_id"])
         if row is None:
-            raise RuntimeError(f"Missing batch result for custom_id={item['custom_id']}")
+            raise RuntimeError(
+                f"Missing batch result for custom_id={item['custom_id']}"
+            )
         response = row.get("response")
         if response is None:
-            raise RuntimeError(f"Batch result missing response for custom_id={item['custom_id']}")
+            raise RuntimeError(
+                f"Batch result missing response for custom_id={item['custom_id']}"
+            )
         if response.get("status_code") != 200:
             raise RuntimeError(
                 "Batch request failed for "
@@ -733,6 +759,7 @@ def rerank_by_llm(
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
     prompt_template: str = "default",
+    input_transform: str = "none",
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
@@ -745,6 +772,7 @@ def rerank_by_llm(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
+        input_transform=input_transform,
     )
 
     reranked_wordlists = []

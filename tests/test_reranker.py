@@ -176,6 +176,14 @@ def test_build_system_prompt_reuses_example_suffix():
     assert "Reranked: 6, 4, 5, 7, 2" in prompt
 
 
+def test_transform_text_for_rerank_supports_pyopenjtalk_romaji():
+    transformed = reranker.transform_text_for_rerank(
+        "タロウ", input_transform="pyopenjtalk_romaji"
+    )
+
+    assert transformed == "t a r o o"
+
+
 def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
     captured_messages = []
 
@@ -367,7 +375,9 @@ def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_p
         def content(self, file_id):
             assert file_id == "file-output"
             return SimpleNamespace(
-                content=(json.dumps(response_row, ensure_ascii=False) + "\n").encode("utf-8")
+                content=(json.dumps(response_row, ensure_ascii=False) + "\n").encode(
+                    "utf-8"
+                )
             )
 
     class FakeBatches:
@@ -456,7 +466,9 @@ def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
         def content(self, file_id):
             assert file_id == "file-error"
             return SimpleNamespace(
-                content=(json.dumps(error_row, ensure_ascii=False) + "\n").encode("utf-8")
+                content=(json.dumps(error_row, ensure_ascii=False) + "\n").encode(
+                    "utf-8"
+                )
             )
 
     class FakeBatches:
@@ -488,3 +500,32 @@ def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
         reasoning_tokens=9,
         total_tokens=33,
     )
+
+
+def test_rerank_by_llm_transforms_query_and_candidates_before_prompt(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return [{"reranked": [1, 0]}]
+
+    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        reranker,
+        "transform_text_for_rerank",
+        lambda text, input_transform="none": f"roma:{text}",
+    )
+
+    reranked = reranker.rerank_by_llm(
+        query_texts=["アケ"],
+        wordlist_texts=[["アベ", "カケイ"]],
+        model_name="gpt-5.4",
+        prompt_template="008_02_detailed",
+        input_transform="pyopenjtalk_romaji",
+        rerank_interval=0,
+    )
+
+    assert "Query: roma:アケ" in captured_messages[0][1]["content"]
+    assert "0. roma:アベ" in captured_messages[0][1]["content"]
+    assert "1. roma:カケイ" in captured_messages[0][1]["content"]
+    assert reranked == [["カケイ", "アベ"]]
