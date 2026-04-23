@@ -6,7 +6,9 @@ from soramimi_phonetic_search_dataset import (
     PhoneticSearchDataset,
     PhoneticSearchQuery,
     evaluate_ranking_function,
+    load_default_dataset,
     load_phonetic_search_dataset,
+    load_small_dataset,
 )
 from soramimi_phonetic_search_dataset.evaluate import calculate_recall
 
@@ -51,6 +53,54 @@ def test_load_phonetic_search_dataset(sample_dataset, sample_dataset_file):
     ):
         assert loaded_query.query == original_query.query
         assert loaded_query.positive == original_query.positive
+
+
+def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
+    """クエリ数を絞ってデータセットを読み込める"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    limited_dataset = load_default_dataset(query_limit=1)
+    assert len(limited_dataset.queries) == 1
+    assert limited_dataset.words == sample_dataset.words
+    assert limited_dataset.metadata["query_limit"] == 1
+    assert limited_dataset.metadata["subset"] == "first_1_queries"
+
+
+def test_load_default_dataset_with_invalid_query_limit(monkeypatch, sample_dataset):
+    """query_limitは正の整数のみ受け付ける"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    with pytest.raises(ValueError, match="query_limit must be a positive integer"):
+        load_default_dataset(query_limit=0)
+
+
+def test_load_small_dataset(monkeypatch, sample_dataset):
+    """小データセットは十分小さい入力では元データをそのまま返す"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    loaded_dataset = load_small_dataset()
+    assert loaded_dataset is sample_dataset
 
 
 def test_calculate_recall():
@@ -99,3 +149,22 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
 
     recall = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
     assert recall == 1.0  # 全てのクエリで正解を含む
+
+
+def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):
+    """明示的に渡したデータセットで評価できる"""
+
+    def perfect_ranking(query_texts, wordlist_texts):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlist_texts == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ]
+
+    recall = evaluate_ranking_function(
+        ranking_func=perfect_ranking,
+        topn=2,
+        dataset=sample_dataset,
+    )
+    assert recall == 1.0
