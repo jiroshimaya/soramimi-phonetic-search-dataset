@@ -23,19 +23,19 @@ PROMPT_INSTRUCTIONS = {
     You need to return only the reranked list of index numbers of the words, no other text.
     You need to return only topn index numbers.
     """,
-    "008_01_simple": """
+    "simple": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     出力は上位Top N件のインデックスのみ返してください。
     """,
-    "008_02_detailed": """
+    "detailed": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     - 子音より母音の一致を優先してください
     - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
     出力は上位Top N件のインデックスのみ返してください。
     """,
-    "008_03_step_by_step": """
+    "step_by_step": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
     以下の手順で判断してください。
@@ -43,6 +43,14 @@ PROMPT_INSTRUCTIONS = {
     - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
     - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
     - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "detailed_romaji_explicit": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
     出力は上位Top N件のインデックスのみ返してください。
     """,
 }
@@ -108,6 +116,9 @@ def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
         phonemes = pyopenjtalk.g2p(text)
         phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
         return " ".join(phoneme_text.lower().split())
+    if input_transform == "kana_and_pyopenjtalk_romaji":
+        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
+        return f"{text}（{romaji}）"
     raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
@@ -466,6 +477,7 @@ def submit_openai_batch_rerank_job(
     topn: int,
     model_name: str,
     prompt_template: str,
+    input_transform: str = "none",
     response_format: Type[BaseModel],
     state_path: str,
     output_file_path: str,
@@ -492,6 +504,7 @@ def submit_openai_batch_rerank_job(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
+        input_transform=input_transform,
     )
     custom_ids = [str(item["custom_id"]) for item in request_items]
     requests = build_openai_batch_requests(
@@ -531,6 +544,7 @@ def submit_openai_batch_rerank_job(
             "rerank_model_name": model_name,
             "rerank_reasoning_effort": reasoning_effort,
             "rerank_prompt_template": prompt_template,
+            "rerank_input_transform": input_transform,
         },
         "items": request_items,
     }

@@ -17,9 +17,12 @@
 | LLM Rerank (gemini-2.0-flash) | 0.550 | - | - | score は `results/006_llm_rerank_gemini.json` の先頭10件から補完 |
 | LLM Rerank (gpt-4.5-preview) | 0.750 | - | - | score は `results/007_llm_rerank_gpt45preview.json` の先頭10件から補完 |
 | LLM Rerank (gpt-5.4) | 0.600 | 3.8 | 0.0272 | default prompt |
-| LLM Rerank (gpt-5.4, prompt 008_01 simple) | 0.550 | 5.8 | 0.0254 | `008_01_simple` |
-| LLM Rerank (gpt-5.4, prompt 008_02 detailed) | 0.450 | 3.7 | 0.0281 | `008_02_detailed` |
-| LLM Rerank (gpt-5.4, prompt 008_03 step-by-step) | 0.650 | 3.5 | 0.0312 | `008_03_step_by_step` |
+| LLM Rerank (gpt-5.4, prompt simple) | 0.550 | 5.8 | 0.0254 | `simple` |
+| LLM Rerank (gpt-5.4, prompt detailed) | 0.450 | 3.7 | 0.0281 | `detailed` |
+| LLM Rerank (gpt-5.4, prompt step-by-step) | 0.650 | 3.5 | 0.0312 | `step_by_step` |
+| LLM Rerank (gpt-5.4, prompt detailed, pyopenjtalk romaji input) | 0.650 | 4.0 | 0.0328 | `detailed` + `pyopenjtalk_romaji` |
+| LLM Rerank (gpt-5.4, prompt detailed romaji explicit, pyopenjtalk romaji input) | 0.650 | 3.7 | 0.0334 | `detailed_romaji_explicit` + `pyopenjtalk_romaji` |
+| LLM Rerank (gpt-5.4, prompt detailed, kana+pyopenjtalk romaji input) | 0.750 | 3.5 | 0.0424 | `detailed` + `kana_and_pyopenjtalk_romaji` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_01 simple) | 0.650 | 126.0 | 0.6511 | `reasoning_effort=medium` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.900 | 230.0 | 0.9312 | `reasoning_effort=medium` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 1.000 | 186.4 | 1.0800 | `reasoning_effort=medium` |

@@ -93,6 +93,7 @@ def submit_openai_batch_evaluation(
     topn: int,
     model_name: str,
     prompt_template: str,
+    input_transform: str = "none",
     state_path: str,
     output_file_path: str,
     reasoning_effort: str | None = None,
@@ -110,6 +111,7 @@ def submit_openai_batch_evaluation(
         topn=topn,
         model_name=model_name,
         prompt_template=prompt_template,
+        input_transform=input_transform,
         response_format=RerankedWordlist,
         state_path=state_path,
         output_file_path=output_file_path,
@@ -129,6 +131,7 @@ def retrieve_openai_batch_evaluation_results(
     model_name: str,
     reasoning_effort: str | None,
     prompt_template: str,
+    input_transform: str = "none",
     backend: str,
 ) -> PhoneticSearchResults:
     retrieved = retrieve_openai_batch_rerank_job(
@@ -153,6 +156,7 @@ def retrieve_openai_batch_evaluation_results(
     results.parameters.rerank_model_name = model_name
     results.parameters.rerank_reasoning_effort = reasoning_effort
     results.parameters.rerank_prompt_template = prompt_template
+    results.parameters.rerank_input_transform = input_transform
     results.parameters.rerank_input_size = rerank_input_size
     results.parameters.rerank_backend = backend
     results.parameters.rerank_batch_id = batch_state["batch_id"]
