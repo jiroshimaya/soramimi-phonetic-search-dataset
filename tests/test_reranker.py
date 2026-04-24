@@ -169,7 +169,7 @@ def test_token_usage_exposes_output_tokens():
 
 
 def test_build_system_prompt_reuses_example_suffix():
-    prompt = reranker.build_system_prompt("008_02_detailed")
+    prompt = reranker.build_system_prompt("detailed")
 
     assert "子音より母音の一致を優先してください" in prompt
     assert "Example:" in prompt
@@ -182,6 +182,14 @@ def test_transform_text_for_rerank_supports_pyopenjtalk_romaji():
     )
 
     assert transformed == "t a r o o"
+
+
+def test_transform_text_for_rerank_supports_kana_and_pyopenjtalk_romaji():
+    transformed = reranker.transform_text_for_rerank(
+        "タロウ", input_transform="kana_and_pyopenjtalk_romaji"
+    )
+
+    assert transformed == "タロウ（t a r o o）"
 
 
 def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
@@ -197,7 +205,7 @@ def test_rerank_by_llm_uses_selected_prompt_template(monkeypatch):
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="008_03_step_by_step",
+        prompt_template="step_by_step",
         rerank_interval=0,
     )
 
@@ -294,7 +302,7 @@ def test_submit_openai_batch_rerank_job_writes_state_and_requests(tmp_path):
         positive_texts=[["アベ"]],
         topn=10,
         model_name="gpt-5.4",
-        prompt_template="008_03_step_by_step",
+        prompt_template="step_by_step",
         response_format=SampleResponse,
         state_path=str(state_path),
         output_file_path=str(tmp_path / "results.json"),
@@ -333,7 +341,7 @@ def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_p
                     "topn": 10,
                     "rerank_model_name": "gpt-5.4",
                     "rerank_reasoning_effort": "medium",
-                    "rerank_prompt_template": "008_03_step_by_step",
+                    "rerank_prompt_template": "step_by_step",
                 },
                 "items": [
                     {
@@ -433,7 +441,7 @@ def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
                     "topn": 10,
                     "rerank_model_name": "gpt-5.4",
                     "rerank_reasoning_effort": "medium",
-                    "rerank_prompt_template": "008_03_step_by_step",
+                    "rerank_prompt_template": "step_by_step",
                 },
                 "items": [
                     {
@@ -520,7 +528,7 @@ def test_rerank_by_llm_transforms_query_and_candidates_before_prompt(monkeypatch
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="008_02_detailed",
+        prompt_template="detailed",
         input_transform="pyopenjtalk_romaji",
         rerank_interval=0,
     )
@@ -529,3 +537,38 @@ def test_rerank_by_llm_transforms_query_and_candidates_before_prompt(monkeypatch
     assert "0. roma:アベ" in captured_messages[0][1]["content"]
     assert "1. roma:カケイ" in captured_messages[0][1]["content"]
     assert reranked == [["カケイ", "アベ"]]
+
+
+def test_build_system_prompt_supports_romaji_explicit_template():
+    prompt = reranker.build_system_prompt("detailed_romaji_explicit")
+
+    assert "元のカタカナ表記をローマ字変換したものです" in prompt
+    assert "子音より母音の一致を優先してください" in prompt
+
+
+def test_rerank_by_llm_supports_kana_and_romaji_pair_input(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return [{"reranked": [0, 1]}]
+
+    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        reranker,
+        "transform_text_for_rerank",
+        lambda text, input_transform="none": f"{text}（roma:{text}）",
+    )
+
+    reranker.rerank_by_llm(
+        query_texts=["アウマル"],
+        wordlist_texts=[["アニマル", "タクマル"]],
+        model_name="gpt-5.4",
+        prompt_template="detailed",
+        input_transform="kana_and_pyopenjtalk_romaji",
+        rerank_interval=0,
+    )
+
+    assert "Query: アウマル（roma:アウマル）" in captured_messages[0][1]["content"]
+    assert "0. アニマル（roma:アニマル）" in captured_messages[0][1]["content"]
+    assert "1. タクマル（roma:タクマル）" in captured_messages[0][1]["content"]

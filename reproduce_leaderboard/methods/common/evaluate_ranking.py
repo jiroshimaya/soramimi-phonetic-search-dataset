@@ -178,7 +178,13 @@ def main():
     parser.add_argument(
         "--rerank_prompt_template",
         type=str,
-        choices=["default", "008_01_simple", "008_02_detailed", "008_03_step_by_step"],
+        choices=[
+            "default",
+            "simple",
+            "detailed",
+            "step_by_step",
+            "detailed_romaji_explicit",
+        ],
         default="default",
         help="System prompt template for LLM reranking",
     )
@@ -204,7 +210,7 @@ def main():
     parser.add_argument(
         "--rerank_input_transform",
         type=str,
-        choices=["none", "pyopenjtalk_romaji"],
+        choices=["none", "pyopenjtalk_romaji", "kana_and_pyopenjtalk_romaji"],
         default="none",
         help="Transform query/candidates before reranking",
     )
@@ -226,7 +232,6 @@ def main():
         help="Do not save results to file",
     )
     args = parser.parse_args()
-
     # ベースのランキング関数を選択
     if args.rank_func == "kanasim":
         base_rank_func = rank_by_kanasim
@@ -278,6 +283,7 @@ def main():
                 topn=args.topn,
                 model_name=args.rerank_model_name,
                 prompt_template=args.rerank_prompt_template,
+                input_transform=args.rerank_input_transform,
                 state_path=batch_state_path,
                 output_file_path=output_path,
                 reasoning_effort=args.rerank_reasoning_effort,
@@ -297,6 +303,7 @@ def main():
             model_name=args.rerank_model_name,
             reasoning_effort=args.rerank_reasoning_effort,
             prompt_template=args.rerank_prompt_template,
+            input_transform=args.rerank_input_transform,
             backend=args.rerank_backend,
         )
 
