@@ -247,6 +247,9 @@ def test_rerank_by_llm_accepts_thoughtful_structured_output(monkeypatch):
 
     assert captured_response_format is reranker.ThoughtfulRerankedWordlist
     assert reranked == [["カケイ", "アベ"]]
+    assert reranker.get_last_structured_outputs() == [
+        {"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}
+    ]
 
 
 def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
@@ -453,6 +456,7 @@ def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_p
     )
 
     assert result.reranked_wordlists == [["カケイ", "アベ"]]
+    assert result.structured_outputs == [{"reranked": [1, 0]}]
     assert result.batch_status == "completed"
     assert result.execution_time == 60.0
 

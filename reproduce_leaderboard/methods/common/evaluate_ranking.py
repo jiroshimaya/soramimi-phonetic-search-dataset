@@ -12,6 +12,7 @@ from reranker import (
     calculate_token_cost,
     get_last_token_usage,
     get_rerank_response_format,
+    get_last_structured_outputs,
     rerank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
@@ -398,6 +399,10 @@ def main():
     )
     results.parameters.rerank_backend = args.rerank_backend if args.rerank else None
     results.parameters.rerank_batch_id = None
+    if args.rerank and args.rerank_include_thoughts:
+        structured_outputs = get_last_structured_outputs()
+        for result, structured_output in zip(results.results, structured_outputs):
+            result.thoughts = structured_output.get("thoughts")
     if args.rerank:
         token_usage = get_last_token_usage()
         token_cost = calculate_token_cost(args.rerank_model_name, token_usage)
