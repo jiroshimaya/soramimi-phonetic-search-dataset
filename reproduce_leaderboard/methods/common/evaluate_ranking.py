@@ -11,6 +11,7 @@ from batch_reranker import (
 from reranker import (
     calculate_token_cost,
     get_last_token_usage,
+    get_rerank_response_format,
     rerank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
@@ -30,6 +31,7 @@ def create_reranking_function(
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
     rerank_prompt_template: str,
+    rerank_include_thoughts: bool,
     rerank_input_transform: str,
     rerank_batch_size: int,
     rerank_interval: int,
@@ -79,6 +81,7 @@ def create_reranking_function(
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
             prompt_template=rerank_prompt_template,
+            include_thoughts=rerank_include_thoughts,
             input_transform=rerank_input_transform,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
@@ -97,6 +100,7 @@ def get_default_output_path(
     rerank_model_name: str = "gpt-4o-mini",
     rerank_reasoning_effort: str | None = None,
     rerank_prompt_template: str = "default",
+    rerank_include_thoughts: bool = False,
     rerank_input_transform: str = "none",
 ) -> str:
     suffix = f"_{rank_func}_top{topn}"
@@ -108,6 +112,8 @@ def get_default_output_path(
             suffix += f"_reasoning{rerank_reasoning_effort}"
         if rerank_prompt_template != "default":
             suffix += f"_prompt{rerank_prompt_template}"
+        if rerank_include_thoughts:
+            suffix += "_withthoughts"
         if rerank_input_transform != "none":
             suffix += f"_transform{rerank_input_transform}"
     if dataset_size != "default":
@@ -184,9 +190,15 @@ def main():
             "detailed",
             "step_by_step",
             "detailed_romaji_explicit",
+            "nonreasoning_cot",
         ],
         default="default",
         help="System prompt template for LLM reranking",
+    )
+    parser.add_argument(
+        "--rerank_include_thoughts",
+        action="store_true",
+        help="Require structured outputs to include thoughts in addition to reranked",
     )
     parser.add_argument(
         "--rerank_backend",
@@ -258,6 +270,7 @@ def main():
             args.rerank_model_name,
             args.rerank_reasoning_effort,
             args.rerank_prompt_template,
+            args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
     batch_state_path = args.rerank_batch_state_path or get_default_batch_state_path(
@@ -271,6 +284,9 @@ def main():
     if args.rerank and args.rerank_backend == "openai_batch":
         query_texts = [query.query for query in dataset.queries]
         positive_texts = [query.positive for query in dataset.queries]
+        response_format = get_rerank_response_format(
+            include_thoughts=args.rerank_include_thoughts
+        )
 
         if args.rerank_batch_action == "submit":
             batch_state = submit_openai_batch_evaluation(
@@ -283,6 +299,7 @@ def main():
                 topn=args.topn,
                 model_name=args.rerank_model_name,
                 prompt_template=args.rerank_prompt_template,
+                response_format=response_format,
                 input_transform=args.rerank_input_transform,
                 state_path=batch_state_path,
                 output_file_path=output_path,
@@ -296,6 +313,7 @@ def main():
             state_path=batch_state_path,
             query_texts=query_texts,
             positive_texts=positive_texts,
+            response_format=response_format,
             rank_func=args.rank_func,
             vowel_ratio=args.vowel_ratio,
             topn=args.topn,
@@ -303,6 +321,7 @@ def main():
             model_name=args.rerank_model_name,
             reasoning_effort=args.rerank_reasoning_effort,
             prompt_template=args.rerank_prompt_template,
+            rerank_include_thoughts=args.rerank_include_thoughts,
             input_transform=args.rerank_input_transform,
             backend=args.rerank_backend,
         )
@@ -329,6 +348,7 @@ def main():
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
             rerank_prompt_template=args.rerank_prompt_template,
+            rerank_include_thoughts=args.rerank_include_thoughts,
             rerank_input_transform=args.rerank_input_transform,
             rerank_batch_size=args.rerank_batch_size,
             rerank_interval=args.rerank_interval,
@@ -367,6 +387,9 @@ def main():
     results.parameters.rerank_prompt_template = (
         args.rerank_prompt_template if args.rerank else None
     )
+    results.parameters.rerank_include_thoughts = (
+        args.rerank_include_thoughts if args.rerank else None
+    )
     results.parameters.rerank_input_transform = (
         args.rerank_input_transform if args.rerank else None
     )
@@ -402,6 +425,7 @@ def main():
             args.rerank_model_name,
             args.rerank_reasoning_effort,
             args.rerank_prompt_template,
+            args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
     if not args.no_save:

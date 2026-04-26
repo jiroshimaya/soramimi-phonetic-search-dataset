@@ -8,6 +8,7 @@ from reranker import (
     OPENAI_BATCH_DISCOUNT_FACTOR,
     calculate_token_cost,
     get_last_token_usage,
+    get_rerank_response_format,
     retrieve_openai_batch_rerank_job,
     submit_openai_batch_rerank_job,
 )
@@ -18,10 +19,6 @@ from soramimi_phonetic_search_dataset.schemas import (
     PhoneticSearchResult,
     PhoneticSearchResults,
 )
-
-
-class RerankedWordlist(BaseModel):
-    reranked: list[int]
 
 
 def prepare_rerank_candidates(
@@ -93,6 +90,7 @@ def submit_openai_batch_evaluation(
     topn: int,
     model_name: str,
     prompt_template: str,
+    response_format: type[BaseModel] | None = None,
     input_transform: str = "none",
     state_path: str,
     output_file_path: str,
@@ -104,6 +102,8 @@ def submit_openai_batch_evaluation(
         positive_texts,
         rerank_input_size,
     )
+    if response_format is None:
+        response_format = get_rerank_response_format(include_thoughts=False)
     return submit_openai_batch_rerank_job(
         query_texts=query_texts,
         wordlist_texts=topk_ranked_wordlists,
@@ -112,7 +112,7 @@ def submit_openai_batch_evaluation(
         model_name=model_name,
         prompt_template=prompt_template,
         input_transform=input_transform,
-        response_format=RerankedWordlist,
+        response_format=response_format,
         state_path=state_path,
         output_file_path=output_file_path,
         reasoning_effort=reasoning_effort,
@@ -124,6 +124,7 @@ def retrieve_openai_batch_evaluation_results(
     state_path: str,
     query_texts: list[str],
     positive_texts: list[list[str]],
+    response_format: type[BaseModel] | None = None,
     rank_func: str,
     vowel_ratio: float,
     topn: int,
@@ -131,12 +132,15 @@ def retrieve_openai_batch_evaluation_results(
     model_name: str,
     reasoning_effort: str | None,
     prompt_template: str,
+    rerank_include_thoughts: bool = False,
     input_transform: str = "none",
     backend: str,
 ) -> PhoneticSearchResults:
+    if response_format is None:
+        response_format = get_rerank_response_format(include_thoughts=False)
     retrieved = retrieve_openai_batch_rerank_job(
         state_path=state_path,
-        response_format=RerankedWordlist,
+        response_format=response_format,
     )
     with open(state_path, encoding="utf-8") as f:
         batch_state = json.load(f)
@@ -156,6 +160,7 @@ def retrieve_openai_batch_evaluation_results(
     results.parameters.rerank_model_name = model_name
     results.parameters.rerank_reasoning_effort = reasoning_effort
     results.parameters.rerank_prompt_template = prompt_template
+    results.parameters.rerank_include_thoughts = rerank_include_thoughts
     results.parameters.rerank_input_transform = input_transform
     results.parameters.rerank_input_size = rerank_input_size
     results.parameters.rerank_backend = backend
