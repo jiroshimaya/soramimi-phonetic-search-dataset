@@ -1,5 +1,5 @@
 """
-LLMリランク (gpt-5.4, reasoning effort medium, step-by-step prompt) による評価を実行するスクリプト
+LLMリランク (gpt-5.4, non-reasoning CoT prompt, small dataset) による評価を実行するスクリプト
 """
 
 import subprocess
@@ -7,9 +7,9 @@ from pathlib import Path
 
 
 def main():
-    output_dir = Path(__file__).parent.parent / "results"
+    output_dir = Path(__file__).parent.parent / "results_small"
     output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / "010_03_llm_rerank_gpt54_medium_step_by_step.json"
+    output_path = output_dir / "008_07_llm_rerank_gpt54_nonreasoning_cot.json"
 
     evaluate_script = Path(__file__).parent / "common" / "evaluate_ranking.py"
     cmd = [
@@ -22,6 +22,8 @@ def main():
         "10",
         "--vowel_ratio",
         "0.5",
+        "--dataset_size",
+        "small",
         "--rerank",
         "--rerank_input_size",
         "100",
@@ -32,9 +34,10 @@ def main():
         "--rerank_model_name",
         "gpt-5.4",
         "--rerank_reasoning_effort",
-        "medium",
+        "none",
         "--rerank_prompt_template",
-        "step_by_step",
+        "nonreasoning_cot",
+        "--rerank_include_thoughts",
         "--output_file_path",
         str(output_path),
     ]

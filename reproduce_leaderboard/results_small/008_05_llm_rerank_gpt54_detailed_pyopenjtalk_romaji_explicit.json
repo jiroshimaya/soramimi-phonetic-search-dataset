@@ -1,0 +1,210 @@
+{
+  "parameters": {
+    "topn": 10,
+    "rank_func": "vowel_consonant",
+    "vowel_ratio": 0.5,
+    "rerank": true,
+    "rerank_model_name": "gpt-5.4",
+    "rerank_reasoning_effort": "none",
+    "rerank_prompt_template": "detailed_romaji_explicit",
+    "rerank_input_transform": "pyopenjtalk_romaji",
+    "rerank_input_size": 100,
+    "execution_timestamp": "2026-04-23T14:46:02.452256"
+  },
+  "metrics": {
+    "recall": 0.8,
+    "execution_time": 6.736003875732422,
+    "rerank_input_tokens": 11324,
+    "rerank_output_tokens": 340,
+    "rerank_reasoning_tokens": 0,
+    "rerank_total_tokens": 11664,
+    "rerank_input_cost": 0.028310000000000002,
+    "rerank_output_cost": 0.0051,
+    "rerank_reasoning_cost": 0.0,
+    "rerank_total_cost": 0.03341
+  },
+  "results": [
+    {
+      "query": "アイ",
+      "ranked_words": [
+        "アイ",
+        "アイキ",
+        "アイダ",
+        "アイト",
+        "アイバ",
+        "アオイ",
+        "アサイ",
+        "アライ",
+        "アキタ",
+        "アキト"
+      ],
+      "positive_words": [
+        "アイ"
+      ]
+    },
+    {
+      "query": "アウマル",
+      "ranked_words": [
+        "アニマル",
+        "アキマル",
+        "カネマル",
+        "サコマル",
+        "タクマル",
+        "サムラ",
+        "アサムラ",
+        "アリムラ",
+        "ナカムラ",
+        "イシマル"
+      ],
+      "positive_words": [
+        "タクマル"
+      ]
+    },
+    {
+      "query": "アケ",
+      "ranked_words": [
+        "アベ",
+        "カセ",
+        "ミケ",
+        "アカイ",
+        "イデ",
+        "イケベ",
+        "イケヤ",
+        "イケノ",
+        "カイ",
+        "カケイ"
+      ],
+      "positive_words": [
+        "アベ",
+        "カケイ"
+      ]
+    },
+    {
+      "query": "アシオト",
+      "ranked_words": [
+        "シオタ",
+        "オシオ",
+        "アシダ",
+        "イシドウ",
+        "イシド",
+        "イシドコ",
+        "イシオカ",
+        "アシカリ",
+        "アシザワ",
+        "アシカガ"
+      ],
+      "positive_words": [
+        "ハシモト"
+      ]
+    },
+    {
+      "query": "アッテ",
+      "ranked_words": [
+        "アボット",
+        "イッキ",
+        "イダテ",
+        "ダテ",
+        "ダイタ",
+        "サファテ",
+        "ガラテ",
+        "ザラテ",
+        "マルテ",
+        "モンテ"
+      ],
+      "positive_words": [
+        "マルテ"
+      ]
+    },
+    {
+      "query": "アト",
+      "ranked_words": [
+        "オト",
+        "エト",
+        "ウト",
+        "タオ",
+        "オ",
+        "ソト",
+        "アノ",
+        "アン",
+        "ジオ",
+        "アサオ"
+      ],
+      "positive_words": [
+        "カトウ"
+      ]
+    },
+    {
+      "query": "アノ",
+      "ranked_words": [
+        "アノ",
+        "アン",
+        "オノ",
+        "ウノ",
+        "カノ",
+        "サノ",
+        "マノ",
+        "ミノ",
+        "ヤノ",
+        "アナン"
+      ],
+      "positive_words": [
+        "アノ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "アリメ",
+        "エレラ",
+        "イレイ",
+        "アズセ",
+        "フセ",
+        "カセ",
+        "イベ",
+        "アヤベ"
+      ],
+      "positive_words": [
+        "アレン",
+        "アベ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "エレラ",
+        "アリメ",
+        "アズセ",
+        "フセ",
+        "イベ",
+        "カセ",
+        "イレイ",
+        "アキラ"
+      ],
+      "positive_words": [
+        "アレン"
+      ]
+    },
+    {
+      "query": "アレクルウ",
+      "ranked_words": [
+        "アレックス",
+        "アリクラ",
+        "デラクルス",
+        "デラクルーズ",
+        "クルス",
+        "パークル",
+        "イマクルス",
+        "アラカネ",
+        "アンラク",
+        "レルー"
+      ],
+      "positive_words": [
+        "アレックス"
+      ]
+    }
+  ]
+}
