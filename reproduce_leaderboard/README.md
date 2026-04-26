@@ -46,6 +46,7 @@ uv run methods/008_01_llm_rerank_gpt54_simple.py  # LLMリランク (gpt-5.4, pr
 uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed)
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
 uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input)
+uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, kana+romaji input)
 uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input, small dataset)
 uv run methods/008_05_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_explicit_small.py  # LLMリランク (gpt-5.4, prompt with explicit romaji note, small dataset)
 uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, kana+romaji input, small dataset)
@@ -97,6 +98,12 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_m
 # GPT-5.4でカナとローマ字をセットで与えて rerank
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
 
+# GPT-5.4で同条件を先頭100クエリだけで評価
+uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10 --vowel_ratio 0.5 --query_limit 100 --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
+
+# GPT-5.4で101〜150件目だけを評価
+uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10 --vowel_ratio 0.5 --query_limit 50 --query_offset 100 --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template detailed --rerank_input_transform kana_and_pyopenjtalk_romaji
+
 # GPT-5.4で非推論CoTを thoughts + reranked の構造化出力で試す
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort none --rerank_prompt_template nonreasoning_cot --rerank_include_thoughts --dataset_size small
 
@@ -112,6 +119,8 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `-r`, `--rank_func`: ランキング関数の種類（kanasim, vowel_consonant, phoneme, mora）
 - `-n`, `--topn`: 評価に使用する上位n件
 - `--dataset_size`: データセットサイズ（default, small）
+- `--query_limit`: default dataset の先頭Nクエリだけで評価
+- `--query_offset`: default dataset の先頭Nクエリをスキップして評価
 - `-vr`, `--vowel_ratio`: 母音の重み（kanasim, vowel_consonantの場合のみ使用）
 - `--rerank`: LLMによるリランキングを使用
 - `--rerank_input_size`: リランクに使用する候補数
@@ -148,6 +157,7 @@ results/
 ├── 008_02_llm_rerank_gpt54_detailed.json
 ├── 008_03_llm_rerank_gpt54_step_by_step.json
 ├── 008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.json
+├── 008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.json
 ├── 008_07_llm_rerank_gpt54_nonreasoning_cot.json
 ├── 010_01_llm_rerank_gpt54_medium_simple.json
 ├── 010_01_llm_rerank_gpt54_medium_simple_cost_estimate.json
@@ -174,6 +184,8 @@ results_small/
 ```
 
 `011_03_llm_rerank_gpt51_medium_step_by_step.json` は OpenAI Batch API の実測値を含む結果です。
+
+先頭100クエリなど small / default 以外の部分実験は、件数が分かるディレクトリ名で管理すると整理しやすいです。
 
 ## 注意事項
 
