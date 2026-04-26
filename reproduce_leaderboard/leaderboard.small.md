@@ -28,20 +28,11 @@
 | LLM Rerank (gpt-5.4, medium, prompt 010_02 detailed) | 0.900 | 230.0 | 0.9312 | `reasoning_effort=medium` |
 | LLM Rerank (gpt-5.4, medium, prompt 010_03 step-by-step) | 1.000 | 186.4 | 1.0800 | `reasoning_effort=medium` |
 
-## 参考: 同条件を先頭100クエリで実測
-
-small leaderboard 本体は先頭10クエリですが、同条件をもう少し安定して見たいとき向けに **先頭100クエリ** の実測も残しておきます。
-
-| Method | Recall@10 | Time (s) | API Cost (USD) | Notes |
-|--------|-----------|----------|----------------|-------|
-| LLM Rerank (gpt-5.4, prompt detailed, kana+pyopenjtalk romaji input) | 0.550 | 24.4 | 0.0454 | `detailed` + `kana_and_pyopenjtalk_romaji`; `query_limit=100` |
-
 ## メモ
 
-- small table の実測日時: 2026-04-22
+- 実測日時: 2026-04-22
 - API Cost は各 small run の `rerank_total_cost` を丸めた値です
 - Time は `execution_time` の実測値で、ネットワークやプロバイダ状態でぶれます
 - `LLM Rerank (gpt-5.4, non-reasoning CoT)` は 2026-04-26 実測で、`results_small/008_07_llm_rerank_gpt54_nonreasoning_cot.json` に対応します
 - `gemini-2.0-flash` と `gpt-4.5-preview` は small 実測がないため、Recall@10 のみ `results/*.json` の先頭10件から補完しています
 - full leaderboard の `*_cost_estimate.json` は **small での実測から 150 件へ外挿**したものです
-- 先頭100クエリ実測は 2026-04-26 実行で、`results_first100/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.json` に対応します
