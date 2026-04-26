@@ -96,6 +96,8 @@ def get_default_output_path(
     rank_func: str,
     topn: int,
     dataset_size: str = "default",
+    query_limit: int | None = None,
+    query_offset: int = 0,
     rerank: bool = False,
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
@@ -117,9 +119,35 @@ def get_default_output_path(
             suffix += "_withthoughts"
         if rerank_input_transform != "none":
             suffix += f"_transform{rerank_input_transform}"
+    if query_limit is not None:
+        suffix += f"_querylimit{query_limit}"
+    if query_offset != 0:
+        suffix += f"_queryoffset{query_offset}"
     if dataset_size != "default":
         suffix += f"_dataset{dataset_size}"
     return f"output{suffix}.json"
+
+
+def load_dataset_for_evaluation(
+    dataset_size: str,
+    query_limit: int | None,
+    query_offset: int,
+) -> tuple:
+    if query_limit is not None and query_limit <= 0:
+        raise ValueError("query_limit must be a positive integer")
+    if query_offset < 0:
+        raise ValueError("query_offset must be a non-negative integer")
+    if dataset_size == "small":
+        if query_limit is not None or query_offset != 0:
+            raise ValueError(
+                "query_limit/query_offset cannot be used with dataset_size=small"
+            )
+        return load_small_dataset(), None, None
+    return (
+        load_default_dataset(query_limit=query_limit, query_offset=query_offset),
+        query_limit,
+        query_offset,
+    )
 
 
 def main():
@@ -152,6 +180,17 @@ def main():
         choices=["default", "small"],
         default="default",
         help="Dataset size: default (150 queries) or small (10 queries)",
+    )
+    parser.add_argument(
+        "--query_limit",
+        type=int,
+        help="Use only the first N queries from the default dataset",
+    )
+    parser.add_argument(
+        "--query_offset",
+        type=int,
+        default=0,
+        help="Skip the first N queries from the default dataset",
     )
     parser.add_argument(
         "--rerank",
@@ -266,6 +305,8 @@ def main():
             args.rank_func,
             args.topn,
             args.dataset_size,
+            args.query_limit,
+            args.query_offset,
             args.rerank,
             args.rerank_input_size,
             args.rerank_model_name,
@@ -278,9 +319,16 @@ def main():
         output_path
     )
 
-    dataset = (
-        load_small_dataset() if args.dataset_size == "small" else load_default_dataset()
-    )
+    try:
+        dataset, effective_query_limit, effective_query_offset = (
+            load_dataset_for_evaluation(
+                args.dataset_size,
+                args.query_limit,
+                args.query_offset,
+            )
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
 
     if args.rerank and args.rerank_backend == "openai_batch":
         query_texts = [query.query for query in dataset.queries]
@@ -326,6 +374,8 @@ def main():
             input_transform=args.rerank_input_transform,
             backend=args.rerank_backend,
         )
+        results.parameters.query_limit = effective_query_limit
+        results.parameters.query_offset = effective_query_offset
 
         print("Recall: ", results.metrics.recall)
         print("Execution time: ", results.metrics.execution_time)
@@ -375,6 +425,8 @@ def main():
 
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
+    results.parameters.query_limit = effective_query_limit
+    results.parameters.query_offset = effective_query_offset
     results.parameters.vowel_ratio = (
         args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
     )
@@ -425,6 +477,8 @@ def main():
             args.rank_func,
             args.topn,
             args.dataset_size,
+            args.query_limit,
+            args.query_offset,
             args.rerank,
             args.rerank_input_size,
             args.rerank_model_name,
