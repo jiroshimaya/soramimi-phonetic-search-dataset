@@ -70,7 +70,8 @@ def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
     assert len(limited_dataset.queries) == 1
     assert limited_dataset.words == sample_dataset.words
     assert limited_dataset.metadata["query_limit"] == 1
-    assert limited_dataset.metadata["subset"] == "first_1_queries"
+    assert limited_dataset.metadata["query_offset"] == 0
+    assert limited_dataset.metadata["subset"] == "queries_1_to_1"
 
 
 def test_load_default_dataset_with_invalid_query_limit(monkeypatch, sample_dataset):
@@ -86,6 +87,40 @@ def test_load_default_dataset_with_invalid_query_limit(monkeypatch, sample_datas
 
     with pytest.raises(ValueError, match="query_limit must be a positive integer"):
         load_default_dataset(query_limit=0)
+
+
+def test_load_default_dataset_with_query_offset(monkeypatch, sample_dataset):
+    """query_offset付きでデータセットを読み込める"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    sliced_dataset = load_default_dataset(query_limit=1, query_offset=1)
+    assert len(sliced_dataset.queries) == 1
+    assert sliced_dataset.queries[0].query == "ハナコ"
+    assert sliced_dataset.metadata["query_limit"] == 1
+    assert sliced_dataset.metadata["query_offset"] == 1
+    assert sliced_dataset.metadata["subset"] == "queries_2_to_2"
+
+
+def test_load_default_dataset_with_invalid_query_offset(monkeypatch, sample_dataset):
+    """query_offsetは0以上のみ受け付ける"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    with pytest.raises(ValueError, match="query_offset must be a non-negative integer"):
+        load_default_dataset(query_offset=-1)
 
 
 def test_load_small_dataset(monkeypatch, sample_dataset):

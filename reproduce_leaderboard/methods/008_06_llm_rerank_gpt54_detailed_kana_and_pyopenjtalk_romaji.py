@@ -1,5 +1,5 @@
 """
-LLMリランク (gpt-5.4, detailed prompt, kana+pyopenjtalk romaji input, first 100 queries) による評価を実行するスクリプト
+LLMリランク (gpt-5.4, detailed prompt, kana+pyopenjtalk romaji input) による評価を実行するスクリプト
 """
 
 import subprocess
@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def main():
-    output_dir = Path(__file__).parent.parent / "results_first100"
+    output_dir = Path(__file__).parent.parent / "results"
     output_dir.mkdir(exist_ok=True)
     output_path = (
         output_dir / "008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.json"
@@ -24,8 +24,6 @@ def main():
         "10",
         "--vowel_ratio",
         "0.5",
-        "--query_limit",
-        "100",
         "--rerank",
         "--rerank_input_size",
         "100",

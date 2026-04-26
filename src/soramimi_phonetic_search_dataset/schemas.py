@@ -49,6 +49,7 @@ class PhoneticSearchParameters:
     topn: int
     rank_func: str
     query_limit: int | None = None
+    query_offset: int | None = None
     vowel_ratio: float | None = None
     rerank: bool = False
     rerank_backend: str | None = None
