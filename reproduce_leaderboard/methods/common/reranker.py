@@ -53,6 +53,17 @@ PROMPT_INSTRUCTIONS = {
     - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
     出力は上位Top N件のインデックスのみ返してください。
     """,
+    "nonreasoning_cot": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    以下の手順で判断してください。
+    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
+    構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
+    """,
 }
 
 PROMPT_EXAMPLE_SUFFIX = """
@@ -99,6 +110,7 @@ class TokenCost:
 @dataclass
 class OpenAIBatchRerankResult:
     reranked_wordlists: list[list[str]]
+    structured_outputs: list[dict[str, Any]]
     batch_id: str
     batch_status: str
     execution_time: float
@@ -107,6 +119,16 @@ class OpenAIBatchRerankResult:
 
 
 _last_token_usage = TokenUsage()
+_last_structured_outputs: list[dict[str, Any]] = []
+
+
+class RerankedWordlist(BaseModel):
+    reranked: list[int]
+
+
+class ThoughtfulRerankedWordlist(BaseModel):
+    thoughts: list[str]
+    reranked: list[int]
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
@@ -128,6 +150,16 @@ def build_system_prompt(prompt_template: str = "default") -> str:
     except KeyError as exc:
         raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
     return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
+
+
+def prompt_template_requires_thoughts(prompt_template: str) -> bool:
+    return prompt_template == "nonreasoning_cot"
+
+
+def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
+    if include_thoughts:
+        return ThoughtfulRerankedWordlist
+    return RerankedWordlist
 
 
 def build_rerank_messages(
@@ -173,6 +205,20 @@ def build_rerank_messages(
 def reset_token_usage() -> None:
     global _last_token_usage
     _last_token_usage = TokenUsage()
+
+
+def reset_last_structured_outputs() -> None:
+    global _last_structured_outputs
+    _last_structured_outputs = []
+
+
+def set_last_structured_outputs(outputs: list[dict[str, Any]]) -> None:
+    global _last_structured_outputs
+    _last_structured_outputs = [dict(output) for output in outputs]
+
+
+def get_last_structured_outputs() -> list[dict[str, Any]]:
+    return [dict(output) for output in _last_structured_outputs]
 
 
 def set_last_token_usage(token_usage: TokenUsage) -> None:
@@ -574,6 +620,12 @@ def _extract_reranked_indices(response: BaseModel | dict[str, Any]) -> list[int]
     return [int(index) for index in reranked]
 
 
+def _extract_structured_output(
+    response: BaseModel | dict[str, Any],
+) -> dict[str, Any]:
+    return response.model_dump() if isinstance(response, BaseModel) else dict(response)
+
+
 def _get_batch_execution_time(batch: Any) -> float:
     started_at = _get_value(batch, "in_progress_at") or _get_value(batch, "created_at")
     completed_at = _get_value(batch, "completed_at")
@@ -672,7 +724,9 @@ def retrieve_openai_batch_rerank_job(
     row_by_custom_id = {row["custom_id"]: row for row in result_rows}
 
     reset_token_usage()
+    reset_last_structured_outputs()
     reranked_wordlists = []
+    structured_outputs = []
     for item in state["items"]:
         row = row_by_custom_id.get(item["custom_id"])
         if row is None:
@@ -692,6 +746,7 @@ def retrieve_openai_batch_rerank_job(
         body = response["body"]
         accumulate_token_usage(body)
         parsed = _parse_response(body, response_format)
+        structured_outputs.append(_extract_structured_output(parsed))
         reranked_wordlists.append(
             _build_reranked_wordlist(
                 item["candidate_words"], _extract_reranked_indices(parsed)
@@ -707,9 +762,11 @@ def retrieve_openai_batch_rerank_job(
     state["retrieved_at"] = datetime.now().isoformat()
     state["usage"] = asdict(token_usage)
     _write_json(state_file_path, state)
+    set_last_structured_outputs(structured_outputs)
 
     return OpenAIBatchRerankResult(
         reranked_wordlists=reranked_wordlists,
+        structured_outputs=structured_outputs,
         batch_id=state["batch_id"],
         batch_status=batch_status,
         execution_time=_get_batch_execution_time(batch),
@@ -727,6 +784,7 @@ def get_structured_outputs(
     reasoning_effort: str | None = None,
 ) -> list[BaseModel]:
     reset_token_usage()
+    reset_last_structured_outputs()
     completion_kwargs = _build_litellm_completion_kwargs(
         model_name=model_name,
         temperature=temperature,
@@ -762,6 +820,9 @@ def get_structured_outputs(
             )
             accumulate_token_usage(fallback_response)
             parsed_responses.append(_parse_response(fallback_response, response_format))
+    set_last_structured_outputs(
+        [_extract_structured_output(response) for response in parsed_responses]
+    )
     return parsed_responses
 
 
@@ -773,14 +834,12 @@ def rerank_by_llm(
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
     prompt_template: str = "default",
+    include_thoughts: bool = False,
     input_transform: str = "none",
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
 ) -> list[list[str]]:
-    class RerankedWordlist(BaseModel):
-        reranked: list[int]
-
     messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
@@ -788,8 +847,13 @@ def rerank_by_llm(
         prompt_template=prompt_template,
         input_transform=input_transform,
     )
+    response_format = get_rerank_response_format(
+        include_thoughts=include_thoughts
+        or prompt_template_requires_thoughts(prompt_template)
+    )
 
     reranked_wordlists = []
+    structured_outputs = []
     for i in tqdm(range(0, len(messages), batch_size)):
         batch_messages = messages[i : i + batch_size]
         responses = get_structured_outputs(
@@ -797,14 +861,16 @@ def rerank_by_llm(
             messages=batch_messages,
             temperature=temperature,
             max_tokens=1000,
-            response_format=RerankedWordlist,
+            response_format=response_format,
             reasoning_effort=reasoning_effort,
         )
         for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
+            structured_outputs.append(_extract_structured_output(response))
             reranked_wordlists.append(
                 _build_reranked_wordlist(wordlist, _extract_reranked_indices(response))
             )
 
         time.sleep(rerank_interval)
 
+    set_last_structured_outputs(structured_outputs)
     return reranked_wordlists

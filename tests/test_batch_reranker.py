@@ -64,6 +64,7 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
         "retrieve_openai_batch_rerank_job",
         lambda **_: SimpleNamespace(
             reranked_wordlists=[["カケイ", "アベ"]],
+            structured_outputs=[{"thoughts": ["母音列が一致"], "reranked": [0, 1]}],
             execution_time=12.5,
         ),
     )
@@ -108,3 +109,4 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
     assert results.metrics.execution_time == 12.5
     assert results.metrics.rerank_total_tokens == 33
     assert results.metrics.rerank_total_cost == 0.15
+    assert results.results[0].thoughts == ["母音列が一致"]
