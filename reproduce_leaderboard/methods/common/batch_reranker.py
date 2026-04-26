@@ -50,19 +50,26 @@ def _build_results_from_ranked_wordlists(
     query_texts: list[str],
     positive_texts: list[list[str]],
     ranked_wordlists: list[list[str]],
+    structured_outputs: list[dict[str, Any]] | None = None,
     *,
     topn: int,
     execution_time: float,
 ) -> PhoneticSearchResults:
     recall = calculate_recall(ranked_wordlists, positive_texts, topn=topn)
+    if structured_outputs is None:
+        structured_outputs = [{} for _ in ranked_wordlists]
     results = [
         PhoneticSearchResult(
             query=query,
             ranked_words=wordlist[:topn],
             positive_words=positive_text,
+            thoughts=structured_output.get("thoughts"),
         )
-        for query, wordlist, positive_text in zip(
-            query_texts, ranked_wordlists, positive_texts
+        for query, wordlist, positive_text, structured_output in zip(
+            query_texts,
+            ranked_wordlists,
+            positive_texts,
+            structured_outputs,
         )
     ]
     return PhoneticSearchResults(
@@ -149,6 +156,7 @@ def retrieve_openai_batch_evaluation_results(
         query_texts=query_texts,
         positive_texts=positive_texts,
         ranked_wordlists=retrieved.reranked_wordlists,
+        structured_outputs=retrieved.structured_outputs,
         topn=topn,
         execution_time=retrieved.execution_time,
     )

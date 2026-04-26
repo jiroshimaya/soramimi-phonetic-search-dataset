@@ -120,6 +120,7 @@ uv run methods/common/evaluate_ranking.py --no_save
 - `--rerank_reasoning_effort`: 対応モデルで使用する reasoning effort（none, low, medium, high）
 - `--rerank_prompt_template`: LLMリランクに使う system prompt（default, simple, detailed, step_by_step, detailed_romaji_explicit, nonreasoning_cot）
 - `--rerank_include_thoughts`: structured outputs に thoughts フィールドも要求する
+- `--rerank_include_thoughts` を使った場合、保存される result JSON の各 `results[*]` にも `thoughts` が入ります
 - `--rerank_backend`: リランク backend（litellm, openai_batch）
 - `--rerank_batch_action`: OpenAI Batch API の操作（submit, retrieve）
 - `--rerank_batch_state_path`: OpenAI Batch API の state JSON のパス

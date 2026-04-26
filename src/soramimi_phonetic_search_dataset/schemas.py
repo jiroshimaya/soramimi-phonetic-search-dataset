@@ -27,6 +27,7 @@ class PhoneticSearchResult:
     query: str
     ranked_words: list[str]
     positive_words: list[str]
+    thoughts: list[str] | None = None
 
 
 @dataclass
