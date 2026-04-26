@@ -1,0 +1,209 @@
+{
+  "parameters": {
+    "topn": 10,
+    "rank_func": "kanasim",
+    "vowel_ratio": 0.8,
+    "rerank": false,
+    "rerank_model_name": null,
+    "rerank_reasoning_effort": null,
+    "rerank_prompt_template": null,
+    "rerank_input_size": null,
+    "execution_timestamp": "2026-04-22T14:29:16.329458"
+  },
+  "metrics": {
+    "recall": 0.65,
+    "execution_time": 1.9289007186889648,
+    "rerank_input_tokens": null,
+    "rerank_output_tokens": null,
+    "rerank_reasoning_tokens": null,
+    "rerank_total_tokens": null,
+    "rerank_input_cost": null,
+    "rerank_output_cost": null,
+    "rerank_reasoning_cost": null,
+    "rerank_total_cost": null
+  },
+  "results": [
+    {
+      "query": "アイ",
+      "ranked_words": [
+        "アイ",
+        "カイ",
+        "タイ",
+        "イ",
+        "アオイ",
+        "ツァイ",
+        "ダイ",
+        "アイダ",
+        "アカイ",
+        "アサイ"
+      ],
+      "positive_words": [
+        "アイ"
+      ]
+    },
+    {
+      "query": "アウマル",
+      "ranked_words": [
+        "マル",
+        "アキマル",
+        "アオマツ",
+        "アナン",
+        "アマーン",
+        "アダム",
+        "アワツ",
+        "ハル",
+        "サコマル",
+        "ハーマン"
+      ],
+      "positive_words": [
+        "タクマル"
+      ]
+    },
+    {
+      "query": "アケ",
+      "ranked_words": [
+        "アベ",
+        "アレン",
+        "ダテ",
+        "カセ",
+        "ゲン",
+        "チェン",
+        "ジェン",
+        "サンチェ",
+        "アン",
+        "ハンセン"
+      ],
+      "positive_words": [
+        "アベ",
+        "カケイ"
+      ]
+    },
+    {
+      "query": "アシオト",
+      "ranked_words": [
+        "アオト",
+        "アキト",
+        "アッチソン",
+        "アイト",
+        "アキモト",
+        "ハシモト",
+        "シオタ",
+        "シオヅ",
+        "カジオカ",
+        "アリモト"
+      ],
+      "positive_words": [
+        "ハシモト"
+      ]
+    },
+    {
+      "query": "アッテ",
+      "ranked_words": [
+        "アベ",
+        "アレン",
+        "ダテ",
+        "ペン",
+        "カセ",
+        "ハンセン",
+        "タベ",
+        "アン",
+        "オゼ",
+        "カンベ"
+      ],
+      "positive_words": [
+        "マルテ"
+      ]
+    },
+    {
+      "query": "アト",
+      "ranked_words": [
+        "アソウ",
+        "アノ",
+        "アンドウ",
+        "アオト",
+        "サト",
+        "パットン",
+        "アイト",
+        "オト",
+        "アンロー",
+        "ウト"
+      ],
+      "positive_words": [
+        "カトウ"
+      ]
+    },
+    {
+      "query": "アノ",
+      "ranked_words": [
+        "アノ",
+        "カノ",
+        "アオノ",
+        "サノ",
+        "アンロー",
+        "オノ",
+        "カンノ",
+        "タンノ",
+        "チャノ",
+        "アソウ"
+      ],
+      "positive_words": [
+        "アノ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "レン",
+        "タベ",
+        "アン",
+        "アルー",
+        "カンベ",
+        "オゼ",
+        "カセ",
+        "ヤベ"
+      ],
+      "positive_words": [
+        "アレン",
+        "アベ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "レン",
+        "タベ",
+        "アン",
+        "アルー",
+        "カンベ",
+        "オゼ",
+        "カセ",
+        "ヤベ"
+      ],
+      "positive_words": [
+        "アレン"
+      ]
+    },
+    {
+      "query": "アレクルウ",
+      "ranked_words": [
+        "アレックス",
+        "アクツ",
+        "アレン",
+        "ハジェフン",
+        "ベク",
+        "ジェフン",
+        "アンシュウ",
+        "ベイル",
+        "タネル",
+        "ハンセル"
+      ],
+      "positive_words": [
+        "アレックス"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "parameters": {
+    "topn": 10,
+    "rank_func": "vowel_consonant",
+    "vowel_ratio": 0.5,
+    "rerank": true,
+    "rerank_model_name": "gpt-5.4",
+    "rerank_reasoning_effort": "medium",
+    "rerank_prompt_template": "008_03_step_by_step",
+    "rerank_input_size": 100,
+    "execution_timestamp": "2026-04-22T14:39:35.014079"
+  },
+  "metrics": {
+    "recall": 1.0,
+    "execution_time": 186.36473894119263,
+    "rerank_input_tokens": 10428,
+    "rerank_output_tokens": 1226,
+    "rerank_reasoning_tokens": 69034,
+    "rerank_total_tokens": 80688,
+    "rerank_input_cost": 0.026070000000000003,
+    "rerank_output_cost": 0.018389999999999906,
+    "rerank_reasoning_cost": 1.0355100000000002,
+    "rerank_total_cost": 1.07997
+  },
+  "results": [
+    {
+      "query": "アイ",
+      "ranked_words": [
+        "アイ",
+        "アギー",
+        "カイ",
+        "タイ",
+        "ダイ",
+        "アイキ",
+        "アイダ",
+        "アイト",
+        "アイバ",
+        "ツァイ"
+      ],
+      "positive_words": [
+        "アイ"
+      ]
+    },
+    {
+      "query": "アウマル",
+      "ranked_words": [
+        "タクマル",
+        "アニマル",
+        "アキマル",
+        "アオマツ",
+        "サコマル",
+        "カネマル",
+        "アカマツ",
+        "タムラ",
+        "サムラ",
+        "タウラ"
+      ],
+      "positive_words": [
+        "タクマル"
+      ]
+    },
+    {
+      "query": "アケ",
+      "ranked_words": [
+        "アベ",
+        "カケイ",
+        "アレン",
+        "カンベ",
+        "カセ",
+        "マエ",
+        "タベ",
+        "ヤベ",
+        "タケダ",
+        "カネコ"
+      ],
+      "positive_words": [
+        "アベ",
+        "カケイ"
+      ]
+    },
+    {
+      "query": "アシオト",
+      "ranked_words": [
+        "ハシモト",
+        "アイト",
+        "アイモト",
+        "アキト",
+        "アリトウ",
+        "アキモト",
+        "アリモト",
+        "ナイト",
+        "ライト",
+        "アイコウ"
+      ],
+      "positive_words": [
+        "ハシモト"
+      ]
+    },
+    {
+      "query": "アッテ",
+      "ranked_words": [
+        "ダテ",
+        "アベ",
+        "マエ",
+        "イダテ",
+        "ガラテ",
+        "ザラテ",
+        "サファテ",
+        "マルテ",
+        "ナオエ",
+        "アヤベ"
+      ],
+      "positive_words": [
+        "マルテ"
+      ]
+    },
+    {
+      "query": "アト",
+      "ranked_words": [
+        "アノ",
+        "アソウ",
+        "サト",
+        "カトウ",
+        "マント",
+        "ガント",
+        "バート",
+        "サノ",
+        "カノ",
+        "マノ"
+      ],
+      "positive_words": [
+        "カトウ"
+      ]
+    },
+    {
+      "query": "アノ",
+      "ranked_words": [
+        "アノ",
+        "アソウ",
+        "カノ",
+        "カンノ",
+        "サノ",
+        "タンノ",
+        "ダンノ",
+        "チャノ",
+        "マノ",
+        "ヤノ"
+      ],
+      "positive_words": [
+        "アノ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "ダテ",
+        "タベ",
+        "カセ",
+        "ヤベ",
+        "カンベ",
+        "マエ",
+        "サンチェ",
+        "アリメ"
+      ],
+      "positive_words": [
+        "アレン",
+        "アベ"
+      ]
+    },
+    {
+      "query": "アレ",
+      "ranked_words": [
+        "アレン",
+        "アベ",
+        "マエ",
+        "ヤベ",
+        "タベ",
+        "ダテ",
+        "カセ",
+        "サンチェ",
+        "アルー",
+        "イレイ"
+      ],
+      "positive_words": [
+        "アレン"
+      ]
+    },
+    {
+      "query": "アレクルウ",
+      "ranked_words": [
+        "アレックス",
+        "パークル",
+        "アレン",
+        "デラクルス",
+        "デラクルーズ",
+        "マルク",
+        "レルー",
+        "ダレルメイ",
+        "ラルー",
+        "アルー"
+      ],
+      "positive_words": [
+        "アレックス"
+      ]
+    }
+  ]
+}
