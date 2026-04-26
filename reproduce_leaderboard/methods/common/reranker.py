@@ -782,9 +782,12 @@ def get_structured_outputs(
     temperature: float = 0.0,
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
+    *,
+    reset_state: bool = True,
 ) -> list[BaseModel]:
-    reset_token_usage()
-    reset_last_structured_outputs()
+    if reset_state:
+        reset_token_usage()
+        reset_last_structured_outputs()
     completion_kwargs = _build_litellm_completion_kwargs(
         model_name=model_name,
         temperature=temperature,
@@ -854,6 +857,8 @@ def rerank_by_llm(
 
     reranked_wordlists = []
     structured_outputs = []
+    reset_token_usage()
+    reset_last_structured_outputs()
     for i in tqdm(range(0, len(messages), batch_size)):
         batch_messages = messages[i : i + batch_size]
         responses = get_structured_outputs(
@@ -863,6 +868,7 @@ def rerank_by_llm(
             max_tokens=1000,
             response_format=response_format,
             reasoning_effort=reasoning_effort,
+            reset_state=False,
         )
         for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
             structured_outputs.append(_extract_structured_output(response))
