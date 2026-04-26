@@ -44,7 +44,9 @@ class ProbeInput:
     wordlist: list[str]
 
 
-def build_probe_input(query_index: int, candidate_size: int, vowel_ratio: float) -> ProbeInput:
+def build_probe_input(
+    query_index: int, candidate_size: int, vowel_ratio: float
+) -> ProbeInput:
     dataset = load_small_dataset()
     if not 0 <= query_index < len(dataset.queries):
         raise ValueError(
@@ -61,7 +63,9 @@ def build_probe_input(query_index: int, candidate_size: int, vowel_ratio: float)
         word for word in target_query.positive if word not in candidate_wordlist
     ]
     if missing_positive_words:
-        candidate_wordlist = candidate_wordlist[: max(candidate_size - len(missing_positive_words), 0)]
+        candidate_wordlist = candidate_wordlist[
+            : max(candidate_size - len(missing_positive_words), 0)
+        ]
         for word in missing_positive_words:
             if word not in candidate_wordlist:
                 candidate_wordlist.append(word)
