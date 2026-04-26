@@ -27,6 +27,7 @@ class PhoneticSearchResult:
     query: str
     ranked_words: list[str]
     positive_words: list[str]
+    thoughts: list[str] | None = None
 
 
 @dataclass
@@ -54,6 +55,7 @@ class PhoneticSearchParameters:
     rerank_batch_id: str | None = None
     rerank_reasoning_effort: str | None = None
     rerank_prompt_template: str | None = None
+    rerank_include_thoughts: bool | None = None
     rerank_input_transform: str | None = None
     rerank_input_size: int | None = None
     execution_timestamp: str | None = None
