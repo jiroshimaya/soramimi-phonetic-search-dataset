@@ -47,6 +47,7 @@ uv run methods/008_02_llm_rerank_gpt54_detailed.py  # LLMリランク (gpt-5.4, 
 uv run methods/008_03_llm_rerank_gpt54_step_by_step.py  # LLMリランク (gpt-5.4, prompt 008_03 step-by-step)
 uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input)
 uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, kana+romaji input)
+uv run methods/008_07_llm_rerank_gpt54_nonreasoning_cot.py  # LLMリランク (gpt-5.4, non-reasoning CoT)
 uv run methods/008_04_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, prompt 008_02 detailed, pyopenjtalk romaji input, small dataset)
 uv run methods/008_05_llm_rerank_gpt54_detailed_pyopenjtalk_romaji_explicit_small.py  # LLMリランク (gpt-5.4, prompt with explicit romaji note, small dataset)
 uv run methods/008_06_llm_rerank_gpt54_detailed_kana_and_pyopenjtalk_romaji_small.py  # LLMリランク (gpt-5.4, kana+romaji input, small dataset)

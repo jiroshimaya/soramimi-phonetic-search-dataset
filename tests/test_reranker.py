@@ -252,6 +252,38 @@ def test_rerank_by_llm_accepts_thoughtful_structured_output(monkeypatch):
     ]
 
 
+def test_rerank_by_llm_accumulates_token_usage_across_batches(monkeypatch):
+    def fake_batch_completion(**kwargs):
+        responses = []
+        for _message in kwargs["messages"]:
+            response = _mock_completion_response('{"reranked": [0, 1]}')
+            response.usage = SimpleNamespace(
+                prompt_tokens=10,
+                completion_tokens=20,
+                total_tokens=30,
+                completion_tokens_details=SimpleNamespace(reasoning_tokens=0),
+            )
+            responses.append(response)
+        return responses
+
+    monkeypatch.setattr(reranker, "batch_completion", fake_batch_completion)
+
+    reranker.rerank_by_llm(
+        query_texts=["アケ", "イケ"],
+        wordlist_texts=[["アベ", "カケイ"], ["イエ", "イケダ"]],
+        model_name="gpt-5.4",
+        batch_size=1,
+        rerank_interval=0,
+    )
+
+    assert reranker.get_last_token_usage() == reranker.TokenUsage(
+        input_tokens=20,
+        completion_tokens=40,
+        reasoning_tokens=0,
+        total_tokens=60,
+    )
+
+
 def test_build_openai_batch_requests_uses_json_mode_and_reasoning_effort():
     expected_schema = reranker._normalize_openai_json_schema(
         SampleResponse.model_json_schema()
