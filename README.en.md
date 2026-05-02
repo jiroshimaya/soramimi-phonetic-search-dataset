@@ -27,8 +27,8 @@ def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> li
     return ranked_wordlists
 
 # Evaluate your function
-recall = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
-print(f"Recall@10: {recall}")
+results = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
+print(f"Recall@10: {results.metrics.recall}")
 ```
 
 If you want a cheaper LLM smoke test, you can use the bundled small dataset, which keeps the original word list and limits evaluation to the first 10 queries.
@@ -40,12 +40,12 @@ from soramimi_phonetic_search_dataset import (
 )
 
 small_dataset = load_small_dataset()
-recall = evaluate_ranking_function(
+results = evaluate_ranking_function(
     ranking_func=my_ranking_function,
     topn=10,
     dataset=small_dataset,
 )
-print(f"Recall@10 on small dataset: {recall}")
+print(f"Recall@10 on small dataset: {results.metrics.recall}")
 ```
 
 The sample script in this repository also supports `--dataset_size small`.
@@ -62,7 +62,8 @@ The following ranking functions are provided:
 ```python
 from soramimi_phonetic_search_dataset import rank_by_mora_editdistance
 
-recall = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+results = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+print(results.metrics.recall)
 ```
 
 ## Dataset Usage Notes

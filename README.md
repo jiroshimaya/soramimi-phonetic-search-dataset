@@ -29,8 +29,8 @@ def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> li
     return ranked_wordlists
 
 # 評価の実行
-recall = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
-print(f"Recall@10: {recall}")
+results = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
+print(f"Recall@10: {results.metrics.recall}")
 ```
 
 LLMでの試行回数を減らしたい場合は、先頭10件のクエリだけを使う小データセットも利用できます。
@@ -42,12 +42,12 @@ from soramimi_phonetic_search_dataset import (
 )
 
 small_dataset = load_small_dataset()
-recall = evaluate_ranking_function(
+results = evaluate_ranking_function(
     ranking_func=my_ranking_function,
     topn=10,
     dataset=small_dataset,
 )
-print(f"Recall@10 on small dataset: {recall}")
+print(f"Recall@10 on small dataset: {results.metrics.recall}")
 ```
 
 リポジトリ内のサンプルスクリプトでも `--dataset_size small` を指定すると、同じ10件版で評価できます。
@@ -64,7 +64,8 @@ print(f"Recall@10 on small dataset: {recall}")
 ```python
 from soramimi_phonetic_search_dataset import rank_by_mora_editdistance
 
-recall = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+results = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+print(results.metrics.recall)
 ```
 
 ## ライセンス
