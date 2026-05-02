@@ -182,8 +182,8 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
                 results.append(["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"])
         return results
 
-    recall = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
-    assert recall == 1.0  # 全てのクエリで正解を含む
+    results = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
+    assert results.metrics.recall == 1.0  # 全てのクエリで正解を含む
 
 
 def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):
@@ -197,9 +197,34 @@ def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):
             ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
         ]
 
-    recall = evaluate_ranking_function(
+    results = evaluate_ranking_function(
         ranking_func=perfect_ranking,
         topn=2,
         dataset=sample_dataset,
     )
-    assert recall == 1.0
+    assert results.metrics.recall == 1.0
+
+
+def test_evaluate_ranking_function_with_metadata(sample_dataset):
+    """ランキング関数がmetadataを返しても評価できる"""
+
+    def ranking_with_metadata(query_texts, wordlist_texts):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlist_texts == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ], [
+            {"source": "exact", "score": 1.0},
+            {"source": "fuzzy", "score": 0.8},
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=ranking_with_metadata,
+        topn=2,
+        dataset=sample_dataset,
+    )
+
+    assert results.metrics.recall == 1.0
+    assert results.results[0].metadata == {"source": "exact", "score": 1.0}
+    assert results.results[1].metadata == {"source": "fuzzy", "score": 0.8}
