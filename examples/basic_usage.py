@@ -4,7 +4,7 @@ from typing import Callable
 
 from reproduce_leaderboard.methods.common.reranker import rerank_by_llm
 from soramimi_phonetic_search_dataset import (
-    evaluate_ranking_function_with_details,
+    evaluate_ranking_function,
     load_default_dataset,
     load_small_dataset,
     rank_by_kanasim,
@@ -211,7 +211,7 @@ def main():
     )
 
     # 評価を実行
-    results = evaluate_ranking_function_with_details(
+    results = evaluate_ranking_function(
         ranking_func=rank_func,
         topn=args.topn,
         dataset=dataset,
