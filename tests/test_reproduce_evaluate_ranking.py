@@ -87,7 +87,7 @@ def test_正常系_query_limit指定でdefault_datasetを絞って評価でき�
     )
     monkeypatch.setattr(
         evaluate_ranking,
-        "evaluate_ranking_function_with_details",
+        "evaluate_ranking_function",
         lambda ranking_func, topn, dataset: sample_results,
     )
     monkeypatch.setattr(
@@ -120,7 +120,7 @@ def test_正常系_query_offset指定でdefault_datasetをずらして評価で�
     )
     monkeypatch.setattr(
         evaluate_ranking,
-        "evaluate_ranking_function_with_details",
+        "evaluate_ranking_function",
         lambda ranking_func, topn, dataset: sample_results,
     )
     monkeypatch.setattr(
