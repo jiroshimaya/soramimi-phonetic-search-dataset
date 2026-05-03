@@ -32,7 +32,9 @@ pip install soramimi-phonetic-search-dataset
 from soramimi_phonetic_search_dataset import evaluate_ranking_function
 
 # Define your custom ranking function
-def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+def my_ranking_function(
+  query_texts: list[str], wordlists: list[list[str]]
+) -> list[list[str]]:
     # Implement your phonetic similarity ranking logic here
     return ranked_wordlists
 

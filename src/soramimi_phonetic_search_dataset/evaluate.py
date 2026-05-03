@@ -7,7 +7,6 @@ from soramimi_phonetic_search_dataset.dataset import load_default_dataset
 from soramimi_phonetic_search_dataset.schemas import (
     PhoneticSearchMetrics,
     PhoneticSearchParameters,
-    PhoneticSearchQueryWithWordlist,
     PhoneticSearchResult,
     PhoneticSearchResults,
     PhoneticSearchWordlistDataset,
@@ -22,16 +21,15 @@ class RankingFunctionOutput:
 
 
 RankingFunc: TypeAlias = Callable[
-    [list[PhoneticSearchQueryWithWordlist]],
+    [list[str], list[list[str]]],
     list[list[str]] | RankingFunctionOutput,
 ]
 """\
 評価対象のランキング関数のシグネチャ。
 
-入力として query ごとの wordlist を持つリストを受け取り、各クエリに対する
-ranked_words のリストを返す。必要に応じて RankingFunctionOutput を返し、
-各クエリに対応する metadata のリストや、評価全体に紐づく metrics metadata を
-渡してもよい。
+query_texts と wordlists を受け取り、各クエリに対する ranked_words の
+リストを返す。必要に応じて RankingFunctionOutput を返し、各クエリに対応する
+metadata のリストや、評価全体に紐づく metrics metadata を渡してもよい。
 """
 
 
@@ -108,11 +106,13 @@ def evaluate_ranking_function(
     if dataset is None:
         dataset = load_default_dataset()
 
+    query_texts = [query.query for query in dataset.queries]
+    wordlists = [query.wordlist for query in dataset.queries]
     positive_texts = [query.positive_words for query in dataset.queries]
 
     # ランキングを実行（実行時間を計測）
     start_time = time.time()
-    ranking_output = ranking_func(dataset.queries)
+    ranking_output = ranking_func(query_texts, wordlists)
     execution_time = time.time() - start_time
     ranked_wordlists, metadatas, metrics_metadata = _normalize_ranking_output(
         ranking_output

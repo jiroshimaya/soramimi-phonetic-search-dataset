@@ -16,7 +16,6 @@ from reranker import (
     rerank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
-    PhoneticSearchQueryWithWordlist,
     evaluate_ranking_function,
     load_default_dataset,
     load_small_dataset,
@@ -57,7 +56,7 @@ def build_rerank_metrics_metadata(
 
 
 def create_reranking_function(
-    base_rank_func: Callable[[list[PhoneticSearchQueryWithWordlist]], list[list[str]]],
+    base_rank_func: Callable[[list[str], list[list[str]]], list[list[str]]],
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
@@ -69,7 +68,7 @@ def create_reranking_function(
     topn: int,
     positive_texts: list[list[str]],
     **base_rank_kwargs,
-) -> Callable[[list[PhoneticSearchQueryWithWordlist]], list[list[str]]]:
+ ) -> Callable[[list[str], list[list[str]]], list[list[str]]]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -90,9 +89,9 @@ def create_reranking_function(
         組み合わせたランキング関数
     """
 
-    def combined_rank_func(query_inputs: list[PhoneticSearchQueryWithWordlist]):
+    def combined_rank_func(query_texts: list[str], wordlists: list[list[str]]):
         # ベースのランキングを実行
-        base_ranked_wordlists = base_rank_func(query_inputs, **base_rank_kwargs)
+        base_ranked_wordlists = base_rank_func(query_texts, wordlists, **base_rank_kwargs)
 
         # 上位N件を取得してリランク
         topk_ranked_wordlists = prepare_rerank_candidates(
@@ -100,7 +99,6 @@ def create_reranking_function(
             positive_texts,
             rerank_input_size,
         )
-        query_texts = [query_input.query for query_input in query_inputs]
 
         reranked_wordlists = rerank_by_llm(
             query_texts,
@@ -454,12 +452,12 @@ def main():
         )
 
         # 警告を回避するためdefでラップ
-        def rank_func(query_inputs):
-            return _rank_func(query_inputs)
+        def rank_func(query_texts, wordlists):
+            return _rank_func(query_texts, wordlists)
     else:
         # 警告を回避するためdefでラップ
-        def rank_func(query_inputs):
-            return base_rank_func(query_inputs, **rank_kwargs)
+        def rank_func(query_texts, wordlists):
+            return base_rank_func(query_texts, wordlists, **rank_kwargs)
 
     # 評価を実行
     results = evaluate_ranking_function(
