@@ -3,6 +3,7 @@ import json
 from typing import Callable
 
 from soramimi_phonetic_search_dataset import (
+    PhoneticSearchQueryWithWordlist,
     evaluate_ranking_function,
     load_default_dataset,
     load_small_dataset,
@@ -15,7 +16,7 @@ from soramimi_phonetic_search_dataset.reranker import rerank_by_llm
 
 
 def create_reranking_function(
-    base_rank_func: Callable[[list[str], list[str]], list[list[str]]],
+    base_rank_func: Callable[[list[PhoneticSearchQueryWithWordlist]], list[list[str]]],
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
@@ -23,7 +24,7 @@ def create_reranking_function(
     rerank_interval: int,
     topn: int,
     **base_rank_kwargs,
-) -> Callable[[list[str], list[str]], list[list[str]]]:
+) -> Callable[[list[PhoneticSearchQueryWithWordlist]], list[list[str]]]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -42,12 +43,10 @@ def create_reranking_function(
     """
 
     def combined_rank_func(
-        query_texts: list[str], wordlist_texts: list[str]
+        query_inputs: list[PhoneticSearchQueryWithWordlist],
     ) -> list[list[str]]:
         # ベースのランキングを実行
-        base_ranked_wordlists = base_rank_func(
-            query_texts, wordlist_texts, **base_rank_kwargs
-        )
+        base_ranked_wordlists = base_rank_func(query_inputs, **base_rank_kwargs)
 
         # 上位N件を取得してリランク
         topk_ranked_wordlists = [
@@ -57,6 +56,7 @@ def create_reranking_function(
         # topk_ranked_wordlists = [
         #    sorted(wordlist, key=lambda x: x[0]) for wordlist in topk_ranked_wordlists
         # ]
+        query_texts = [query_input.query for query_input in query_inputs]
         reranked_wordlists = rerank_by_llm(
             query_texts,
             topk_ranked_wordlists,
@@ -199,12 +199,12 @@ def main():
         )
 
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return _rank_func(q, w)
+        def rank_func(query_inputs):
+            return _rank_func(query_inputs)
     else:
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return base_rank_func(q, w, **rank_kwargs)
+        def rank_func(query_inputs):
+            return base_rank_func(query_inputs, **rank_kwargs)
 
     dataset = (
         load_small_dataset() if args.dataset_size == "small" else load_default_dataset()
