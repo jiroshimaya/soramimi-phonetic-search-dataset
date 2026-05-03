@@ -34,7 +34,9 @@ pip install soramimi-phonetic-search-dataset
 from soramimi_phonetic_search_dataset import evaluate_ranking_function
 
 # カスタムのランキング関数を定義
-def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+def my_ranking_function(
+  query_texts: list[str], wordlists: list[list[str]]
+) -> list[list[str]]:
     # ここにあなたの音韻的類似度に基づくランキングロジックを実装
     return ranked_wordlists
 

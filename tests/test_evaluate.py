@@ -273,13 +273,14 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
     )
 
     # 完全一致するランキング関数
-    def perfect_ranking(query_inputs):
+    def perfect_ranking(query_texts, wordlists):
         results = []
-        for query_input in query_inputs:
-            if query_input.query == "タロウ":
+        for query_text in query_texts:
+            if query_text == "タロウ":
                 results.append(["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"])
             else:  # ハナコ
                 results.append(["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"])
+        assert wordlists[0] is wordlists[1]
         return results
 
     results = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
@@ -292,10 +293,10 @@ def test_evaluate_ranking_function_with_explicit_dataset(
 ):
     """明示的に渡したデータセットで評価できる"""
 
-    def perfect_ranking(query_inputs):
-        assert [query_input.query for query_input in query_inputs] == ["タロウ", "ハナコ"]
-        assert query_inputs[0].wordlist == sample_dataset.words
-        assert query_inputs[0].wordlist is query_inputs[1].wordlist
+    def perfect_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        assert wordlists[0] is wordlists[1]
         return [
             ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
             ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
@@ -307,14 +308,12 @@ def test_evaluate_ranking_function_with_explicit_dataset(
         dataset=sample_wordlist_dataset,
     )
     assert results.metrics.recall == 1.0
-
-
 def test_evaluate_ranking_function_with_metadata(sample_dataset, sample_wordlist_dataset):
     """ランキング関数がmetadataを返しても評価できる"""
 
-    def ranking_with_metadata(query_inputs):
-        assert [query_input.query for query_input in query_inputs] == ["タロウ", "ハナコ"]
-        assert query_inputs[0].wordlist == sample_dataset.words
+    def ranking_with_metadata(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
         return RankingFunctionOutput(
             ranked_wordlists=[
                 ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
@@ -350,9 +349,9 @@ def test_evaluate_ranking_function_with_metrics_metadata(
 ):
     """ランキング関数が全体メトリクスmetadataを返しても評価できる"""
 
-    def ranking_with_metrics_metadata(query_inputs):
-        assert [query_input.query for query_input in query_inputs] == ["タロウ", "ハナコ"]
-        assert query_inputs[0].wordlist == sample_dataset.words
+    def ranking_with_metrics_metadata(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
         return RankingFunctionOutput(
             ranked_wordlists=[
                 ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
