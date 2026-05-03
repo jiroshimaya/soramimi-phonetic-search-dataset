@@ -9,7 +9,7 @@ from .dataset import (
     load_phonetic_search_dataset,
     load_small_dataset,
 )
-from .evaluate import evaluate_ranking_function
+from .evaluate import RankingFunctionOutput, evaluate_ranking_function
 from .ranking import (
     rank_by_kanasim,
     rank_by_mora_editdistance,
@@ -20,6 +20,7 @@ from .schemas import PhoneticSearchDataset, PhoneticSearchQuery
 
 __all__ = [
     "evaluate_ranking_function",
+    "RankingFunctionOutput",
     "rank_by_mora_editdistance",
     "rank_by_vowel_consonant_editdistance",
     "rank_by_phoneme_editdistance",
