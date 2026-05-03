@@ -58,6 +58,32 @@ def test_load_phonetic_search_dataset(sample_dataset, sample_dataset_file):
         assert loaded_query.positive == original_query.positive
 
 
+def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
+    """hard_negatives を含むデータセットを読み込める"""
+
+    dataset_path = tmp_path / "test_dataset_with_hard_negatives.json"
+    with open(dataset_path, "w") as f:
+        json.dump(
+            {
+                "queries": [
+                    {
+                        "query": "タロウ",
+                        "positive": ["タロー", "タロ"],
+                        "hard_negatives": ["ハナコ", "サブロウ"],
+                    }
+                ],
+                "words": ["タロウ", "タロー", "タロ", "ハナコ", "サブロウ"],
+            },
+            f,
+        )
+
+    loaded_dataset = load_phonetic_search_dataset(str(dataset_path))
+
+    assert loaded_dataset.queries[0].query == "タロウ"
+    assert loaded_dataset.queries[0].positive == ["タロー", "タロ"]
+    assert loaded_dataset.queries[0].hard_negatives == ["ハナコ", "サブロウ"]
+
+
 def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
     """クエリ数を絞ってデータセットを読み込める"""
 

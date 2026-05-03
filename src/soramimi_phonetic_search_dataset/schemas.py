@@ -6,6 +6,7 @@ from typing import Any
 class PhoneticSearchQuery:
     query: str
     positive: list[str]
+    hard_negatives: list[str] | None = None
 
 
 @dataclass
