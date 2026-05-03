@@ -28,40 +28,50 @@ class PhoneticSearchResult:
     ranked_words: list[str]
     positive_words: list[str]
     metadata: dict[str, Any] | None = None
-    thoughts: list[str] | None = None
 
 
 @dataclass
 class PhoneticSearchMetrics:
     recall: float
     execution_time: float
-    rerank_input_tokens: int | None = None
-    rerank_output_tokens: int | None = None
-    rerank_reasoning_tokens: int | None = None
-    rerank_total_tokens: int | None = None
-    rerank_input_cost: float | None = None
-    rerank_output_cost: float | None = None
-    rerank_reasoning_cost: float | None = None
-    rerank_total_cost: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchMetrics":
+        metadata = data.get("metadata", {})
+        extra_metadata = {
+            key: value
+            for key, value in data.items()
+            if key not in {"recall", "execution_time", "metadata"}
+        }
+        return cls(
+            recall=data["recall"],
+            execution_time=data["execution_time"],
+            metadata={**extra_metadata, **metadata},
+        )
 
 
 @dataclass
 class PhoneticSearchParameters:
     topn: int
     rank_func: str
-    query_limit: int | None = None
-    query_offset: int | None = None
-    vowel_ratio: float | None = None
-    rerank: bool = False
-    rerank_backend: str | None = None
-    rerank_model_name: str | None = None
-    rerank_batch_id: str | None = None
-    rerank_reasoning_effort: str | None = None
-    rerank_prompt_template: str | None = None
-    rerank_include_thoughts: bool | None = None
-    rerank_input_transform: str | None = None
-    rerank_input_size: int | None = None
     execution_timestamp: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchParameters":
+        metadata = data.get("metadata", {})
+        extra_metadata = {
+            key: value
+            for key, value in data.items()
+            if key not in {"topn", "rank_func", "execution_timestamp", "metadata"}
+        }
+        return cls(
+            topn=data["topn"],
+            rank_func=data["rank_func"],
+            execution_timestamp=data.get("execution_timestamp"),
+            metadata={**extra_metadata, **metadata},
+        )
 
 
 @dataclass
@@ -74,7 +84,7 @@ class PhoneticSearchResults:
     def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchResults":
         results = [PhoneticSearchResult(**result) for result in data["results"]]
         return cls(
-            parameters=PhoneticSearchParameters(**data["parameters"]),
-            metrics=PhoneticSearchMetrics(**data["metrics"]),
+            parameters=PhoneticSearchParameters.from_dict(data["parameters"]),
+            metrics=PhoneticSearchMetrics.from_dict(data["metrics"]),
             results=results,
         )

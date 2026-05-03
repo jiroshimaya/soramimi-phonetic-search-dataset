@@ -21,6 +21,33 @@ from soramimi_phonetic_search_dataset.schemas import (
 )
 
 
+def _build_rerank_metrics_metadata(
+    *,
+    model_name: str,
+    token_usage: Any,
+    token_cost: Any,
+    discount_factor: float | None = None,
+) -> dict[str, Any]:
+    metadata = {
+        "model_name": model_name,
+        "token_usage": {
+            "input_tokens": token_usage.input_tokens,
+            "output_tokens": token_usage.output_tokens,
+            "reasoning_tokens": token_usage.reasoning_tokens,
+            "total_tokens": token_usage.total_tokens,
+        },
+        "cost": {
+            "input_cost": token_cost.input_cost,
+            "output_cost": token_cost.output_cost,
+            "reasoning_cost": token_cost.reasoning_cost,
+            "total_cost": token_cost.total_cost,
+        },
+    }
+    if discount_factor is not None:
+        metadata["discount_factor"] = discount_factor
+    return metadata
+
+
 def prepare_rerank_candidates(
     base_ranked_wordlists: list[list[str]],
     positive_texts: list[list[str]],
@@ -63,7 +90,7 @@ def _build_results_from_ranked_wordlists(
             query=query,
             ranked_words=wordlist[:topn],
             positive_words=positive_text,
-            thoughts=structured_output.get("thoughts"),
+            metadata=structured_output,
         )
         for query, wordlist, positive_text, structured_output in zip(
             query_texts,
@@ -161,18 +188,22 @@ def retrieve_openai_batch_evaluation_results(
         execution_time=retrieved.execution_time,
     )
     results.parameters.rank_func = rank_func
-    results.parameters.vowel_ratio = (
-        vowel_ratio if rank_func in ["kanasim", "vowel_consonant"] else None
+    results.parameters.metadata.update(
+        {
+            "vowel_ratio": (
+                vowel_ratio if rank_func in ["kanasim", "vowel_consonant"] else None
+            ),
+            "rerank": True,
+            "rerank_model_name": model_name,
+            "rerank_reasoning_effort": reasoning_effort,
+            "rerank_prompt_template": prompt_template,
+            "rerank_include_thoughts": rerank_include_thoughts,
+            "rerank_input_transform": input_transform,
+            "rerank_input_size": rerank_input_size,
+            "rerank_backend": backend,
+            "rerank_batch_id": batch_state["batch_id"],
+        }
     )
-    results.parameters.rerank = True
-    results.parameters.rerank_model_name = model_name
-    results.parameters.rerank_reasoning_effort = reasoning_effort
-    results.parameters.rerank_prompt_template = prompt_template
-    results.parameters.rerank_include_thoughts = rerank_include_thoughts
-    results.parameters.rerank_input_transform = input_transform
-    results.parameters.rerank_input_size = rerank_input_size
-    results.parameters.rerank_backend = backend
-    results.parameters.rerank_batch_id = batch_state["batch_id"]
 
     token_usage = get_last_token_usage()
     token_cost = calculate_token_cost(
@@ -180,12 +211,10 @@ def retrieve_openai_batch_evaluation_results(
         token_usage,
         discount_factor=OPENAI_BATCH_DISCOUNT_FACTOR,
     )
-    results.metrics.rerank_input_tokens = token_usage.input_tokens
-    results.metrics.rerank_output_tokens = token_usage.output_tokens
-    results.metrics.rerank_reasoning_tokens = token_usage.reasoning_tokens
-    results.metrics.rerank_total_tokens = token_usage.total_tokens
-    results.metrics.rerank_input_cost = token_cost.input_cost
-    results.metrics.rerank_output_cost = token_cost.output_cost
-    results.metrics.rerank_reasoning_cost = token_cost.reasoning_cost
-    results.metrics.rerank_total_cost = token_cost.total_cost
+    results.metrics.metadata = _build_rerank_metrics_metadata(
+        model_name=model_name,
+        token_usage=token_usage,
+        token_cost=token_cost,
+        discount_factor=OPENAI_BATCH_DISCOUNT_FACTOR,
+    )
     return results

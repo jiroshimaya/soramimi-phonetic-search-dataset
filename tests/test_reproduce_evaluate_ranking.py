@@ -100,8 +100,8 @@ def test_正常系_query_limit指定でdefault_datasetを絞って評価でき�
 
     assert captured["query_limit"] == 100
     assert captured["query_offset"] == 0
-    assert sample_results.parameters.query_limit == 100
-    assert sample_results.parameters.query_offset == 0
+    assert sample_results.parameters.metadata["query_limit"] == 100
+    assert sample_results.parameters.metadata["query_offset"] == 0
 
 
 def test_正常系_query_offset指定でdefault_datasetをずらして評価できる(
@@ -140,8 +140,8 @@ def test_正常系_query_offset指定でdefault_datasetをずらして評価で�
 
     assert captured["query_limit"] == 50
     assert captured["query_offset"] == 100
-    assert sample_results.parameters.query_limit == 50
-    assert sample_results.parameters.query_offset == 100
+    assert sample_results.parameters.metadata["query_limit"] == 50
+    assert sample_results.parameters.metadata["query_offset"] == 100
 
 
 def test_異常系_small_datasetとquery_limitの併用はエラーになる(

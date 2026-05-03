@@ -1,4 +1,5 @@
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, TypeAlias
 
@@ -12,26 +13,37 @@ from soramimi_phonetic_search_dataset.schemas import (
 )
 
 
+@dataclass
+class RankingFunctionOutput:
+    ranked_wordlists: list[list[str]]
+    result_metadata: list[dict[str, Any]] | None = None
+    metrics_metadata: dict[str, Any] | None = None
+
+
 RankingFunc: TypeAlias = Callable[
     [list[str], list[str]],
-    list[list[str]] | tuple[list[list[str]], list[dict[str, Any]]],
+    list[list[str]] | RankingFunctionOutput,
 ]
 """\
 評価対象のランキング関数のシグネチャ。
 
 入力として query_texts と wordlist_texts を受け取り、各クエリに対する ranked_words の
-リストを返す。必要に応じて、各クエリに対応する metadata のリストを組にして返してもよい。
+リストを返す。必要に応じて RankingFunctionOutput を返し、各クエリに対応する
+metadata のリストや、評価全体に紐づく metrics metadata を渡してもよい。
 """
 
 
 def _normalize_ranking_output(
-    ranking_output: list[list[str]] | tuple[list[list[str]], list[dict[str, Any]]],
-) -> tuple[list[list[str]], list[dict[str, Any]] | None]:
-    if isinstance(ranking_output, tuple):
-        ranked_wordlists, metadatas = ranking_output
-        return ranked_wordlists, metadatas
+    ranking_output: list[list[str]] | RankingFunctionOutput,
+) -> tuple[list[list[str]], list[dict[str, Any]] | None, dict[str, Any] | None]:
+    if isinstance(ranking_output, list):
+        return ranking_output, None, None
 
-    return ranking_output, None
+    return (
+        ranking_output.ranked_wordlists,
+        ranking_output.result_metadata,
+        ranking_output.metrics_metadata,
+    )
 
 
 def calculate_recall(
@@ -88,7 +100,9 @@ def evaluate_ranking_function(
     start_time = time.time()
     ranking_output = ranking_func(query_texts, dataset.words)
     execution_time = time.time() - start_time
-    ranked_wordlists, metadatas = _normalize_ranking_output(ranking_output)
+    ranked_wordlists, metadatas, metrics_metadata = _normalize_ranking_output(
+        ranking_output
+    )
 
     # Recallを計算
     recall = calculate_recall(ranked_wordlists, positive_texts, topn=topn)
@@ -116,6 +130,7 @@ def evaluate_ranking_function(
     metrics = PhoneticSearchMetrics(
         recall=recall,
         execution_time=execution_time,  # 実行時間を追加
+        metadata=metrics_metadata or {},
     )
 
     return PhoneticSearchResults(
