@@ -10,7 +10,10 @@ from soramimi_phonetic_search_dataset import (
     load_phonetic_search_dataset,
     load_small_dataset,
 )
-from soramimi_phonetic_search_dataset.evaluate import calculate_recall
+from soramimi_phonetic_search_dataset.evaluate import (
+    RankingFunctionOutput,
+    calculate_recall,
+)
 
 
 @pytest.fixture
@@ -211,13 +214,16 @@ def test_evaluate_ranking_function_with_metadata(sample_dataset):
     def ranking_with_metadata(query_texts, wordlist_texts):
         assert query_texts == ["タロウ", "ハナコ"]
         assert wordlist_texts == sample_dataset.words
-        return [
-            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
-            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
-        ], [
-            {"source": "exact", "score": 1.0},
-            {"source": "fuzzy", "score": 0.8},
-        ]
+        return RankingFunctionOutput(
+            ranked_wordlists=[
+                ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+                ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+            ],
+            result_metadata=[
+                {"source": "exact", "score": 1.0, "thoughts": ["母音列が近い"]},
+                {"source": "fuzzy", "score": 0.8, "thoughts": ["子音差を確認"]},
+            ],
+        )
 
     results = evaluate_ranking_function(
         ranking_func=ranking_with_metadata,
@@ -226,5 +232,45 @@ def test_evaluate_ranking_function_with_metadata(sample_dataset):
     )
 
     assert results.metrics.recall == 1.0
-    assert results.results[0].metadata == {"source": "exact", "score": 1.0}
-    assert results.results[1].metadata == {"source": "fuzzy", "score": 0.8}
+    assert results.results[0].metadata == {
+        "source": "exact",
+        "score": 1.0,
+        "thoughts": ["母音列が近い"],
+    }
+    assert results.results[1].metadata == {
+        "source": "fuzzy",
+        "score": 0.8,
+        "thoughts": ["子音差を確認"],
+    }
+
+
+def test_evaluate_ranking_function_with_metrics_metadata(sample_dataset):
+    """ランキング関数が全体メトリクスmetadataを返しても評価できる"""
+
+    def ranking_with_metrics_metadata(query_texts, wordlist_texts):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlist_texts == sample_dataset.words
+        return RankingFunctionOutput(
+            ranked_wordlists=[
+                ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+                ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+            ],
+            metrics_metadata={
+                "model_name": "gpt-5.4",
+                "token_usage": {"total_tokens": 123},
+                "cost": {"total_cost": 0.42},
+            },
+        )
+
+    results = evaluate_ranking_function(
+        ranking_func=ranking_with_metrics_metadata,
+        topn=2,
+        dataset=sample_dataset,
+    )
+
+    assert results.metrics.recall == 1.0
+    assert results.metrics.metadata == {
+        "model_name": "gpt-5.4",
+        "token_usage": {"total_tokens": 123},
+        "cost": {"total_cost": 0.42},
+    }
