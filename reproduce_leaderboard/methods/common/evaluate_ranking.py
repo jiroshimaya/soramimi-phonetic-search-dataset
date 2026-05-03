@@ -10,9 +10,9 @@ from batch_reranker import (
 )
 from reranker import (
     calculate_token_cost,
-    get_last_token_usage,
     get_rerank_response_format,
     get_last_structured_outputs,
+    get_last_token_usage,
     rerank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
@@ -24,6 +24,29 @@ from soramimi_phonetic_search_dataset import (
     rank_by_phoneme_editdistance,
     rank_by_vowel_consonant_editdistance,
 )
+from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
+
+
+def build_rerank_metrics_metadata(
+    model_name: str,
+    token_usage,
+    token_cost,
+) -> dict[str, object]:
+    return {
+        "model_name": model_name,
+        "token_usage": {
+            "input_tokens": token_usage.input_tokens,
+            "output_tokens": token_usage.output_tokens,
+            "reasoning_tokens": token_usage.reasoning_tokens,
+            "total_tokens": token_usage.total_tokens,
+        },
+        "cost": {
+            "input_cost": token_cost.input_cost,
+            "output_cost": token_cost.output_cost,
+            "reasoning_cost": token_cost.reasoning_cost,
+            "total_cost": token_cost.total_cost,
+        },
+    }
 
 
 def create_reranking_function(
@@ -60,9 +83,7 @@ def create_reranking_function(
         組み合わせたランキング関数
     """
 
-    def combined_rank_func(
-        query_texts: list[str], wordlist_texts: list[str]
-    ) -> list[list[str]]:
+    def combined_rank_func(query_texts: list[str], wordlist_texts: list[str]):
         # ベースのランキングを実行
         base_ranked_wordlists = base_rank_func(
             query_texts, wordlist_texts, **base_rank_kwargs
@@ -87,7 +108,21 @@ def create_reranking_function(
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
-        return reranked_wordlists
+        token_usage = get_last_token_usage()
+        token_cost = calculate_token_cost(rerank_model_name, token_usage)
+        result_metadata = (
+            get_last_structured_outputs() if rerank_include_thoughts else None
+        )
+        metrics_metadata = build_rerank_metrics_metadata(
+            rerank_model_name,
+            token_usage,
+            token_cost,
+        )
+        return RankingFunctionOutput(
+            ranked_wordlists=reranked_wordlists,
+            result_metadata=result_metadata,
+            metrics_metadata=metrics_metadata,
+        )
 
     return combined_rank_func
 
@@ -374,8 +409,12 @@ def main():
             input_transform=args.rerank_input_transform,
             backend=args.rerank_backend,
         )
-        results.parameters.query_limit = effective_query_limit
-        results.parameters.query_offset = effective_query_offset
+        results.parameters.metadata.update(
+            {
+                "query_limit": effective_query_limit,
+                "query_offset": effective_query_offset,
+            }
+        )
 
         print("Recall: ", results.metrics.recall)
         print("Execution time: ", results.metrics.execution_time)
@@ -425,47 +464,38 @@ def main():
 
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
-    results.parameters.query_limit = effective_query_limit
-    results.parameters.query_offset = effective_query_offset
-    results.parameters.vowel_ratio = (
-        args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
+    results.parameters.metadata.update(
+        {
+            "query_limit": effective_query_limit,
+            "query_offset": effective_query_offset,
+            "vowel_ratio": (
+                args.vowel_ratio
+                if args.rank_func in ["kanasim", "vowel_consonant"]
+                else None
+            ),
+            "rerank": args.rerank,
+            "rerank_model_name": args.rerank_model_name if args.rerank else None,
+            "rerank_reasoning_effort": (
+                args.rerank_reasoning_effort if args.rerank else None
+            ),
+            "rerank_prompt_template": (
+                args.rerank_prompt_template if args.rerank else None
+            ),
+            "rerank_include_thoughts": (
+                args.rerank_include_thoughts if args.rerank else None
+            ),
+            "rerank_input_transform": (
+                args.rerank_input_transform if args.rerank else None
+            ),
+            "rerank_input_size": args.rerank_input_size if args.rerank else None,
+            "rerank_backend": args.rerank_backend if args.rerank else None,
+            "rerank_batch_id": None,
+        }
     )
-    results.parameters.rerank = args.rerank
-    results.parameters.rerank_model_name = (
-        args.rerank_model_name if args.rerank else None
-    )
-    results.parameters.rerank_reasoning_effort = (
-        args.rerank_reasoning_effort if args.rerank else None
-    )
-    results.parameters.rerank_prompt_template = (
-        args.rerank_prompt_template if args.rerank else None
-    )
-    results.parameters.rerank_include_thoughts = (
-        args.rerank_include_thoughts if args.rerank else None
-    )
-    results.parameters.rerank_input_transform = (
-        args.rerank_input_transform if args.rerank else None
-    )
-    results.parameters.rerank_input_size = (
-        args.rerank_input_size if args.rerank else None
-    )
-    results.parameters.rerank_backend = args.rerank_backend if args.rerank else None
-    results.parameters.rerank_batch_id = None
     if args.rerank and args.rerank_include_thoughts:
         structured_outputs = get_last_structured_outputs()
         for result, structured_output in zip(results.results, structured_outputs):
-            result.thoughts = structured_output.get("thoughts")
-    if args.rerank:
-        token_usage = get_last_token_usage()
-        token_cost = calculate_token_cost(args.rerank_model_name, token_usage)
-        results.metrics.rerank_input_tokens = token_usage.input_tokens
-        results.metrics.rerank_output_tokens = token_usage.output_tokens
-        results.metrics.rerank_reasoning_tokens = token_usage.reasoning_tokens
-        results.metrics.rerank_total_tokens = token_usage.total_tokens
-        results.metrics.rerank_input_cost = token_cost.input_cost
-        results.metrics.rerank_output_cost = token_cost.output_cost
-        results.metrics.rerank_reasoning_cost = token_cost.reasoning_cost
-        results.metrics.rerank_total_cost = token_cost.total_cost
+            result.metadata = structured_output
 
     print("Recall: ", results.metrics.recall)
     print("Execution time: ", results.metrics.execution_time)

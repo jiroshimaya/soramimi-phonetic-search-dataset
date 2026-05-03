@@ -219,18 +219,20 @@ def main():
 
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
-    results.parameters.vowel_ratio = (
-        args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
-    )
-    results.parameters.rerank = args.rerank
-    results.parameters.rerank_model_name = (
-        args.rerank_model_name if args.rerank else None
-    )
-    results.parameters.rerank_reasoning_effort = (
-        args.rerank_reasoning_effort if args.rerank else None
-    )
-    results.parameters.rerank_input_size = (
-        args.rerank_input_size if args.rerank else None
+    results.parameters.metadata.update(
+        {
+            "vowel_ratio": (
+                args.vowel_ratio
+                if args.rank_func in ["kanasim", "vowel_consonant"]
+                else None
+            ),
+            "rerank": args.rerank,
+            "rerank_model_name": args.rerank_model_name if args.rerank else None,
+            "rerank_reasoning_effort": (
+                args.rerank_reasoning_effort if args.rerank else None
+            ),
+            "rerank_input_size": args.rerank_input_size if args.rerank else None,
+        }
     )
 
     print("Recall: ", results.metrics.recall)

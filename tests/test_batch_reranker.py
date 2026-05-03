@@ -104,9 +104,27 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
     )
 
     assert results.parameters.rank_func == "vowel_consonant"
-    assert results.parameters.rerank_batch_id == "batch-123"
-    assert results.parameters.rerank_backend == "openai_batch"
+    assert results.parameters.metadata["rerank_batch_id"] == "batch-123"
+    assert results.parameters.metadata["rerank_backend"] == "openai_batch"
+    assert results.parameters.metadata["vowel_ratio"] == 0.5
     assert results.metrics.execution_time == 12.5
-    assert results.metrics.rerank_total_tokens == 33
-    assert results.metrics.rerank_total_cost == 0.15
-    assert results.results[0].thoughts == ["母音列が一致"]
+    assert results.metrics.metadata == {
+        "model_name": "gpt-5.4",
+        "token_usage": {
+            "input_tokens": 11,
+            "output_tokens": 13,
+            "reasoning_tokens": 9,
+            "total_tokens": 33,
+        },
+        "cost": {
+            "input_cost": 0.05,
+            "output_cost": 0.1,
+            "reasoning_cost": 0.025,
+            "total_cost": 0.15,
+        },
+        "discount_factor": 0.5,
+    }
+    assert results.results[0].metadata == {
+        "thoughts": ["母音列が一致"],
+        "reranked": [0, 1],
+    }
