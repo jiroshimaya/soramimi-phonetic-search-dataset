@@ -2,7 +2,6 @@ import argparse
 import json
 from typing import Callable
 
-from reproduce_leaderboard.methods.common.reranker import rerank_by_llm
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function,
     load_default_dataset,
@@ -12,6 +11,7 @@ from soramimi_phonetic_search_dataset import (
     rank_by_phoneme_editdistance,
     rank_by_vowel_consonant_editdistance,
 )
+from soramimi_phonetic_search_dataset.reranker import rerank_by_llm
 
 
 def create_reranking_function(

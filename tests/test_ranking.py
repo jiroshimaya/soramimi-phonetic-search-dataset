@@ -1,9 +1,11 @@
 from soramimi_phonetic_search_dataset import (
     rank_by_kanasim,
+    rank_by_llm,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
     rank_by_vowel_consonant_editdistance,
 )
+from soramimi_phonetic_search_dataset import llm_ranking
 
 
 def test_rank_by_mora_editdistance():
@@ -63,3 +65,45 @@ def test_rank_by_kanasim():
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
+
+
+def test_rank_by_llm_delegates_to_reranker(monkeypatch):
+    """LLM ランキング前にベースランキングで候補を絞り込む"""
+
+    captured = {}
+
+    def fake_base_rank_func(query_texts, wordlist_texts, **kwargs):
+        captured["base_query_texts"] = query_texts
+        captured["base_wordlist_texts"] = wordlist_texts
+        captured["base_kwargs"] = kwargs
+        return [["ハナコ", "タロー", "タロ", "サブロウ"]]
+
+    def fake_rerank_by_llm(query_texts, wordlist_texts, **kwargs):
+        captured["query_texts"] = query_texts
+        captured["wordlist_texts"] = wordlist_texts
+        captured["kwargs"] = kwargs
+        return [["タロー", "タロ"]]
+
+    monkeypatch.setattr(llm_ranking, "_rerank_by_llm_impl", fake_rerank_by_llm)
+
+    ranked_wordlists = rank_by_llm(
+        ["タロウ"],
+        ["タロー", "タロ", "ハナコ", "サブロウ"],
+        topn=2,
+        rerank_input_size=3,
+        base_rank_func=fake_base_rank_func,
+        vowel_ratio=0.7,
+        model_name="gpt-5.4",
+        prompt_template="detailed",
+        rerank_interval=0,
+    )
+
+    assert ranked_wordlists == [["タロー", "タロ"]]
+    assert captured["base_query_texts"] == ["タロウ"]
+    assert captured["base_wordlist_texts"] == ["タロー", "タロ", "ハナコ", "サブロウ"]
+    assert captured["base_kwargs"]["vowel_ratio"] == 0.7
+    assert captured["query_texts"] == ["タロウ"]
+    assert captured["wordlist_texts"] == [["ハナコ", "タロー", "タロ"]]
+    assert captured["kwargs"]["topn"] == 2
+    assert captured["kwargs"]["model_name"] == "gpt-5.4"
+    assert captured["kwargs"]["prompt_template"] == "detailed"
