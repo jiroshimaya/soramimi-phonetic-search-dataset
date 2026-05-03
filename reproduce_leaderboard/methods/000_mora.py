@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from soramimi_phonetic_search_dataset import (
+    PhoneticSearchQueryWithWordlist,
     evaluate_ranking_function,
     load_default_dataset,
     rank_by_mora_editdistance,
@@ -18,8 +19,10 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "000_mora.json"
 
-    def ranking_func(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
-        return rank_by_mora_editdistance(query_texts, wordlist_texts)
+    def ranking_func(
+        query_inputs: list[PhoneticSearchQueryWithWordlist],
+    ) -> list[list[str]]:
+        return rank_by_mora_editdistance(query_inputs)
 
     results = evaluate_ranking_function(
         ranking_func=ranking_func,

@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from soramimi_phonetic_search_dataset import (
+    PhoneticSearchQueryWithWordlist,
     evaluate_ranking_function,
     load_default_dataset,
     rank_by_vowel_consonant_editdistance,
@@ -18,10 +19,11 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "002_vowel_consonant.json"
 
-    def ranking_func(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+    def ranking_func(
+        query_inputs: list[PhoneticSearchQueryWithWordlist],
+    ) -> list[list[str]]:
         return rank_by_vowel_consonant_editdistance(
-            query_texts,
-            wordlist_texts,
+            query_inputs,
             vowel_ratio=0.8,
         )
 

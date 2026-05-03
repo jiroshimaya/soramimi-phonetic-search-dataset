@@ -1,4 +1,5 @@
 from soramimi_phonetic_search_dataset import (
+    PhoneticSearchQueryWithWordlist,
     rank_by_kanasim,
     rank_by_llm,
     rank_by_mora_editdistance,
@@ -8,11 +9,27 @@ from soramimi_phonetic_search_dataset import (
 from soramimi_phonetic_search_dataset import llm_ranking
 
 
+def _build_query_inputs(
+    query_texts: list[str],
+    wordlist_texts: list[str],
+) -> list[PhoneticSearchQueryWithWordlist]:
+    return [
+        PhoneticSearchQueryWithWordlist(
+            query=query_text,
+            wordlist=wordlist_texts,
+            positive_words=[],
+        )
+        for query_text in query_texts
+    ]
+
+
 def test_rank_by_mora_editdistance():
     """モーラ編集距離によるランキングのテスト"""
     query_texts = ["タロウ"]
     wordlist_texts = ["タロー", "タロ", "ハナコ"]
-    ranked_wordlists = rank_by_mora_editdistance(query_texts, wordlist_texts)
+    ranked_wordlists = rank_by_mora_editdistance(
+        _build_query_inputs(query_texts, wordlist_texts)
+    )
 
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]  # 最も類似度が高い
@@ -23,16 +40,17 @@ def test_rank_by_vowel_consonant_editdistance():
     """母音子音編集距離によるランキングのテスト"""
     query_texts = ["タロウ"]
     wordlist_texts = ["タロー", "タロ", "ハナコ"]
+    query_inputs = _build_query_inputs(query_texts, wordlist_texts)
 
     # デフォルトの重み（母音:子音 = 0.5:0.5）
-    ranked_wordlists = rank_by_vowel_consonant_editdistance(query_texts, wordlist_texts)
+    ranked_wordlists = rank_by_vowel_consonant_editdistance(query_inputs)
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
 
     # 母音重視（母音:子音 = 0.8:0.2）
     ranked_wordlists = rank_by_vowel_consonant_editdistance(
-        query_texts, wordlist_texts, vowel_ratio=0.8
+        query_inputs, vowel_ratio=0.8
     )
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
@@ -43,7 +61,9 @@ def test_rank_by_phoneme_editdistance():
     """音素編集距離によるランキングのテスト"""
     query_texts = ["タロウ"]
     wordlist_texts = ["タロー", "タロ", "ハナコ"]
-    ranked_wordlists = rank_by_phoneme_editdistance(query_texts, wordlist_texts)
+    ranked_wordlists = rank_by_phoneme_editdistance(
+        _build_query_inputs(query_texts, wordlist_texts)
+    )
 
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
@@ -54,14 +74,15 @@ def test_rank_by_kanasim():
     """KanaSimによるランキングのテスト"""
     query_texts = ["タロウ"]
     wordlist_texts = ["タロー", "タロ", "ハナコ"]
-    ranked_wordlists = rank_by_kanasim(query_texts, wordlist_texts)
+    query_inputs = _build_query_inputs(query_texts, wordlist_texts)
+    ranked_wordlists = rank_by_kanasim(query_inputs)
 
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
 
     # カスタムパラメータでのテスト
-    ranked_wordlists = rank_by_kanasim(query_texts, wordlist_texts, vowel_ratio=0.5)
+    ranked_wordlists = rank_by_kanasim(query_inputs, vowel_ratio=0.5)
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
@@ -72,9 +93,8 @@ def test_rank_by_llm_delegates_to_reranker(monkeypatch):
 
     captured = {}
 
-    def fake_base_rank_func(query_texts, wordlist_texts, **kwargs):
-        captured["base_query_texts"] = query_texts
-        captured["base_wordlist_texts"] = wordlist_texts
+    def fake_base_rank_func(query_inputs, **kwargs):
+        captured["base_query_inputs"] = query_inputs
         captured["base_kwargs"] = kwargs
         return [["ハナコ", "タロー", "タロ", "サブロウ"]]
 
@@ -86,9 +106,13 @@ def test_rank_by_llm_delegates_to_reranker(monkeypatch):
 
     monkeypatch.setattr(llm_ranking, "_rerank_by_llm_impl", fake_rerank_by_llm)
 
-    ranked_wordlists = rank_by_llm(
+    query_inputs = _build_query_inputs(
         ["タロウ"],
         ["タロー", "タロ", "ハナコ", "サブロウ"],
+    )
+
+    ranked_wordlists = rank_by_llm(
+        query_inputs,
         topn=2,
         rerank_input_size=3,
         base_rank_func=fake_base_rank_func,
@@ -99,8 +123,8 @@ def test_rank_by_llm_delegates_to_reranker(monkeypatch):
     )
 
     assert ranked_wordlists == [["タロー", "タロ"]]
-    assert captured["base_query_texts"] == ["タロウ"]
-    assert captured["base_wordlist_texts"] == ["タロー", "タロ", "ハナコ", "サブロウ"]
+    assert [query.query for query in captured["base_query_inputs"]] == ["タロウ"]
+    assert captured["base_query_inputs"][0].wordlist == ["タロー", "タロ", "ハナコ", "サブロウ"]
     assert captured["base_kwargs"]["vowel_ratio"] == 0.7
     assert captured["query_texts"] == ["タロウ"]
     assert captured["wordlist_texts"] == [["ハナコ", "タロー", "タロ"]]

@@ -1,11 +1,11 @@
 from .base_ranking import rank_by_vowel_consonant_editdistance
 from .evaluate import RankingFunc, RankingFunctionOutput
 from .reranker import rerank_by_llm as _rerank_by_llm_impl
+from .schemas import PhoneticSearchQueryWithWordlist
 
 
 def rank_by_llm(
-    query_texts: list[str],
-    wordlist_texts: list[str],
+    query_inputs: list[PhoneticSearchQueryWithWordlist],
     *,
     topn: int = 10,
     rerank_input_size: int = 100,
@@ -28,8 +28,7 @@ def rank_by_llm(
     """
 
     base_ranking_output = base_rank_func(
-        query_texts,
-        wordlist_texts,
+        query_inputs,
         **base_rank_kwargs,
     )
     if isinstance(base_ranking_output, RankingFunctionOutput):
@@ -40,6 +39,7 @@ def rank_by_llm(
     topk_ranked_wordlists = [
         ranked_wordlist[:rerank_input_size] for ranked_wordlist in base_ranked_wordlists
     ]
+    query_texts = [query_input.query for query_input in query_inputs]
 
     return _rerank_by_llm_impl(
         query_texts,
