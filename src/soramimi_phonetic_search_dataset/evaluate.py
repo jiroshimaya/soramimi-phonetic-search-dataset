@@ -49,7 +49,11 @@ def _resolve_ranking_func_name(ranking_func: RankingFunc) -> str:
 
 def _normalize_ranking_output(
     ranking_output: list[list[str]] | RankingFunctionOutput,
-) -> tuple[list[list[str]], list[dict[str, Any]] | None, dict[str, Any] | None]:
+) -> tuple[
+    list[list[str]],
+    list[dict[str, Any]] | None,
+    dict[str, Any] | None,
+]:
     if isinstance(ranking_output, list):
         return ranking_output, None, None
 

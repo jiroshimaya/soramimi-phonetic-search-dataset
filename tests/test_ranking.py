@@ -19,6 +19,30 @@ def test_rank_by_mora_editdistance():
     assert ranked_wordlists[0][-1] == "ハナコ"  # 最も類似度が低い
 
 
+def test_rank_by_mora_editdistance_reuses_shared_words(monkeypatch):
+    """異なる単語リストでも同じ単語の前処理を再利用する"""
+    from soramimi_phonetic_search_dataset import base_ranking
+
+    original_parse = base_ranking.jamorasep.parse
+    parse_call_count = 0
+
+    def counting_parse(text, *args, **kwargs):
+        nonlocal parse_call_count
+        parse_call_count += 1
+        return original_parse(text, *args, **kwargs)
+
+    monkeypatch.setattr(base_ranking.jamorasep, "parse", counting_parse)
+
+    query_texts = ["タロウ", "ジロウ"]
+    wordlist_a = ["タロー", "タロ", "ハナコ"]
+    wordlist_b = ["タロー", "ジロ", "ハナコ"]
+
+    ranked_wordlists = rank_by_mora_editdistance(query_texts, [wordlist_a, wordlist_b])
+
+    assert len(ranked_wordlists) == 2
+    assert parse_call_count == len(query_texts) + 4
+
+
 def test_rank_by_vowel_consonant_editdistance():
     """母音子音編集距離によるランキングのテスト"""
     query_texts = ["タロウ"]

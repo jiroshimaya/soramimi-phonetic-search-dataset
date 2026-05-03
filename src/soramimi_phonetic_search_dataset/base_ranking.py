@@ -2,6 +2,10 @@ import editdistance as ed
 import jamorasep
 import pyopenjtalk
 from kanasim import create_kana_distance_calculator
+from typing import Callable, TypeVar
+
+
+ConvertedT = TypeVar("ConvertedT")
 
 
 def _split_phonemes(text: str) -> list[str]:
@@ -9,8 +13,14 @@ def _split_phonemes(text: str) -> list[str]:
     return phonemes if isinstance(phonemes, list) else phonemes.split()
 
 
-def _has_shared_wordlist(wordlists: list[list[str]]) -> bool:
-    return bool(wordlists) and all(wordlist is wordlists[0] for wordlist in wordlists)
+def _get_or_convert(
+    memo: dict[str, ConvertedT], text: str, convert: Callable[[str], ConvertedT]
+) -> ConvertedT:
+    converted = memo.get(text)
+    if converted is None:
+        converted = convert(text)
+        memo[text] = converted
+    return converted
 
 
 def rank_by_mora_editdistance(
@@ -27,29 +37,17 @@ def rank_by_mora_editdistance(
     Returns:
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
-    if _has_shared_wordlist(wordlists):
-        shared_wordlist = wordlists[0]
-        wordlist_moras = [jamorasep.parse(text) for text in shared_wordlist]
-        final_results = []
-        for query_text in query_texts:
-            query_mora = jamorasep.parse(query_text)
-            scores = [ed.eval(query_mora, wordlist_mora) for wordlist_mora in wordlist_moras]
-            ranked_wordlist = [
-                word
-                for word, _ in sorted(zip(shared_wordlist, scores), key=lambda x: x[1])
-            ]
-            final_results.append(ranked_wordlist)
-        return final_results
-
+    word_mora_memo: dict[str, list[str]] = {}
     final_results = []
     for query_text, wordlist in zip(query_texts, wordlists):
-        query_mora = jamorasep.parse(query_text)
-        wordlist_moras = [jamorasep.parse(text) for text in wordlist]
-        scores = [ed.eval(query_mora, wordlist_mora) for wordlist_mora in wordlist_moras]
-        ranked_wordlist = [
-            word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])
+        query_mora = _get_or_convert(word_mora_memo, query_text, jamorasep.parse)
+        wordlist_moras = [
+            _get_or_convert(word_mora_memo, text, jamorasep.parse) for text in wordlist
         ]
-        final_results.append(ranked_wordlist)
+        scores = [ed.eval(query_mora, wordlist_mora) for wordlist_mora in wordlist_moras]
+        final_results.append(
+            [word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])]
+        )
     return final_results
 
 
@@ -69,61 +67,32 @@ def rank_by_vowel_consonant_editdistance(
     Returns:
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
-    def _parse_wordlist(wordlist_texts: list[str]) -> tuple[list[list[str]], list[list[str]]]:
-        wordlist_moras = [
-            jamorasep.parse(text, output_format="simple-ipa") for text in wordlist_texts
-        ]
-        wordlist_vowels = [[m[-1] for m in mora] for mora in wordlist_moras]
-        wordlist_consonants = [
-            [m[:-1] if m[:-1] else "sp" for m in mora] for mora in wordlist_moras
-        ]
-        return wordlist_vowels, wordlist_consonants
+    def _parse_word(text: str) -> tuple[list[str], list[str]]:
+        mora = jamorasep.parse(text, output_format="simple-ipa")
+        vowels = [m[-1] for m in mora]
+        consonants = [m[:-1] if m[:-1] else "sp" for m in mora]
+        return vowels, consonants
 
-    if _has_shared_wordlist(wordlists):
-        shared_wordlist = wordlists[0]
-        wordlist_vowels, wordlist_consonants = _parse_wordlist(shared_wordlist)
-        final_results = []
-        for query_text in query_texts:
-            query_mora = jamorasep.parse(query_text, output_format="simple-ipa")
-            query_vowel = [m[-1] for m in query_mora]
-            query_consonant = [m[:-1] if m[:-1] else "sp" for m in query_mora]
-            scores = []
-            for wordlist_vowel, wordlist_consonant in zip(
-                wordlist_vowels, wordlist_consonants
-            ):
-                vowel_distance = ed.eval(query_vowel, wordlist_vowel)
-                consonant_distance = ed.eval(query_consonant, wordlist_consonant)
-                distance = vowel_distance * vowel_ratio + consonant_distance * (
-                    1 - vowel_ratio
-                )
-                scores.append(distance)
-            ranked_wordlist = [
-                word
-                for word, _ in sorted(zip(shared_wordlist, scores), key=lambda x: x[1])
-            ]
-            final_results.append(ranked_wordlist)
-        return final_results
-
+    word_feature_memo: dict[str, tuple[list[str], list[str]]] = {}
     final_results = []
     for query_text, wordlist in zip(query_texts, wordlists):
-        query_mora = jamorasep.parse(query_text, output_format="simple-ipa")
-        query_vowel = [m[-1] for m in query_mora]
-        query_consonant = [m[:-1] if m[:-1] else "sp" for m in query_mora]
-        wordlist_vowels, wordlist_consonants = _parse_wordlist(wordlist)
+        query_vowel, query_consonant = _get_or_convert(
+            word_feature_memo, query_text, _parse_word
+        )
+        wordlist_features = [
+            _get_or_convert(word_feature_memo, text, _parse_word) for text in wordlist
+        ]
         scores = []
-        for wordlist_vowel, wordlist_consonant in zip(
-            wordlist_vowels, wordlist_consonants
-        ):
+        for wordlist_vowel, wordlist_consonant in wordlist_features:
             vowel_distance = ed.eval(query_vowel, wordlist_vowel)
             consonant_distance = ed.eval(query_consonant, wordlist_consonant)
             distance = vowel_distance * vowel_ratio + consonant_distance * (
                 1 - vowel_ratio
             )
             scores.append(distance)
-        ranked_wordlist = [
-            word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])
-        ]
-        final_results.append(ranked_wordlist)
+        final_results.append(
+            [word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])]
+        )
     return final_results
 
 
@@ -141,35 +110,20 @@ def rank_by_phoneme_editdistance(
     Returns:
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
-    if _has_shared_wordlist(wordlists):
-        shared_wordlist = wordlists[0]
-        wordlist_phonemes = [_split_phonemes(text) for text in shared_wordlist]
-        final_results = []
-        for query_text in query_texts:
-            query_phoneme = _split_phonemes(query_text)
-            scores = [
-                ed.eval(query_phoneme, wordlist_phoneme)
-                for wordlist_phoneme in wordlist_phonemes
-            ]
-            ranked_wordlist = [
-                word
-                for word, _ in sorted(zip(shared_wordlist, scores), key=lambda x: x[1])
-            ]
-            final_results.append(ranked_wordlist)
-        return final_results
-
+    word_phoneme_memo: dict[str, list[str]] = {}
     final_results = []
     for query_text, wordlist in zip(query_texts, wordlists):
-        query_phoneme = _split_phonemes(query_text)
-        wordlist_phonemes = [_split_phonemes(text) for text in wordlist]
+        query_phoneme = _get_or_convert(word_phoneme_memo, query_text, _split_phonemes)
+        wordlist_phonemes = [
+            _get_or_convert(word_phoneme_memo, text, _split_phonemes) for text in wordlist
+        ]
         scores = [
             ed.eval(query_phoneme, wordlist_phoneme)
             for wordlist_phoneme in wordlist_phonemes
         ]
-        ranked_wordlist = [
-            word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])
-        ]
-        final_results.append(ranked_wordlist)
+        final_results.append(
+            [word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])]
+        )
     return final_results
 
 
@@ -188,25 +142,11 @@ def rank_by_kanasim(
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
     kana_distance_calculator = create_kana_distance_calculator(**kwargs)
-    if _has_shared_wordlist(wordlists):
-        shared_wordlist = wordlists[0]
-        all_scores = kana_distance_calculator.calculate_batch(query_texts, shared_wordlist)
-
-        ranked_wordlists = []
-        for scores in all_scores:
-            ranked_wordlist = [
-                word
-                for word, _ in sorted(zip(shared_wordlist, scores), key=lambda x: x[1])
-            ]
-            ranked_wordlists.append(ranked_wordlist)
-        return ranked_wordlists
-
     ranked_wordlists = []
     for query_text, wordlist in zip(query_texts, wordlists):
         scores = kana_distance_calculator.calculate_batch([query_text], wordlist)[0]
-        ranked_wordlist = [
-            word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])
-        ]
-        ranked_wordlists.append(ranked_wordlist)
+        ranked_wordlists.append(
+            [word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])]
+        )
 
     return ranked_wordlists
