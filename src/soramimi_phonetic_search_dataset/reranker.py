@@ -9,8 +9,126 @@ from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
 import pyopenjtalk
-from soramimi_phonetic_search_dataset.reranker import rerank_by_llm as _core_rerank_by_llm
 from tqdm import tqdm
+
+PROMPT_INSTRUCTIONS = {
+    "default": """
+    You are a phonetic search assistant.
+    You are given a query and a list of words.
+    You need to rerank the words based on phonetic similarity to the query.
+    When estimating phonetic similarity, please consider the following:
+    1. Prioritize matching vowels
+    2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
+    3. For other cases, words with similar mora counts are preferred
+    You need to return only the reranked list of index numbers of the words, no other text.
+    You need to return only topn index numbers.
+    """,
+    "simple": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "detailed": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "step_by_step": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    以下の手順で判断してください。
+    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "detailed_romaji_explicit": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "nonreasoning_cot": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    以下の手順で判断してください。
+    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
+    構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
+    """,
+}
+
+PROMPT_EXAMPLE_SUFFIX = """
+Example:
+Query: タロウ
+Wordlist:
+0. アオ
+1. アオウヅ
+2. アノウ
+3. タキョウ
+4. タド
+5. タノ
+6. タロウ
+7. タンノ
+Top N: 5
+Reranked: 6, 4, 5, 7, 2
+"""
+
+OPENAI_BATCH_ENDPOINT = "/v1/chat/completions"
+OPENAI_BATCH_DISCOUNT_FACTOR = 0.5
+OPENAI_MODEL_PREFIXES = ("gpt-", "o1", "o3", "o4", "chatgpt-")
+
+
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+
+    @property
+    def output_tokens(self) -> int:
+        return max(self.completion_tokens - self.reasoning_tokens, 0)
+
+
+@dataclass
+class TokenCost:
+    input_cost: float = 0.0
+    output_cost: float = 0.0
+    reasoning_cost: float = 0.0
+    total_cost: float = 0.0
+
+
+@dataclass
+class OpenAIBatchRerankResult:
+    reranked_wordlists: list[list[str]]
+    structured_outputs: list[dict[str, Any]]
+    batch_id: str
+    batch_status: str
+    execution_time: float
+    output_file_path: str | None
+    error_file_path: str | None
+
+
+_last_token_usage = TokenUsage()
+_last_structured_outputs: list[dict[str, Any]] = []
+
+
+class RerankedWordlist(BaseModel):
+    reranked: list[int]
+
+
+class ThoughtfulRerankedWordlist(BaseModel):
+    thoughts: list[str]
+    reranked: list[int]
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
@@ -722,16 +840,37 @@ def rerank_by_llm(
     temperature: float = 0.0,
     rerank_interval: int = 60,
 ) -> list[list[str]]:
-    return _core_rerank_by_llm(
+    messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
         topn=topn,
-        model_name=model_name,
-        reasoning_effort=reasoning_effort,
         prompt_template=prompt_template,
-        include_thoughts=include_thoughts,
         input_transform=input_transform,
-        batch_size=batch_size,
-        temperature=temperature,
-        rerank_interval=rerank_interval,
     )
+    response_format = get_rerank_response_format(
+        include_thoughts=include_thoughts
+        or prompt_template_requires_thoughts(prompt_template)
+    )
+
+    reranked_wordlists = []
+    structured_outputs = []
+    for i in tqdm(range(0, len(messages), batch_size)):
+        batch_messages = messages[i : i + batch_size]
+        responses = get_structured_outputs(
+            model_name=model_name,
+            messages=batch_messages,
+            temperature=temperature,
+            max_tokens=1000,
+            response_format=response_format,
+            reasoning_effort=reasoning_effort,
+        )
+        for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
+            structured_outputs.append(_extract_structured_output(response))
+            reranked_wordlists.append(
+                _build_reranked_wordlist(wordlist, _extract_reranked_indices(response))
+            )
+
+        time.sleep(rerank_interval)
+
+    set_last_structured_outputs(structured_outputs)
+    return reranked_wordlists

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from reproduce_leaderboard.methods.common import reranker
+from soramimi_phonetic_search_dataset import reranker
 
 
 class SampleResponse(BaseModel):
