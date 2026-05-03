@@ -2,25 +2,34 @@
   "parameters": {
     "topn": 10,
     "rank_func": "vowel_consonant",
-    "vowel_ratio": 0.5,
-    "rerank": true,
-    "rerank_model_name": "gpt-5.4",
-    "rerank_reasoning_effort": null,
-    "rerank_prompt_template": "008_03_step_by_step",
-    "rerank_input_size": 100,
-    "execution_timestamp": "2026-04-22T14:30:27.669576"
+    "execution_timestamp": "2026-04-22T14:30:27.669576",
+    "metadata": {
+      "vowel_ratio": 0.5,
+      "rerank": true,
+      "rerank_model_name": "gpt-5.4",
+      "rerank_reasoning_effort": null,
+      "rerank_prompt_template": "008_03_step_by_step",
+      "rerank_input_size": 100
+    }
   },
   "metrics": {
     "recall": 0.65,
     "execution_time": 3.501060724258423,
-    "rerank_input_tokens": 10428,
-    "rerank_output_tokens": 340,
-    "rerank_reasoning_tokens": 0,
-    "rerank_total_tokens": 10768,
-    "rerank_input_cost": 0.026070000000000003,
-    "rerank_output_cost": 0.0051,
-    "rerank_reasoning_cost": 0.0,
-    "rerank_total_cost": 0.031170000000000003
+    "metadata": {
+      "model_name": "gpt-5.4",
+      "token_usage": {
+        "input_tokens": 10428,
+        "output_tokens": 340,
+        "reasoning_tokens": 0,
+        "total_tokens": 10768
+      },
+      "cost": {
+        "input_cost": 0.026070000000000003,
+        "output_cost": 0.0051,
+        "reasoning_cost": 0.0,
+        "total_cost": 0.031170000000000003
+      }
+    }
   },
   "results": [
     {
@@ -39,7 +48,8 @@
       ],
       "positive_words": [
         "アイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アウマル",
@@ -57,7 +67,8 @@
       ],
       "positive_words": [
         "タクマル"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アケ",
@@ -76,7 +87,8 @@
       "positive_words": [
         "アベ",
         "カケイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アシオト",
@@ -94,7 +106,8 @@
       ],
       "positive_words": [
         "ハシモト"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アッテ",
@@ -112,7 +125,8 @@
       ],
       "positive_words": [
         "マルテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アト",
@@ -130,7 +144,8 @@
       ],
       "positive_words": [
         "カトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アノ",
@@ -148,7 +163,8 @@
       ],
       "positive_words": [
         "アノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレ",
@@ -167,7 +183,8 @@
       "positive_words": [
         "アレン",
         "アベ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレ",
@@ -185,7 +202,8 @@
       ],
       "positive_words": [
         "アレン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレクルウ",
@@ -203,7 +221,8 @@
       ],
       "positive_words": [
         "アレックス"
-      ]
+      ],
+      "metadata": null
     }
   ]
 }

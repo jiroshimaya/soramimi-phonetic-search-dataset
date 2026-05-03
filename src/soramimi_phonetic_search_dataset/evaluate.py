@@ -33,6 +33,20 @@ metadata のリストや、評価全体に紐づく metrics metadata を渡し�
 """
 
 
+def _resolve_ranking_func_name(ranking_func: RankingFunc) -> str:
+    func_name = getattr(ranking_func, "__name__", None)
+    if isinstance(func_name, str) and func_name:
+        return func_name
+
+    wrapped_func = getattr(ranking_func, "func", None)
+    wrapped_name = getattr(wrapped_func, "__name__", None)
+    if isinstance(wrapped_name, str) and wrapped_name:
+        return wrapped_name
+
+    class_name = ranking_func.__class__.__name__
+    return class_name or "unknown"
+
+
 def _normalize_ranking_output(
     ranking_output: list[list[str]] | RankingFunctionOutput,
 ) -> tuple[list[list[str]], list[dict[str, Any]] | None, dict[str, Any] | None]:
@@ -123,7 +137,7 @@ def evaluate_ranking_function(
     # パラメータは最小限の情報のみ
     parameters = PhoneticSearchParameters(
         topn=topn,
-        rank_func="unknown",  # basic_usage.py側で設定する
+        rank_func=_resolve_ranking_func_name(ranking_func),
         execution_timestamp=datetime.now().isoformat(),  # 実行日時を追加
     )
 
