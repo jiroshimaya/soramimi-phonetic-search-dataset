@@ -187,6 +187,7 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
 
     results = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
     assert results.metrics.recall == 1.0  # 全てのクエリで正解を含む
+    assert results.parameters.rank_func == "perfect_ranking"
 
 
 def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):

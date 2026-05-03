@@ -2,736 +2,744 @@
   "parameters": {
     "topn": 10,
     "rank_func": "vowel_consonant",
-    "vowel_ratio": 0.5,
-    "rerank": true,
-    "rerank_backend": "openai_batch",
-    "rerank_model_name": "gpt-5.1",
-    "rerank_batch_id": "batch_69e63265403881909aa2b77cf640e67d,batch_69e632679f40819093273bd9ce50568f,batch_69e63268748c81908b3c71048749472e,batch_69e632697cac819094249c17fb511bd3,batch_69e6326b82108190b80525e8378752c4,batch_69e6326c6a8c819094ff241c5210feae,batch_69e6326d34748190998dadf1ac6cb384,batch_69e6326eee4881909edb3654e60f5d36,batch_69e6326fac508190b74458771404bcff,batch_69e63270a60c81909a7bea129ffdb368,batch_69e63271bd408190bd8f1981b11b6dbb,batch_69e632729dd08190af13412b22eb5dbd,batch_69e632737e808190bb880e3100ea1877,batch_69e63274bcb88190a220c3f8220d12be,batch_69e63275bec4819081f6df2cebe10f2e,batch_69e8e51f344c81908519eb74068f8df5,batch_69e8f60ae45c81908f847a1e48b403e0",
-    "rerank_reasoning_effort": "medium",
-    "rerank_prompt_template": "008_03_step_by_step",
-    "rerank_input_size": 100,
-    "execution_timestamp": "2026-04-22T17:26:04.297445"
+    "execution_timestamp": "2026-04-22T17:26:04.297445",
+    "metadata": {
+      "vowel_ratio": 0.5,
+      "rerank": true,
+      "rerank_backend": "openai_batch",
+      "rerank_model_name": "gpt-5.1",
+      "rerank_batch_id": "batch_69e63265403881909aa2b77cf640e67d,batch_69e632679f40819093273bd9ce50568f,batch_69e63268748c81908b3c71048749472e,batch_69e632697cac819094249c17fb511bd3,batch_69e6326b82108190b80525e8378752c4,batch_69e6326c6a8c819094ff241c5210feae,batch_69e6326d34748190998dadf1ac6cb384,batch_69e6326eee4881909edb3654e60f5d36,batch_69e6326fac508190b74458771404bcff,batch_69e63270a60c81909a7bea129ffdb368,batch_69e63271bd408190bd8f1981b11b6dbb,batch_69e632729dd08190af13412b22eb5dbd,batch_69e632737e808190bb880e3100ea1877,batch_69e63274bcb88190a220c3f8220d12be,batch_69e63275bec4819081f6df2cebe10f2e,batch_69e8e51f344c81908519eb74068f8df5,batch_69e8f60ae45c81908f847a1e48b403e0",
+      "rerank_reasoning_effort": "medium",
+      "rerank_prompt_template": "008_03_step_by_step",
+      "rerank_input_size": 100
+    }
   },
   "metrics": {
     "recall": 0.8905555555555554,
     "execution_time": 279827.0,
-    "rerank_input_tokens": 187275,
-    "rerank_output_tokens": 6063,
-    "rerank_reasoning_tokens": 2047616,
-    "rerank_total_tokens": 2240954,
-    "rerank_input_cost": 0.11704687500000001,
-    "rerank_output_cost": 0.03031499999999987,
-    "rerank_reasoning_cost": 10.238080000000002,
-    "rerank_total_cost": 10.385441875000001
-  },
-  "metadata": {
-    "rerank_batch_ids": [
-      "batch_69e63265403881909aa2b77cf640e67d",
-      "batch_69e632679f40819093273bd9ce50568f",
-      "batch_69e63268748c81908b3c71048749472e",
-      "batch_69e632697cac819094249c17fb511bd3",
-      "batch_69e6326b82108190b80525e8378752c4",
-      "batch_69e6326c6a8c819094ff241c5210feae",
-      "batch_69e6326d34748190998dadf1ac6cb384",
-      "batch_69e6326eee4881909edb3654e60f5d36",
-      "batch_69e6326fac508190b74458771404bcff",
-      "batch_69e63270a60c81909a7bea129ffdb368",
-      "batch_69e63271bd408190bd8f1981b11b6dbb",
-      "batch_69e632729dd08190af13412b22eb5dbd",
-      "batch_69e632737e808190bb880e3100ea1877",
-      "batch_69e63274bcb88190a220c3f8220d12be",
-      "batch_69e63275bec4819081f6df2cebe10f2e",
-      "batch_69e8e51f344c81908519eb74068f8df5",
-      "batch_69e8f60ae45c81908f847a1e48b403e0"
-    ],
-    "rerank_batch_count": 17,
-    "completion_notes": "元15 batchの有効出力に追加Batch API retryのみを重ねて全150件を回収。同期completionへの切り替えは未使用。",
-    "original_batch_issue_summary": {
-      "valid_outputs": 101,
-      "server_error_rows": 24,
-      "length_or_empty_rows": 25
-    },
-    "batch_summaries": [
-      {
-        "batch_id": "batch_69e63265403881909aa2b77cf640e67d",
-        "status": "completed",
-        "execution_time": 19825.0,
-        "usage": {
-          "input_tokens": 9429,
-          "completion_tokens": 107561,
-          "reasoning_tokens": 107276,
-          "total_tokens": 116990
-        },
-        "valid_indices": [
-          1,
-          3,
-          4,
-          6,
-          7,
-          8,
-          9
-        ],
-        "invalid_indices": [
-          0,
-          5
-        ],
-        "failed_indices": [
-          2
-        ],
-        "server_error_indices": [
-          2
-        ],
-        "request_counts": {
-          "completed": 9,
-          "failed": 1,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/input.jsonl",
-        "submitted_at": 1776693861
+    "metadata": {
+      "rerank_batch_ids": [
+        "batch_69e63265403881909aa2b77cf640e67d",
+        "batch_69e632679f40819093273bd9ce50568f",
+        "batch_69e63268748c81908b3c71048749472e",
+        "batch_69e632697cac819094249c17fb511bd3",
+        "batch_69e6326b82108190b80525e8378752c4",
+        "batch_69e6326c6a8c819094ff241c5210feae",
+        "batch_69e6326d34748190998dadf1ac6cb384",
+        "batch_69e6326eee4881909edb3654e60f5d36",
+        "batch_69e6326fac508190b74458771404bcff",
+        "batch_69e63270a60c81909a7bea129ffdb368",
+        "batch_69e63271bd408190bd8f1981b11b6dbb",
+        "batch_69e632729dd08190af13412b22eb5dbd",
+        "batch_69e632737e808190bb880e3100ea1877",
+        "batch_69e63274bcb88190a220c3f8220d12be",
+        "batch_69e63275bec4819081f6df2cebe10f2e",
+        "batch_69e8e51f344c81908519eb74068f8df5",
+        "batch_69e8f60ae45c81908f847a1e48b403e0"
+      ],
+      "rerank_batch_count": 17,
+      "completion_notes": "元15 batchの有効出力に追加Batch API retryのみを重ねて全150件を回収。同期completionへの切り替えは未使用。",
+      "original_batch_issue_summary": {
+        "valid_outputs": 101,
+        "server_error_rows": 24,
+        "length_or_empty_rows": 25
       },
-      {
-        "batch_id": "batch_69e632679f40819093273bd9ce50568f",
-        "status": "completed",
-        "execution_time": 12403.0,
-        "usage": {
-          "input_tokens": 10519,
-          "completion_tokens": 111624,
-          "reasoning_tokens": 111300,
-          "total_tokens": 122143
+      "batch_summaries": [
+        {
+          "batch_id": "batch_69e63265403881909aa2b77cf640e67d",
+          "status": "completed",
+          "execution_time": 19825.0,
+          "usage": {
+            "input_tokens": 9429,
+            "completion_tokens": 107561,
+            "reasoning_tokens": 107276,
+            "total_tokens": 116990
+          },
+          "valid_indices": [
+            1,
+            3,
+            4,
+            6,
+            7,
+            8,
+            9
+          ],
+          "invalid_indices": [
+            0,
+            5
+          ],
+          "failed_indices": [
+            2
+          ],
+          "server_error_indices": [
+            2
+          ],
+          "request_counts": {
+            "completed": 9,
+            "failed": 1,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63265403881909aa2b77cf640e67d/input.jsonl",
+          "submitted_at": 1776693861
         },
-        "valid_indices": [
-          10,
-          12,
-          13,
-          14,
-          15,
-          16,
-          18,
-          19
-        ],
-        "invalid_indices": [
-          11,
-          17
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
+        {
+          "batch_id": "batch_69e632679f40819093273bd9ce50568f",
+          "status": "completed",
+          "execution_time": 12403.0,
+          "usage": {
+            "input_tokens": 10519,
+            "completion_tokens": 111624,
+            "reasoning_tokens": 111300,
+            "total_tokens": 122143
+          },
+          "valid_indices": [
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            18,
+            19
+          ],
+          "invalid_indices": [
+            11,
+            17
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/input.jsonl",
+          "submitted_at": 1776693863
         },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632679f40819093273bd9ce50568f/input.jsonl",
-        "submitted_at": 1776693863
+        {
+          "batch_id": "batch_69e63268748c81908b3c71048749472e",
+          "status": "completed",
+          "execution_time": 12400.0,
+          "usage": {
+            "input_tokens": 11024,
+            "completion_tokens": 132898,
+            "reasoning_tokens": 132698,
+            "total_tokens": 143922
+          },
+          "valid_indices": [
+            20,
+            21,
+            23,
+            24,
+            25
+          ],
+          "invalid_indices": [
+            22,
+            26,
+            27,
+            28,
+            29
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/input.jsonl",
+          "submitted_at": 1776693864
+        },
+        {
+          "batch_id": "batch_69e632697cac819094249c17fb511bd3",
+          "status": "completed",
+          "execution_time": 25499.0,
+          "usage": {
+            "input_tokens": 4100,
+            "completion_tokens": 42511,
+            "reasoning_tokens": 42389,
+            "total_tokens": 46611
+          },
+          "valid_indices": [
+            35,
+            36,
+            37
+          ],
+          "invalid_indices": [
+            31
+          ],
+          "failed_indices": [
+            30,
+            32,
+            33,
+            34,
+            38,
+            39
+          ],
+          "server_error_indices": [
+            30,
+            32,
+            33,
+            34,
+            38,
+            39
+          ],
+          "request_counts": {
+            "completed": 4,
+            "failed": 6,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/input.jsonl",
+          "submitted_at": 1776693865
+        },
+        {
+          "batch_id": "batch_69e6326b82108190b80525e8378752c4",
+          "status": "completed",
+          "execution_time": 12370.0,
+          "usage": {
+            "input_tokens": 10504,
+            "completion_tokens": 108423,
+            "reasoning_tokens": 108060,
+            "total_tokens": 118927
+          },
+          "valid_indices": [
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            49
+          ],
+          "invalid_indices": [
+            48
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/input.jsonl",
+          "submitted_at": 1776693867
+        },
+        {
+          "batch_id": "batch_69e6326c6a8c819094ff241c5210feae",
+          "status": "completed",
+          "execution_time": 12389.0,
+          "usage": {
+            "input_tokens": 10531,
+            "completion_tokens": 114229,
+            "reasoning_tokens": 113817,
+            "total_tokens": 124760
+          },
+          "valid_indices": [
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59
+          ],
+          "invalid_indices": [],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/input.jsonl",
+          "submitted_at": 1776693868
+        },
+        {
+          "batch_id": "batch_69e6326d34748190998dadf1ac6cb384",
+          "status": "completed",
+          "execution_time": 25495.0,
+          "usage": {
+            "input_tokens": 7356,
+            "completion_tokens": 83075,
+            "reasoning_tokens": 82836,
+            "total_tokens": 90431
+          },
+          "valid_indices": [
+            60,
+            62,
+            63,
+            66,
+            67,
+            68
+          ],
+          "invalid_indices": [
+            64
+          ],
+          "failed_indices": [
+            61,
+            65,
+            69
+          ],
+          "server_error_indices": [
+            61,
+            65,
+            69
+          ],
+          "request_counts": {
+            "completed": 7,
+            "failed": 3,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/input.jsonl",
+          "submitted_at": 1776693869
+        },
+        {
+          "batch_id": "batch_69e6326eee4881909edb3654e60f5d36",
+          "status": "completed",
+          "execution_time": 16255.0,
+          "usage": {
+            "input_tokens": 10360,
+            "completion_tokens": 106201,
+            "reasoning_tokens": 105838,
+            "total_tokens": 116561
+          },
+          "valid_indices": [
+            70,
+            71,
+            72,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79
+          ],
+          "invalid_indices": [
+            73
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/input.jsonl",
+          "submitted_at": 1776693870
+        },
+        {
+          "batch_id": "batch_69e6326fac508190b74458771404bcff",
+          "status": "completed",
+          "execution_time": 12365.0,
+          "usage": {
+            "input_tokens": 10410,
+            "completion_tokens": 119495,
+            "reasoning_tokens": 119124,
+            "total_tokens": 129905
+          },
+          "valid_indices": [
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88
+          ],
+          "invalid_indices": [
+            89
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/input.jsonl",
+          "submitted_at": 1776693871
+        },
+        {
+          "batch_id": "batch_69e63270a60c81909a7bea129ffdb368",
+          "status": "completed",
+          "execution_time": 21536.0,
+          "usage": {
+            "input_tokens": 8656,
+            "completion_tokens": 109313,
+            "reasoning_tokens": 109151,
+            "total_tokens": 117969
+          },
+          "valid_indices": [
+            90,
+            93,
+            94,
+            97
+          ],
+          "invalid_indices": [
+            91,
+            92,
+            95,
+            96
+          ],
+          "failed_indices": [
+            98,
+            99
+          ],
+          "server_error_indices": [
+            98,
+            99
+          ],
+          "request_counts": {
+            "completed": 8,
+            "failed": 2,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/input.jsonl",
+          "submitted_at": 1776693872
+        },
+        {
+          "batch_id": "batch_69e63271bd408190bd8f1981b11b6dbb",
+          "status": "completed",
+          "execution_time": 25492.0,
+          "usage": {
+            "input_tokens": 7188,
+            "completion_tokens": 73929,
+            "reasoning_tokens": 73644,
+            "total_tokens": 81117
+          },
+          "valid_indices": [
+            100,
+            101,
+            103,
+            104,
+            107,
+            108,
+            109
+          ],
+          "invalid_indices": [],
+          "failed_indices": [
+            102,
+            105,
+            106
+          ],
+          "server_error_indices": [
+            102,
+            105,
+            106
+          ],
+          "request_counts": {
+            "completed": 7,
+            "failed": 3,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/input.jsonl",
+          "submitted_at": 1776693873
+        },
+        {
+          "batch_id": "batch_69e632729dd08190af13412b22eb5dbd",
+          "status": "completed",
+          "execution_time": 17479.0,
+          "usage": {
+            "input_tokens": 10783,
+            "completion_tokens": 114857,
+            "reasoning_tokens": 114537,
+            "total_tokens": 125640
+          },
+          "valid_indices": [
+            110,
+            111,
+            112,
+            113,
+            114,
+            116,
+            118,
+            119
+          ],
+          "invalid_indices": [
+            115,
+            117
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 10,
+            "failed": 0,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/input.jsonl",
+          "submitted_at": 1776693874
+        },
+        {
+          "batch_id": "batch_69e632737e808190bb880e3100ea1877",
+          "status": "completed",
+          "execution_time": 18698.0,
+          "usage": {
+            "input_tokens": 9472,
+            "completion_tokens": 99446,
+            "reasoning_tokens": 99120,
+            "total_tokens": 108918
+          },
+          "valid_indices": [
+            121,
+            122,
+            123,
+            124,
+            126,
+            127,
+            128,
+            129
+          ],
+          "invalid_indices": [
+            125
+          ],
+          "failed_indices": [
+            120
+          ],
+          "server_error_indices": [
+            120
+          ],
+          "request_counts": {
+            "completed": 9,
+            "failed": 1,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/input.jsonl",
+          "submitted_at": 1776693875
+        },
+        {
+          "batch_id": "batch_69e63274bcb88190a220c3f8220d12be",
+          "status": "completed",
+          "execution_time": 25489.0,
+          "usage": {
+            "input_tokens": 3148,
+            "completion_tokens": 34536,
+            "reasoning_tokens": 34413,
+            "total_tokens": 37684
+          },
+          "valid_indices": [
+            132,
+            133,
+            134
+          ],
+          "invalid_indices": [],
+          "failed_indices": [
+            130,
+            131,
+            135,
+            136,
+            137,
+            138,
+            139
+          ],
+          "server_error_indices": [
+            130,
+            131,
+            135,
+            136,
+            137,
+            138,
+            139
+          ],
+          "request_counts": {
+            "completed": 3,
+            "failed": 7,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/input.jsonl",
+          "submitted_at": 1776693876
+        },
+        {
+          "batch_id": "batch_69e63275bec4819081f6df2cebe10f2e",
+          "status": "completed",
+          "execution_time": 20537.0,
+          "usage": {
+            "input_tokens": 9657,
+            "completion_tokens": 123481,
+            "reasoning_tokens": 123283,
+            "total_tokens": 133138
+          },
+          "valid_indices": [
+            143,
+            144,
+            145,
+            146,
+            148
+          ],
+          "invalid_indices": [
+            140,
+            141,
+            142,
+            149
+          ],
+          "failed_indices": [
+            147
+          ],
+          "server_error_indices": [
+            147
+          ],
+          "request_counts": {
+            "completed": 9,
+            "failed": 1,
+            "total": 10
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/output.jsonl",
+          "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/error.jsonl",
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/input.jsonl",
+          "submitted_at": 1776693877
+        },
+        {
+          "batch_id": "batch_69e8e51f344c81908519eb74068f8df5",
+          "status": "completed",
+          "execution_time": 1342.0,
+          "usage": {
+            "input_tokens": 52011,
+            "completion_tokens": 550473,
+            "reasoning_tokens": 548581,
+            "total_tokens": 602484
+          },
+          "valid_indices": [
+            0,
+            2,
+            5,
+            11,
+            17,
+            22,
+            26,
+            27,
+            28,
+            29,
+            31,
+            32,
+            33,
+            34,
+            38,
+            39,
+            61,
+            64,
+            65,
+            69,
+            73,
+            89,
+            91,
+            92,
+            95,
+            96,
+            98,
+            99,
+            102,
+            105,
+            106,
+            115,
+            117,
+            120,
+            125,
+            130,
+            131,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140,
+            141,
+            142,
+            147,
+            149
+          ],
+          "invalid_indices": [
+            30,
+            48
+          ],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 49,
+            "failed": 0,
+            "total": 49
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/input.jsonl",
+          "submitted_at": 1776870687
+        },
+        {
+          "batch_id": "batch_69e8f60ae45c81908f847a1e48b403e0",
+          "status": "completed",
+          "execution_time": 253.0,
+          "usage": {
+            "input_tokens": 2127,
+            "completion_tokens": 21627,
+            "reasoning_tokens": 21549,
+            "total_tokens": 23754
+          },
+          "valid_indices": [
+            30,
+            48
+          ],
+          "invalid_indices": [],
+          "failed_indices": [],
+          "server_error_indices": [],
+          "request_counts": {
+            "completed": 2,
+            "failed": 0,
+            "total": 2
+          },
+          "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/output.jsonl",
+          "error_file_path": null,
+          "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/input.jsonl",
+          "submitted_at": 1776875018
+        }
+      ],
+      "model_name": "gpt-5.1",
+      "token_usage": {
+        "input_tokens": 187275,
+        "output_tokens": 6063,
+        "reasoning_tokens": 2047616,
+        "total_tokens": 2240954
       },
-      {
-        "batch_id": "batch_69e63268748c81908b3c71048749472e",
-        "status": "completed",
-        "execution_time": 12400.0,
-        "usage": {
-          "input_tokens": 11024,
-          "completion_tokens": 132898,
-          "reasoning_tokens": 132698,
-          "total_tokens": 143922
-        },
-        "valid_indices": [
-          20,
-          21,
-          23,
-          24,
-          25
-        ],
-        "invalid_indices": [
-          22,
-          26,
-          27,
-          28,
-          29
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63268748c81908b3c71048749472e/input.jsonl",
-        "submitted_at": 1776693864
+      "cost": {
+        "input_cost": 0.11704687500000001,
+        "output_cost": 0.03031499999999987,
+        "reasoning_cost": 10.238080000000002,
+        "total_cost": 10.385441875000001
       },
-      {
-        "batch_id": "batch_69e632697cac819094249c17fb511bd3",
-        "status": "completed",
-        "execution_time": 25499.0,
-        "usage": {
-          "input_tokens": 4100,
-          "completion_tokens": 42511,
-          "reasoning_tokens": 42389,
-          "total_tokens": 46611
-        },
-        "valid_indices": [
-          35,
-          36,
-          37
-        ],
-        "invalid_indices": [
-          31
-        ],
-        "failed_indices": [
-          30,
-          32,
-          33,
-          34,
-          38,
-          39
-        ],
-        "server_error_indices": [
-          30,
-          32,
-          33,
-          34,
-          38,
-          39
-        ],
-        "request_counts": {
-          "completed": 4,
-          "failed": 6,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632697cac819094249c17fb511bd3/input.jsonl",
-        "submitted_at": 1776693865
-      },
-      {
-        "batch_id": "batch_69e6326b82108190b80525e8378752c4",
-        "status": "completed",
-        "execution_time": 12370.0,
-        "usage": {
-          "input_tokens": 10504,
-          "completion_tokens": 108423,
-          "reasoning_tokens": 108060,
-          "total_tokens": 118927
-        },
-        "valid_indices": [
-          40,
-          41,
-          42,
-          43,
-          44,
-          45,
-          46,
-          47,
-          49
-        ],
-        "invalid_indices": [
-          48
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326b82108190b80525e8378752c4/input.jsonl",
-        "submitted_at": 1776693867
-      },
-      {
-        "batch_id": "batch_69e6326c6a8c819094ff241c5210feae",
-        "status": "completed",
-        "execution_time": 12389.0,
-        "usage": {
-          "input_tokens": 10531,
-          "completion_tokens": 114229,
-          "reasoning_tokens": 113817,
-          "total_tokens": 124760
-        },
-        "valid_indices": [
-          50,
-          51,
-          52,
-          53,
-          54,
-          55,
-          56,
-          57,
-          58,
-          59
-        ],
-        "invalid_indices": [],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326c6a8c819094ff241c5210feae/input.jsonl",
-        "submitted_at": 1776693868
-      },
-      {
-        "batch_id": "batch_69e6326d34748190998dadf1ac6cb384",
-        "status": "completed",
-        "execution_time": 25495.0,
-        "usage": {
-          "input_tokens": 7356,
-          "completion_tokens": 83075,
-          "reasoning_tokens": 82836,
-          "total_tokens": 90431
-        },
-        "valid_indices": [
-          60,
-          62,
-          63,
-          66,
-          67,
-          68
-        ],
-        "invalid_indices": [
-          64
-        ],
-        "failed_indices": [
-          61,
-          65,
-          69
-        ],
-        "server_error_indices": [
-          61,
-          65,
-          69
-        ],
-        "request_counts": {
-          "completed": 7,
-          "failed": 3,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326d34748190998dadf1ac6cb384/input.jsonl",
-        "submitted_at": 1776693869
-      },
-      {
-        "batch_id": "batch_69e6326eee4881909edb3654e60f5d36",
-        "status": "completed",
-        "execution_time": 16255.0,
-        "usage": {
-          "input_tokens": 10360,
-          "completion_tokens": 106201,
-          "reasoning_tokens": 105838,
-          "total_tokens": 116561
-        },
-        "valid_indices": [
-          70,
-          71,
-          72,
-          74,
-          75,
-          76,
-          77,
-          78,
-          79
-        ],
-        "invalid_indices": [
-          73
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326eee4881909edb3654e60f5d36/input.jsonl",
-        "submitted_at": 1776693870
-      },
-      {
-        "batch_id": "batch_69e6326fac508190b74458771404bcff",
-        "status": "completed",
-        "execution_time": 12365.0,
-        "usage": {
-          "input_tokens": 10410,
-          "completion_tokens": 119495,
-          "reasoning_tokens": 119124,
-          "total_tokens": 129905
-        },
-        "valid_indices": [
-          80,
-          81,
-          82,
-          83,
-          84,
-          85,
-          86,
-          87,
-          88
-        ],
-        "invalid_indices": [
-          89
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e6326fac508190b74458771404bcff/input.jsonl",
-        "submitted_at": 1776693871
-      },
-      {
-        "batch_id": "batch_69e63270a60c81909a7bea129ffdb368",
-        "status": "completed",
-        "execution_time": 21536.0,
-        "usage": {
-          "input_tokens": 8656,
-          "completion_tokens": 109313,
-          "reasoning_tokens": 109151,
-          "total_tokens": 117969
-        },
-        "valid_indices": [
-          90,
-          93,
-          94,
-          97
-        ],
-        "invalid_indices": [
-          91,
-          92,
-          95,
-          96
-        ],
-        "failed_indices": [
-          98,
-          99
-        ],
-        "server_error_indices": [
-          98,
-          99
-        ],
-        "request_counts": {
-          "completed": 8,
-          "failed": 2,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63270a60c81909a7bea129ffdb368/input.jsonl",
-        "submitted_at": 1776693872
-      },
-      {
-        "batch_id": "batch_69e63271bd408190bd8f1981b11b6dbb",
-        "status": "completed",
-        "execution_time": 25492.0,
-        "usage": {
-          "input_tokens": 7188,
-          "completion_tokens": 73929,
-          "reasoning_tokens": 73644,
-          "total_tokens": 81117
-        },
-        "valid_indices": [
-          100,
-          101,
-          103,
-          104,
-          107,
-          108,
-          109
-        ],
-        "invalid_indices": [],
-        "failed_indices": [
-          102,
-          105,
-          106
-        ],
-        "server_error_indices": [
-          102,
-          105,
-          106
-        ],
-        "request_counts": {
-          "completed": 7,
-          "failed": 3,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63271bd408190bd8f1981b11b6dbb/input.jsonl",
-        "submitted_at": 1776693873
-      },
-      {
-        "batch_id": "batch_69e632729dd08190af13412b22eb5dbd",
-        "status": "completed",
-        "execution_time": 17479.0,
-        "usage": {
-          "input_tokens": 10783,
-          "completion_tokens": 114857,
-          "reasoning_tokens": 114537,
-          "total_tokens": 125640
-        },
-        "valid_indices": [
-          110,
-          111,
-          112,
-          113,
-          114,
-          116,
-          118,
-          119
-        ],
-        "invalid_indices": [
-          115,
-          117
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 10,
-          "failed": 0,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632729dd08190af13412b22eb5dbd/input.jsonl",
-        "submitted_at": 1776693874
-      },
-      {
-        "batch_id": "batch_69e632737e808190bb880e3100ea1877",
-        "status": "completed",
-        "execution_time": 18698.0,
-        "usage": {
-          "input_tokens": 9472,
-          "completion_tokens": 99446,
-          "reasoning_tokens": 99120,
-          "total_tokens": 108918
-        },
-        "valid_indices": [
-          121,
-          122,
-          123,
-          124,
-          126,
-          127,
-          128,
-          129
-        ],
-        "invalid_indices": [
-          125
-        ],
-        "failed_indices": [
-          120
-        ],
-        "server_error_indices": [
-          120
-        ],
-        "request_counts": {
-          "completed": 9,
-          "failed": 1,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e632737e808190bb880e3100ea1877/input.jsonl",
-        "submitted_at": 1776693875
-      },
-      {
-        "batch_id": "batch_69e63274bcb88190a220c3f8220d12be",
-        "status": "completed",
-        "execution_time": 25489.0,
-        "usage": {
-          "input_tokens": 3148,
-          "completion_tokens": 34536,
-          "reasoning_tokens": 34413,
-          "total_tokens": 37684
-        },
-        "valid_indices": [
-          132,
-          133,
-          134
-        ],
-        "invalid_indices": [],
-        "failed_indices": [
-          130,
-          131,
-          135,
-          136,
-          137,
-          138,
-          139
-        ],
-        "server_error_indices": [
-          130,
-          131,
-          135,
-          136,
-          137,
-          138,
-          139
-        ],
-        "request_counts": {
-          "completed": 3,
-          "failed": 7,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63274bcb88190a220c3f8220d12be/input.jsonl",
-        "submitted_at": 1776693876
-      },
-      {
-        "batch_id": "batch_69e63275bec4819081f6df2cebe10f2e",
-        "status": "completed",
-        "execution_time": 20537.0,
-        "usage": {
-          "input_tokens": 9657,
-          "completion_tokens": 123481,
-          "reasoning_tokens": 123283,
-          "total_tokens": 133138
-        },
-        "valid_indices": [
-          143,
-          144,
-          145,
-          146,
-          148
-        ],
-        "invalid_indices": [
-          140,
-          141,
-          142,
-          149
-        ],
-        "failed_indices": [
-          147
-        ],
-        "server_error_indices": [
-          147
-        ],
-        "request_counts": {
-          "completed": 9,
-          "failed": 1,
-          "total": 10
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/output.jsonl",
-        "error_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/error.jsonl",
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e63275bec4819081f6df2cebe10f2e/input.jsonl",
-        "submitted_at": 1776693877
-      },
-      {
-        "batch_id": "batch_69e8e51f344c81908519eb74068f8df5",
-        "status": "completed",
-        "execution_time": 1342.0,
-        "usage": {
-          "input_tokens": 52011,
-          "completion_tokens": 550473,
-          "reasoning_tokens": 548581,
-          "total_tokens": 602484
-        },
-        "valid_indices": [
-          0,
-          2,
-          5,
-          11,
-          17,
-          22,
-          26,
-          27,
-          28,
-          29,
-          31,
-          32,
-          33,
-          34,
-          38,
-          39,
-          61,
-          64,
-          65,
-          69,
-          73,
-          89,
-          91,
-          92,
-          95,
-          96,
-          98,
-          99,
-          102,
-          105,
-          106,
-          115,
-          117,
-          120,
-          125,
-          130,
-          131,
-          135,
-          136,
-          137,
-          138,
-          139,
-          140,
-          141,
-          142,
-          147,
-          149
-        ],
-        "invalid_indices": [
-          30,
-          48
-        ],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 49,
-          "failed": 0,
-          "total": 49
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8e51f344c81908519eb74068f8df5/input.jsonl",
-        "submitted_at": 1776870687
-      },
-      {
-        "batch_id": "batch_69e8f60ae45c81908f847a1e48b403e0",
-        "status": "completed",
-        "execution_time": 253.0,
-        "usage": {
-          "input_tokens": 2127,
-          "completion_tokens": 21627,
-          "reasoning_tokens": 21549,
-          "total_tokens": 23754
-        },
-        "valid_indices": [
-          30,
-          48
-        ],
-        "invalid_indices": [],
-        "failed_indices": [],
-        "server_error_indices": [],
-        "request_counts": {
-          "completed": 2,
-          "failed": 0,
-          "total": 2
-        },
-        "output_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/output.jsonl",
-        "error_file_path": null,
-        "input_file_path": "/home/copilot/.copilot/session-state/4422d6cf-66e1-4594-b96c-90a8ebd37297/files/gpt51-batch-retry/batch_69e8f60ae45c81908f847a1e48b403e0/input.jsonl",
-        "submitted_at": 1776875018
-      }
-    ]
+      "discount_factor": 0.5
+    }
   },
   "results": [
     {
@@ -750,7 +758,8 @@
       ],
       "positive_words": [
         "アイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アウマル",
@@ -768,7 +777,8 @@
       ],
       "positive_words": [
         "タクマル"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アケ",
@@ -787,7 +797,8 @@
       "positive_words": [
         "アベ",
         "カケイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アシオト",
@@ -805,7 +816,8 @@
       ],
       "positive_words": [
         "ハシモト"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アッテ",
@@ -823,7 +835,8 @@
       ],
       "positive_words": [
         "マルテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アト",
@@ -841,7 +854,8 @@
       ],
       "positive_words": [
         "カトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アノ",
@@ -859,7 +873,8 @@
       ],
       "positive_words": [
         "アノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレ",
@@ -878,7 +893,8 @@
       "positive_words": [
         "アレン",
         "アベ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレ",
@@ -896,7 +912,8 @@
       ],
       "positive_words": [
         "アレン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレクルウ",
@@ -914,7 +931,8 @@
       ],
       "positive_words": [
         "アレックス"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "アレホド",
@@ -932,7 +950,8 @@
       ],
       "positive_words": [
         "カネモト"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イキ",
@@ -950,7 +969,8 @@
       ],
       "positive_words": [
         "イッキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イキテ",
@@ -968,7 +988,8 @@
       ],
       "positive_words": [
         "イシゲ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イコウ",
@@ -987,7 +1008,8 @@
       "positive_words": [
         "イコウ",
         "イトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イタノ",
@@ -1005,7 +1027,8 @@
       ],
       "positive_words": [
         "イタノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イチ",
@@ -1023,7 +1046,8 @@
       ],
       "positive_words": [
         "ニシ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イッタ",
@@ -1041,7 +1065,8 @@
       ],
       "positive_words": [
         "ニッタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イツカ",
@@ -1059,7 +1084,8 @@
       ],
       "positive_words": [
         "キヅカ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イツモ",
@@ -1078,7 +1104,8 @@
       "positive_words": [
         "イツボ",
         "ミズノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イマ",
@@ -1096,7 +1123,8 @@
       ],
       "positive_words": [
         "ミマ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イヤ",
@@ -1114,7 +1142,8 @@
       ],
       "positive_words": [
         "ミヤ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イヨッ",
@@ -1133,7 +1162,8 @@
       "positive_words": [
         "イオウ",
         "イリョウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イラ",
@@ -1151,7 +1181,8 @@
       ],
       "positive_words": [
         "ウィーラー"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イラナイ",
@@ -1169,7 +1200,8 @@
       ],
       "positive_words": [
         "イマナリ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "イロイロ",
@@ -1187,7 +1219,8 @@
       ],
       "positive_words": [
         "イトウシンゴ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ウバッテ",
@@ -1205,7 +1238,8 @@
       ],
       "positive_words": [
         "グラッデン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オアト",
@@ -1223,7 +1257,8 @@
       ],
       "positive_words": [
         "オバンドー"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オサキ",
@@ -1242,7 +1277,8 @@
       "positive_words": [
         "オザキ",
         "オオサキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オサキマシロキ",
@@ -1260,7 +1296,8 @@
       ],
       "positive_words": [
         "オカジマヒロジ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オサキモ",
@@ -1279,7 +1316,8 @@
       "positive_words": [
         "ロサリオ",
         "トマシノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オモテ",
@@ -1297,7 +1335,8 @@
       ],
       "positive_words": [
         "オモテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "オヤ",
@@ -1315,7 +1354,8 @@
       ],
       "positive_words": [
         "オオヤ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "カクシテ",
@@ -1333,7 +1373,8 @@
       ],
       "positive_words": [
         "ハクジンテン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "カミ",
@@ -1351,7 +1392,8 @@
       ],
       "positive_words": [
         "タニ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ガッサン",
@@ -1369,7 +1411,8 @@
       ],
       "positive_words": [
         "ランサム"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ガンガン",
@@ -1387,7 +1430,8 @@
       ],
       "positive_words": [
         "ダンカン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キタ",
@@ -1405,7 +1449,8 @@
       ],
       "positive_words": [
         "キタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キミ",
@@ -1426,7 +1471,8 @@
         "キシ",
         "ニイミ",
         "ギンジ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キミガ",
@@ -1444,7 +1490,8 @@
       ],
       "positive_words": [
         "キシダ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キミト",
@@ -1462,7 +1509,8 @@
       ],
       "positive_words": [
         "キミノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キミノ",
@@ -1480,7 +1528,8 @@
       ],
       "positive_words": [
         "キミノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キミワ",
@@ -1498,7 +1547,8 @@
       ],
       "positive_words": [
         "キシダ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キラリ",
@@ -1517,7 +1567,8 @@
       "positive_words": [
         "キナミ",
         "ヒライ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "キレイナ",
@@ -1535,7 +1586,8 @@
       ],
       "positive_words": [
         "ビエイラ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ギゾウ",
@@ -1553,7 +1605,8 @@
       ],
       "positive_words": [
         "キトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "クルウ",
@@ -1572,7 +1625,8 @@
       "positive_words": [
         "クルーン",
         "グルン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "クレ",
@@ -1590,7 +1644,8 @@
       ],
       "positive_words": [
         "クメ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "コエデ",
@@ -1608,7 +1663,8 @@
       ],
       "positive_words": [
         "コウエイケツ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ココニ",
@@ -1626,7 +1682,8 @@
       ],
       "positive_words": [
         "コモリ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "コノ",
@@ -1644,7 +1701,8 @@
       ],
       "positive_words": [
         "コウノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "コンヤモ",
@@ -1662,7 +1720,8 @@
       ],
       "positive_words": [
         "コンラッド"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "サイゴ",
@@ -1680,7 +1739,8 @@
       ],
       "positive_words": [
         "サイトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "サガシ",
@@ -1698,7 +1758,8 @@
       ],
       "positive_words": [
         "サヤシ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "サガシテタ",
@@ -1716,7 +1777,8 @@
       ],
       "positive_words": [
         "チャタニケンタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "サケブ",
@@ -1734,7 +1796,8 @@
       ],
       "positive_words": [
         "カケフ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "サラリ",
@@ -1755,7 +1818,8 @@
         "アライ",
         "サワイ",
         "サカイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "シカク",
@@ -1773,7 +1837,8 @@
       ],
       "positive_words": [
         "シンタク"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "シテ",
@@ -1792,7 +1857,8 @@
       "positive_words": [
         "シテ",
         "イデ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "シャン",
@@ -1810,7 +1876,8 @@
       ],
       "positive_words": [
         "ジャン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "シラ",
@@ -1828,7 +1895,8 @@
       ],
       "positive_words": [
         "シマ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ジョシテキ",
@@ -1846,7 +1914,8 @@
       ],
       "positive_words": [
         "ジョシュレイビン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "スギデ",
@@ -1864,7 +1933,8 @@
       ],
       "positive_words": [
         "スギエ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ステ",
@@ -1882,7 +1952,8 @@
       ],
       "positive_words": [
         "ユゲ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "スベテガ",
@@ -1900,7 +1971,8 @@
       ],
       "positive_words": [
         "ツゲセナ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "スル",
@@ -1918,7 +1990,8 @@
       ],
       "positive_words": [
         "ツル"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ズット",
@@ -1936,7 +2009,8 @@
       ],
       "positive_words": [
         "ウッド"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "セキデ",
@@ -1954,7 +2028,8 @@
       ],
       "positive_words": [
         "セキネ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソウ",
@@ -1972,7 +2047,8 @@
       ],
       "positive_words": [
         "ソウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソウダ",
@@ -1990,7 +2066,8 @@
       ],
       "positive_words": [
         "ショウダ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソウナ",
@@ -2008,7 +2085,8 @@
       ],
       "positive_words": [
         "ソウマ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソバデ",
@@ -2026,7 +2104,8 @@
       ],
       "positive_words": [
         "ソラーテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソレ",
@@ -2044,7 +2123,8 @@
       ],
       "positive_words": [
         "ソネ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ソー",
@@ -2062,7 +2142,8 @@
       ],
       "positive_words": [
         "ソウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "タイヨウ",
@@ -2080,7 +2161,8 @@
       ],
       "positive_words": [
         "タイヨウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "タマッ",
@@ -2098,7 +2180,8 @@
       ],
       "positive_words": [
         "ターマン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "タメニ",
@@ -2116,7 +2199,8 @@
       ],
       "positive_words": [
         "カメイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ダレ",
@@ -2134,7 +2218,8 @@
       ],
       "positive_words": [
         "マレン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "チン",
@@ -2153,7 +2238,8 @@
       "positive_words": [
         "チン",
         "リン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "チントン",
@@ -2173,7 +2259,8 @@
         "シンドウ",
         "キンジョウ",
         "シンジョウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ツネニ",
@@ -2191,7 +2278,8 @@
       ],
       "positive_words": [
         "ツネミ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ツヨイ",
@@ -2209,7 +2297,8 @@
       ],
       "positive_words": [
         "ツボイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ツレ",
@@ -2230,7 +2319,8 @@
         "ウネ",
         "ミューレン",
         "グレン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "デモ",
@@ -2248,7 +2338,8 @@
       ],
       "positive_words": [
         "デイモン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トウメイ",
@@ -2266,7 +2357,8 @@
       ],
       "positive_words": [
         "トウメイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トキ",
@@ -2284,7 +2376,8 @@
       ],
       "positive_words": [
         "トンキン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トナリ",
@@ -2302,7 +2395,8 @@
       ],
       "positive_words": [
         "トマリ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トマッテ",
@@ -2320,7 +2414,8 @@
       ],
       "positive_words": [
         "ソラーテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トワニ",
@@ -2338,7 +2433,8 @@
       ],
       "positive_words": [
         "トマリ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "トン",
@@ -2356,7 +2452,8 @@
       ],
       "positive_words": [
         "ソン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドウキ",
@@ -2374,7 +2471,8 @@
       ],
       "positive_words": [
         "トウキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドオリ",
@@ -2392,7 +2490,8 @@
       ],
       "positive_words": [
         "コオリ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドコ",
@@ -2411,7 +2510,8 @@
       "positive_words": [
         "トゴウ",
         "ゴトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドコニ",
@@ -2430,7 +2530,8 @@
       "positive_words": [
         "トモリ",
         "ヨコイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドコマデモ",
@@ -2448,7 +2549,8 @@
       ],
       "positive_words": [
         "オオタケンゴ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドレ",
@@ -2466,7 +2568,8 @@
       ],
       "positive_words": [
         "トーベ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ドレホド",
@@ -2484,7 +2587,8 @@
       ],
       "positive_words": [
         "ドテモト"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナイタ",
@@ -2502,7 +2606,8 @@
       ],
       "positive_words": [
         "ナリタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナイママボクワ",
@@ -2520,7 +2625,8 @@
       ],
       "positive_words": [
         "アイカワリョウタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナイン",
@@ -2538,7 +2644,8 @@
       ],
       "positive_words": [
         "ダーウィン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナカオ",
@@ -2556,7 +2663,8 @@
       ],
       "positive_words": [
         "ナカオ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナカデ",
@@ -2574,7 +2682,8 @@
       ],
       "positive_words": [
         "ナカデ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナカモ",
@@ -2592,7 +2701,8 @@
       ],
       "positive_words": [
         "ナカノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナクテモ",
@@ -2610,7 +2720,8 @@
       ],
       "positive_words": [
         "バークレオ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナニ",
@@ -2628,7 +2739,8 @@
       ],
       "positive_words": [
         "タニ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナニガ",
@@ -2646,7 +2758,8 @@
       ],
       "positive_words": [
         "ナリタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナンデモ",
@@ -2664,7 +2777,8 @@
       ],
       "positive_words": [
         "カンセコ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ナンノ",
@@ -2683,7 +2797,8 @@
       "positive_words": [
         "カンノ",
         "タンノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハイ",
@@ -2701,7 +2816,8 @@
       ],
       "positive_words": [
         "カイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハイ",
@@ -2720,7 +2836,8 @@
       "positive_words": [
         "カイ",
         "アイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハイテ",
@@ -2738,7 +2855,8 @@
       ],
       "positive_words": [
         "ハイメ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハイニ",
@@ -2756,7 +2874,8 @@
       ],
       "positive_words": [
         "アイキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハイミンナ",
@@ -2774,7 +2893,8 @@
       ],
       "positive_words": [
         "ハーミッダ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハクチュウム",
@@ -2792,7 +2912,8 @@
       ],
       "positive_words": [
         "マクブルーム"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ハナシ",
@@ -2810,7 +2931,8 @@
       ],
       "positive_words": [
         "ハヤシ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヒト",
@@ -2828,7 +2950,8 @@
       ],
       "positive_words": [
         "イトウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヒトツモ",
@@ -2846,7 +2969,8 @@
       ],
       "positive_words": [
         "イボムホ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヒトミ",
@@ -2864,7 +2988,8 @@
       ],
       "positive_words": [
         "ヒトミ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヒビモ",
@@ -2882,7 +3007,8 @@
       ],
       "positive_words": [
         "ヒビノ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "フタリ",
@@ -2900,7 +3026,8 @@
       ],
       "positive_words": [
         "フタキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "フッテ",
@@ -2918,7 +3045,8 @@
       ],
       "positive_words": [
         "ウンテン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ホイ",
@@ -2936,7 +3064,8 @@
       ],
       "positive_words": [
         "ドイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ホントウ",
@@ -2954,7 +3083,8 @@
       ],
       "positive_words": [
         "ホンドウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ホントウオ",
@@ -2972,7 +3102,8 @@
       ],
       "positive_words": [
         "ホンドウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ボクモ",
@@ -2990,7 +3121,8 @@
       ],
       "positive_words": [
         "コクボ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ボクラ",
@@ -3008,7 +3140,8 @@
       ],
       "positive_words": [
         "オオクラ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ボクワ",
@@ -3027,7 +3160,8 @@
       "positive_words": [
         "コクバ",
         "オグマ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "マタ",
@@ -3045,7 +3179,8 @@
       ],
       "positive_words": [
         "ハタ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "マッテ",
@@ -3063,7 +3198,8 @@
       ],
       "positive_words": [
         "マルテ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ママ",
@@ -3083,7 +3219,8 @@
         "ハマ",
         "バーマ",
         "ババ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "マル",
@@ -3101,7 +3238,8 @@
       ],
       "positive_words": [
         "マル"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ミテキタ",
@@ -3119,7 +3257,8 @@
       ],
       "positive_words": [
         "ビエイラ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ミリョク",
@@ -3137,7 +3276,8 @@
       ],
       "positive_words": [
         "イビョンギュ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "メント",
@@ -3155,7 +3295,8 @@
       ],
       "positive_words": [
         "エンドウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "モグリ",
@@ -3173,7 +3314,8 @@
       ],
       "positive_words": [
         "モスビー"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "モドラ",
@@ -3191,7 +3333,8 @@
       ],
       "positive_words": [
         "ボトラ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "モドラナイ",
@@ -3209,7 +3352,8 @@
       ],
       "positive_words": [
         "モトヤナギ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヤー",
@@ -3227,7 +3371,8 @@
       ],
       "positive_words": [
         "ヤン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ユウヒ",
@@ -3245,7 +3390,8 @@
       ],
       "positive_words": [
         "ユウキ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ユウヒノ",
@@ -3263,7 +3409,8 @@
       ],
       "positive_words": [
         "ユウジロウ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ユク",
@@ -3281,7 +3428,8 @@
       ],
       "positive_words": [
         "ニューク"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヨウニ",
@@ -3299,7 +3447,8 @@
       ],
       "positive_words": [
         "ノウニン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヨカ",
@@ -3318,7 +3467,8 @@
       "positive_words": [
         "ヨダ",
         "オカ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヨシ",
@@ -3337,7 +3487,8 @@
       "positive_words": [
         "ヨシイ",
         "ホシ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ヨット",
@@ -3355,7 +3506,8 @@
       ],
       "positive_words": [
         "ノット"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワカリ",
@@ -3373,7 +3525,8 @@
       ],
       "positive_words": [
         "ワカイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワカリアウ",
@@ -3391,7 +3544,8 @@
       ],
       "positive_words": [
         "タカギバン"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワタシ",
@@ -3409,7 +3563,8 @@
       ],
       "positive_words": [
         "アカシ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワタシモ",
@@ -3427,7 +3582,8 @@
       ],
       "positive_words": [
         "タカシロ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワライタイ",
@@ -3445,7 +3601,8 @@
       ],
       "positive_words": [
         "アライダイ"
-      ]
+      ],
+      "metadata": null
     },
     {
       "query": "ワラッ",
@@ -3463,7 +3620,8 @@
       ],
       "positive_words": [
         "バラー"
-      ]
+      ],
+      "metadata": null
     }
   ]
 }
