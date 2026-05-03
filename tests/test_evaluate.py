@@ -376,3 +376,62 @@ def test_evaluate_ranking_function_with_metrics_metadata(
         "token_usage": {"total_tokens": 123},
         "cost": {"total_cost": 0.42},
     }
+
+
+def test_phonetic_search_parameters_attach_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
+    """評価結果のparametersにmetadataを後から追記できる"""
+
+    def perfect_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=perfect_ranking,
+        topn=2,
+        dataset=sample_wordlist_dataset,
+    )
+
+    updated_parameters = results.parameters.attach_metadata(
+        {"experiment_tag": "baseline", "run_id": "run-001"}
+    )
+
+    assert updated_parameters is results.parameters
+    assert results.parameters.metadata == {
+        "experiment_tag": "baseline",
+        "run_id": "run-001",
+    }
+
+
+def test_phonetic_search_parameters_attach_metadata_merges_existing_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
+    """既存のparameter metadataを維持しつつ追記できる"""
+
+    def perfect_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=perfect_ranking,
+        topn=2,
+        dataset=sample_wordlist_dataset,
+    )
+    results.parameters.metadata["existing"] = True
+
+    results.parameters.attach_metadata({"experiment_tag": "baseline"})
+
+    assert results.metrics.recall == 1.0
+    assert results.parameters.metadata == {
+        "existing": True,
+        "experiment_tag": "baseline",
+    }

@@ -97,6 +97,10 @@ class PhoneticSearchParameters:
     execution_timestamp: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    def attach_metadata(self, metadata: dict[str, Any]) -> "PhoneticSearchParameters":
+        self.metadata.update(metadata)
+        return self
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchParameters":
         metadata = data.get("metadata", {})
