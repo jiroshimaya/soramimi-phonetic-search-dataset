@@ -2,31 +2,40 @@
   "parameters": {
     "topn": 10,
     "rank_func": "vowel_consonant",
-    "query_limit": null,
-    "query_offset": null,
-    "vowel_ratio": 0.5,
-    "rerank": true,
-    "rerank_backend": "litellm",
-    "rerank_model_name": "gpt-5.4",
-    "rerank_batch_id": null,
-    "rerank_reasoning_effort": "none",
-    "rerank_prompt_template": "detailed",
-    "rerank_include_thoughts": false,
-    "rerank_input_transform": "kana_and_pyopenjtalk_romaji",
-    "rerank_input_size": 100,
-    "execution_timestamp": "2026-04-26T14:06:32.142362"
+    "execution_timestamp": "2026-04-26T14:06:32.142362",
+    "metadata": {
+      "query_limit": null,
+      "query_offset": null,
+      "vowel_ratio": 0.5,
+      "rerank": true,
+      "rerank_backend": "litellm",
+      "rerank_model_name": "gpt-5.4",
+      "rerank_batch_id": null,
+      "rerank_reasoning_effort": "none",
+      "rerank_prompt_template": "detailed",
+      "rerank_include_thoughts": false,
+      "rerank_input_transform": "kana_and_pyopenjtalk_romaji",
+      "rerank_input_size": 100
+    }
   },
   "metrics": {
     "recall": 0.5877777777777778,
     "execution_time": 36.89898872375488,
-    "rerank_input_tokens": 32208,
-    "rerank_output_tokens": 680,
-    "rerank_reasoning_tokens": 0,
-    "rerank_total_tokens": 32888,
-    "rerank_input_cost": 0.08052000000000001,
-    "rerank_output_cost": 0.0102,
-    "rerank_reasoning_cost": 0,
-    "rerank_total_cost": 0.09072000000000001
+    "metadata": {
+      "model_name": "gpt-5.4",
+      "token_usage": {
+        "input_tokens": 32208,
+        "output_tokens": 680,
+        "reasoning_tokens": 0,
+        "total_tokens": 32888
+      },
+      "cost": {
+        "input_cost": 0.08052000000000001,
+        "output_cost": 0.0102,
+        "reasoning_cost": 0,
+        "total_cost": 0.09072000000000001
+      }
+    }
   },
   "results": [
     {
@@ -46,7 +55,9 @@
       "positive_words": [
         "アイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アウマル",
@@ -65,7 +76,9 @@
       "positive_words": [
         "タクマル"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アケ",
@@ -85,7 +98,9 @@
         "アベ",
         "カケイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アシオト",
@@ -104,7 +119,9 @@
       "positive_words": [
         "ハシモト"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アッテ",
@@ -123,7 +140,9 @@
       "positive_words": [
         "マルテ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アト",
@@ -142,7 +161,9 @@
       "positive_words": [
         "カトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アノ",
@@ -161,7 +182,9 @@
       "positive_words": [
         "アノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アレ",
@@ -181,7 +204,9 @@
         "アレン",
         "アベ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アレ",
@@ -200,7 +225,9 @@
       "positive_words": [
         "アレン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アレクルウ",
@@ -219,7 +246,9 @@
       "positive_words": [
         "アレックス"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "アレホド",
@@ -238,7 +267,9 @@
       "positive_words": [
         "カネモト"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イキ",
@@ -257,7 +288,9 @@
       "positive_words": [
         "イッキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イキテ",
@@ -276,7 +309,9 @@
       "positive_words": [
         "イシゲ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イコウ",
@@ -296,7 +331,9 @@
         "イコウ",
         "イトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イタノ",
@@ -315,7 +352,9 @@
       "positive_words": [
         "イタノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イチ",
@@ -334,7 +373,9 @@
       "positive_words": [
         "ニシ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イッタ",
@@ -353,7 +394,9 @@
       "positive_words": [
         "ニッタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イツカ",
@@ -372,7 +415,9 @@
       "positive_words": [
         "キヅカ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イツモ",
@@ -392,7 +437,9 @@
         "イツボ",
         "ミズノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イマ",
@@ -411,7 +458,9 @@
       "positive_words": [
         "ミマ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イヤ",
@@ -430,7 +479,9 @@
       "positive_words": [
         "ミヤ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イヨッ",
@@ -450,7 +501,9 @@
         "イオウ",
         "イリョウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イラ",
@@ -469,7 +522,9 @@
       "positive_words": [
         "ウィーラー"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イラナイ",
@@ -488,7 +543,9 @@
       "positive_words": [
         "イマナリ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "イロイロ",
@@ -507,7 +564,9 @@
       "positive_words": [
         "イトウシンゴ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ウバッテ",
@@ -526,7 +585,9 @@
       "positive_words": [
         "グラッデン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オアト",
@@ -545,7 +606,9 @@
       "positive_words": [
         "オバンドー"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オサキ",
@@ -565,7 +628,9 @@
         "オザキ",
         "オオサキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オサキマシロキ",
@@ -584,7 +649,9 @@
       "positive_words": [
         "オカジマヒロジ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オサキモ",
@@ -604,7 +671,9 @@
         "ロサリオ",
         "トマシノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オモテ",
@@ -623,7 +692,9 @@
       "positive_words": [
         "オモテ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "オヤ",
@@ -642,7 +713,9 @@
       "positive_words": [
         "オオヤ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "カクシテ",
@@ -661,7 +734,9 @@
       "positive_words": [
         "ハクジンテン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "カミ",
@@ -680,7 +755,9 @@
       "positive_words": [
         "タニ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ガッサン",
@@ -699,7 +776,9 @@
       "positive_words": [
         "ランサム"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ガンガン",
@@ -718,7 +797,9 @@
       "positive_words": [
         "ダンカン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キタ",
@@ -737,7 +818,9 @@
       "positive_words": [
         "キタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キミ",
@@ -759,7 +842,9 @@
         "ニイミ",
         "ギンジ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キミガ",
@@ -778,7 +863,9 @@
       "positive_words": [
         "キシダ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キミト",
@@ -797,7 +884,9 @@
       "positive_words": [
         "キミノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キミノ",
@@ -816,7 +905,9 @@
       "positive_words": [
         "キミノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キミワ",
@@ -835,7 +926,9 @@
       "positive_words": [
         "キシダ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キラリ",
@@ -855,7 +948,9 @@
         "キナミ",
         "ヒライ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "キレイナ",
@@ -874,7 +969,9 @@
       "positive_words": [
         "ビエイラ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ギゾウ",
@@ -893,7 +990,9 @@
       "positive_words": [
         "キトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "クルウ",
@@ -913,7 +1012,9 @@
         "クルーン",
         "グルン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "クレ",
@@ -932,7 +1033,9 @@
       "positive_words": [
         "クメ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "コエデ",
@@ -951,7 +1054,9 @@
       "positive_words": [
         "コウエイケツ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ココニ",
@@ -970,7 +1075,9 @@
       "positive_words": [
         "コモリ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "コノ",
@@ -989,7 +1096,9 @@
       "positive_words": [
         "コウノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "コンヤモ",
@@ -1008,7 +1117,9 @@
       "positive_words": [
         "コンラッド"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "サイゴ",
@@ -1027,7 +1138,9 @@
       "positive_words": [
         "サイトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "サガシ",
@@ -1046,7 +1159,9 @@
       "positive_words": [
         "サヤシ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "サガシテタ",
@@ -1065,7 +1180,9 @@
       "positive_words": [
         "チャタニケンタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "サケブ",
@@ -1084,7 +1201,9 @@
       "positive_words": [
         "カケフ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "サラリ",
@@ -1106,7 +1225,9 @@
         "サワイ",
         "サカイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "シカク",
@@ -1125,7 +1246,9 @@
       "positive_words": [
         "シンタク"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "シテ",
@@ -1145,7 +1268,9 @@
         "シテ",
         "イデ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "シャン",
@@ -1164,7 +1289,9 @@
       "positive_words": [
         "ジャン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "シラ",
@@ -1183,7 +1310,9 @@
       "positive_words": [
         "シマ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ジョシテキ",
@@ -1202,7 +1331,9 @@
       "positive_words": [
         "ジョシュレイビン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "スギデ",
@@ -1221,7 +1352,9 @@
       "positive_words": [
         "スギエ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ステ",
@@ -1240,7 +1373,9 @@
       "positive_words": [
         "ユゲ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "スベテガ",
@@ -1259,7 +1394,9 @@
       "positive_words": [
         "ツゲセナ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "スル",
@@ -1278,7 +1415,9 @@
       "positive_words": [
         "ツル"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ズット",
@@ -1297,7 +1436,9 @@
       "positive_words": [
         "ウッド"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "セキデ",
@@ -1316,7 +1457,9 @@
       "positive_words": [
         "セキネ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソウ",
@@ -1335,7 +1478,9 @@
       "positive_words": [
         "ソウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソウダ",
@@ -1354,7 +1499,9 @@
       "positive_words": [
         "ショウダ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソウナ",
@@ -1373,7 +1520,9 @@
       "positive_words": [
         "ソウマ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソバデ",
@@ -1392,7 +1541,9 @@
       "positive_words": [
         "ソラーテ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソレ",
@@ -1411,7 +1562,9 @@
       "positive_words": [
         "ソネ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ソー",
@@ -1430,7 +1583,9 @@
       "positive_words": [
         "ソウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "タイヨウ",
@@ -1449,7 +1604,9 @@
       "positive_words": [
         "タイヨウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "タマッ",
@@ -1468,7 +1625,9 @@
       "positive_words": [
         "ターマン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "タメニ",
@@ -1487,7 +1646,9 @@
       "positive_words": [
         "カメイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ダレ",
@@ -1506,7 +1667,9 @@
       "positive_words": [
         "マレン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "チン",
@@ -1526,7 +1689,9 @@
         "チン",
         "リン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "チントン",
@@ -1547,7 +1712,9 @@
         "キンジョウ",
         "シンジョウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ツネニ",
@@ -1566,7 +1733,9 @@
       "positive_words": [
         "ツネミ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ツヨイ",
@@ -1585,7 +1754,9 @@
       "positive_words": [
         "ツボイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ツレ",
@@ -1607,7 +1778,9 @@
         "ミューレン",
         "グレン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "デモ",
@@ -1626,7 +1799,9 @@
       "positive_words": [
         "デイモン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トウメイ",
@@ -1645,7 +1820,9 @@
       "positive_words": [
         "トウメイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トキ",
@@ -1664,7 +1841,9 @@
       "positive_words": [
         "トンキン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トナリ",
@@ -1683,7 +1862,9 @@
       "positive_words": [
         "トマリ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トマッテ",
@@ -1702,7 +1883,9 @@
       "positive_words": [
         "ソラーテ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トワニ",
@@ -1721,7 +1904,9 @@
       "positive_words": [
         "トマリ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "トン",
@@ -1740,7 +1925,9 @@
       "positive_words": [
         "ソン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドウキ",
@@ -1759,7 +1946,9 @@
       "positive_words": [
         "トウキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドオリ",
@@ -1778,7 +1967,9 @@
       "positive_words": [
         "コオリ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドコ",
@@ -1798,7 +1989,9 @@
         "トゴウ",
         "ゴトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドコニ",
@@ -1818,7 +2011,9 @@
         "トモリ",
         "ヨコイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドコマデモ",
@@ -1837,7 +2032,9 @@
       "positive_words": [
         "オオタケンゴ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドレ",
@@ -1856,7 +2053,9 @@
       "positive_words": [
         "トーベ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ドレホド",
@@ -1875,7 +2074,9 @@
       "positive_words": [
         "ドテモト"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナイタ",
@@ -1894,7 +2095,9 @@
       "positive_words": [
         "ナリタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナイママボクワ",
@@ -1913,7 +2116,9 @@
       "positive_words": [
         "アイカワリョウタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナイン",
@@ -1932,7 +2137,9 @@
       "positive_words": [
         "ダーウィン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナカオ",
@@ -1951,7 +2158,9 @@
       "positive_words": [
         "ナカオ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナカデ",
@@ -1970,7 +2179,9 @@
       "positive_words": [
         "ナカデ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナカモ",
@@ -1989,7 +2200,9 @@
       "positive_words": [
         "ナカノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナクテモ",
@@ -2008,7 +2221,9 @@
       "positive_words": [
         "バークレオ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナニ",
@@ -2027,7 +2242,9 @@
       "positive_words": [
         "タニ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナニガ",
@@ -2046,7 +2263,9 @@
       "positive_words": [
         "ナリタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナンデモ",
@@ -2065,7 +2284,9 @@
       "positive_words": [
         "カンセコ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ナンノ",
@@ -2085,7 +2306,9 @@
         "カンノ",
         "タンノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハイ",
@@ -2104,7 +2327,9 @@
       "positive_words": [
         "カイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハイ",
@@ -2124,7 +2349,9 @@
         "カイ",
         "アイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハイテ",
@@ -2143,7 +2370,9 @@
       "positive_words": [
         "ハイメ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハイニ",
@@ -2162,7 +2391,9 @@
       "positive_words": [
         "アイキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハイミンナ",
@@ -2181,7 +2412,9 @@
       "positive_words": [
         "ハーミッダ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハクチュウム",
@@ -2200,7 +2433,9 @@
       "positive_words": [
         "マクブルーム"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ハナシ",
@@ -2219,7 +2454,9 @@
       "positive_words": [
         "ハヤシ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヒト",
@@ -2238,7 +2475,9 @@
       "positive_words": [
         "イトウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヒトツモ",
@@ -2257,7 +2496,9 @@
       "positive_words": [
         "イボムホ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヒトミ",
@@ -2276,7 +2517,9 @@
       "positive_words": [
         "ヒトミ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヒビモ",
@@ -2295,7 +2538,9 @@
       "positive_words": [
         "ヒビノ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "フタリ",
@@ -2314,7 +2559,9 @@
       "positive_words": [
         "フタキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "フッテ",
@@ -2333,7 +2580,9 @@
       "positive_words": [
         "ウンテン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ホイ",
@@ -2352,7 +2601,9 @@
       "positive_words": [
         "ドイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ホントウ",
@@ -2371,7 +2622,9 @@
       "positive_words": [
         "ホンドウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ホントウオ",
@@ -2390,7 +2643,9 @@
       "positive_words": [
         "ホンドウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ボクモ",
@@ -2409,7 +2664,9 @@
       "positive_words": [
         "コクボ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ボクラ",
@@ -2428,7 +2685,9 @@
       "positive_words": [
         "オオクラ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ボクワ",
@@ -2448,7 +2707,9 @@
         "コクバ",
         "オグマ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "マタ",
@@ -2467,7 +2728,9 @@
       "positive_words": [
         "ハタ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "マッテ",
@@ -2486,7 +2749,9 @@
       "positive_words": [
         "マルテ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ママ",
@@ -2507,7 +2772,9 @@
         "バーマ",
         "ババ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "マル",
@@ -2526,7 +2793,9 @@
       "positive_words": [
         "マル"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ミテキタ",
@@ -2545,7 +2814,9 @@
       "positive_words": [
         "ビエイラ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ミリョク",
@@ -2564,7 +2835,9 @@
       "positive_words": [
         "イビョンギュ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "メント",
@@ -2583,7 +2856,9 @@
       "positive_words": [
         "エンドウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "モグリ",
@@ -2602,7 +2877,9 @@
       "positive_words": [
         "モスビー"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "モドラ",
@@ -2621,7 +2898,9 @@
       "positive_words": [
         "ボトラ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "モドラナイ",
@@ -2640,7 +2919,9 @@
       "positive_words": [
         "モトヤナギ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヤー",
@@ -2659,7 +2940,9 @@
       "positive_words": [
         "ヤン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ユウヒ",
@@ -2678,7 +2961,9 @@
       "positive_words": [
         "ユウキ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ユウヒノ",
@@ -2697,7 +2982,9 @@
       "positive_words": [
         "ユウジロウ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ユク",
@@ -2716,7 +3003,9 @@
       "positive_words": [
         "ニューク"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヨウニ",
@@ -2735,7 +3024,9 @@
       "positive_words": [
         "ノウニン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヨカ",
@@ -2755,7 +3046,9 @@
         "ヨダ",
         "オカ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヨシ",
@@ -2775,7 +3068,9 @@
         "ヨシイ",
         "ホシ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ヨット",
@@ -2794,7 +3089,9 @@
       "positive_words": [
         "ノット"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワカリ",
@@ -2813,7 +3110,9 @@
       "positive_words": [
         "ワカイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワカリアウ",
@@ -2832,7 +3131,9 @@
       "positive_words": [
         "タカギバン"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワタシ",
@@ -2851,7 +3152,9 @@
       "positive_words": [
         "アカシ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワタシモ",
@@ -2870,7 +3173,9 @@
       "positive_words": [
         "タカシロ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワライタイ",
@@ -2889,7 +3194,9 @@
       "positive_words": [
         "アライダイ"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     },
     {
       "query": "ワラッ",
@@ -2908,7 +3215,9 @@
       "positive_words": [
         "バラー"
       ],
-      "thoughts": null
+      "metadata": {
+        "thoughts": null
+      }
     }
   ]
 }
