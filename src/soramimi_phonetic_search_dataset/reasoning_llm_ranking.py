@@ -184,18 +184,19 @@ def build_rerank_messages(
 
 
 def reset_token_usage() -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage()
+    _last_token_usage.input_tokens = 0
+    _last_token_usage.completion_tokens = 0
+    _last_token_usage.reasoning_tokens = 0
+    _last_token_usage.total_tokens = 0
 
 
 def reset_last_structured_outputs() -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = []
+    _last_structured_outputs.clear()
 
 
 def set_last_structured_outputs(outputs: list[dict[str, Any]]) -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = [dict(output) for output in outputs]
+    _last_structured_outputs.clear()
+    _last_structured_outputs.extend(dict(output) for output in outputs)
 
 
 def get_last_structured_outputs() -> list[dict[str, Any]]:
@@ -203,13 +204,10 @@ def get_last_structured_outputs() -> list[dict[str, Any]]:
 
 
 def set_last_token_usage(token_usage: TokenUsage) -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage(
-        input_tokens=token_usage.input_tokens,
-        completion_tokens=token_usage.completion_tokens,
-        reasoning_tokens=token_usage.reasoning_tokens,
-        total_tokens=token_usage.total_tokens,
-    )
+    _last_token_usage.input_tokens = token_usage.input_tokens
+    _last_token_usage.completion_tokens = token_usage.completion_tokens
+    _last_token_usage.reasoning_tokens = token_usage.reasoning_tokens
+    _last_token_usage.total_tokens = token_usage.total_tokens
 
 
 def get_last_token_usage() -> TokenUsage:
