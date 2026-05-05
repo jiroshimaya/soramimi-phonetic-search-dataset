@@ -7,6 +7,7 @@ from soramimi_phonetic_search_dataset import (
 )
 from soramimi_phonetic_search_dataset import llm_ranking
 from soramimi_phonetic_search_dataset import reasoning_llm_ranking
+from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
 
 
 def test_rank_by_mora_editdistance():
@@ -122,3 +123,119 @@ def test_rank_by_llm_reranks_candidates(monkeypatch):
     assert "0. タロー" in captured_messages[0][1]["content"]
     assert "1. タロ" in captured_messages[0][1]["content"]
     assert "Top N: 2" in captured_messages[0][1]["content"]
+
+
+def test_rank_by_llm_returns_ranking_function_output_with_metrics_metadata(
+    monkeypatch,
+):
+    def fake_get_structured_outputs(**kwargs):
+        return llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [1, 0]}],
+            structured_outputs=[{"reranked": [1, 0]}],
+            token_usage=llm_ranking.TokenUsage(
+                input_tokens=12,
+                completion_tokens=8,
+                reasoning_tokens=3,
+                total_tokens=20,
+            ),
+        )
+
+    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking,
+        "calculate_token_cost",
+        lambda model_name, token_usage: llm_ranking.TokenCost(
+            input_cost=0.1,
+            output_cost=0.2,
+            reasoning_cost=0.05,
+            total_cost=0.3,
+        ),
+    )
+
+    reranked = rank_by_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー", "タロ"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+    )
+
+    assert isinstance(reranked, RankingFunctionOutput)
+    assert reranked.ranked_wordlists == [["タロ", "タロー"]]
+    assert reranked.metrics_metadata == {
+        "model_name": "gpt-5.4",
+        "token_usage": {
+            "input_tokens": 12,
+            "output_tokens": 5,
+            "reasoning_tokens": 3,
+            "total_tokens": 20,
+        },
+        "cost": {
+            "input_cost": 0.1,
+            "output_cost": 0.2,
+            "reasoning_cost": 0.05,
+            "total_cost": 0.3,
+        },
+    }
+
+
+def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
+    token_usages = iter(
+        [
+            llm_ranking.TokenUsage(
+                input_tokens=10,
+                completion_tokens=6,
+                reasoning_tokens=2,
+                total_tokens=16,
+            ),
+            llm_ranking.TokenUsage(
+                input_tokens=20,
+                completion_tokens=9,
+                reasoning_tokens=4,
+                total_tokens=29,
+            ),
+        ]
+    )
+
+    def fake_get_structured_outputs(**kwargs):
+        reranked = [{"reranked": [0]} for _ in kwargs["messages"]]
+        return llm_ranking.StructuredOutputsResult(
+            parsed_responses=reranked,
+            structured_outputs=reranked,
+            token_usage=next(token_usages),
+        )
+
+    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking,
+        "calculate_token_cost",
+        lambda model_name, token_usage: llm_ranking.TokenCost(
+            input_cost=float(token_usage.input_tokens),
+            output_cost=float(token_usage.output_tokens),
+            reasoning_cost=float(token_usage.reasoning_tokens),
+            total_cost=float(token_usage.total_tokens),
+        ),
+    )
+
+    reranked = rank_by_llm(
+        query_texts=["タロウ", "ハナコ"],
+        wordlist_texts=[["タロー"], ["ハナ"]],
+        model_name="gpt-5.4",
+        batch_size=1,
+        rerank_interval=0,
+    )
+
+    assert reranked.metrics_metadata == {
+        "model_name": "gpt-5.4",
+        "token_usage": {
+            "input_tokens": 30,
+            "output_tokens": 9,
+            "reasoning_tokens": 6,
+            "total_tokens": 45,
+        },
+        "cost": {
+            "input_cost": 30.0,
+            "output_cost": 9.0,
+            "reasoning_cost": 6.0,
+            "total_cost": 45.0,
+        },
+    }
