@@ -18,10 +18,10 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "003_kanasim.json"
 
-    def ranking_func(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+    def ranking_func(query_texts: list[str], wordlists: list[list[str]]) -> list[list[str]]:
         return rank_by_kanasim(
             query_texts,
-            wordlist_texts,
+            wordlists,
             vowel_ratio=0.8,
         )
 

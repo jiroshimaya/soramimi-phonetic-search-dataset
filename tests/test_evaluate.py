@@ -5,8 +5,10 @@ import pytest
 from soramimi_phonetic_search_dataset import (
     PhoneticSearchDataset,
     PhoneticSearchQuery,
+    build_wordlist_dataset,
     evaluate_ranking_function,
     load_default_dataset,
+    load_default_dataset_for_llm,
     load_phonetic_search_dataset,
     load_small_dataset,
 )
@@ -26,6 +28,26 @@ def sample_dataset():
         ],
         words=["タロウ", "タロー", "タロ", "ハナコ", "ハナ", "ハナゴ"],
     )
+
+
+@pytest.fixture
+def sample_dataset_for_llm():
+    """LLM向け候補生成を検証するサンプルデータセット"""
+    return PhoneticSearchDataset(
+        queries=[
+            PhoneticSearchQuery(
+                query="アケ",
+                positive=["アベ", "イケ"],
+                hard_negatives=["ウエ", "オノ", "カコ", "キク"],
+            )
+        ],
+        words=["アベ", "イケ", "ウエ", "オノ", "カコ", "キク"],
+    )
+
+
+@pytest.fixture
+def sample_wordlist_dataset(sample_dataset):
+    return build_wordlist_dataset(sample_dataset)
 
 
 @pytest.fixture
@@ -58,6 +80,32 @@ def test_load_phonetic_search_dataset(sample_dataset, sample_dataset_file):
         assert loaded_query.positive == original_query.positive
 
 
+def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
+    """hard_negatives を含むデータセットを読み込める"""
+
+    dataset_path = tmp_path / "test_dataset_with_hard_negatives.json"
+    with open(dataset_path, "w") as f:
+        json.dump(
+            {
+                "queries": [
+                    {
+                        "query": "タロウ",
+                        "positive": ["タロー", "タロ"],
+                        "hard_negatives": ["ハナコ", "サブロウ"],
+                    }
+                ],
+                "words": ["タロウ", "タロー", "タロ", "ハナコ", "サブロウ"],
+            },
+            f,
+        )
+
+    loaded_dataset = load_phonetic_search_dataset(str(dataset_path))
+
+    assert loaded_dataset.queries[0].query == "タロウ"
+    assert loaded_dataset.queries[0].positive == ["タロー", "タロ"]
+    assert loaded_dataset.queries[0].hard_negatives == ["ハナコ", "サブロウ"]
+
+
 def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
     """クエリ数を絞ってデータセットを読み込める"""
 
@@ -71,10 +119,12 @@ def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
 
     limited_dataset = load_default_dataset(query_limit=1)
     assert len(limited_dataset.queries) == 1
-    assert limited_dataset.words == sample_dataset.words
+    assert limited_dataset.queries[0].wordlist == sample_dataset.words
+    assert limited_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
     assert limited_dataset.metadata["query_limit"] == 1
     assert limited_dataset.metadata["query_offset"] == 0
     assert limited_dataset.metadata["subset"] == "queries_1_to_1"
+    assert limited_dataset.metadata["format"] == "query_with_wordlist"
 
 
 def test_load_default_dataset_with_invalid_query_limit(monkeypatch, sample_dataset):
@@ -106,6 +156,8 @@ def test_load_default_dataset_with_query_offset(monkeypatch, sample_dataset):
     sliced_dataset = load_default_dataset(query_limit=1, query_offset=1)
     assert len(sliced_dataset.queries) == 1
     assert sliced_dataset.queries[0].query == "ハナコ"
+    assert sliced_dataset.queries[0].wordlist == sample_dataset.words
+    assert sliced_dataset.queries[0].positive_words == ["ハナ", "ハナゴ"]
     assert sliced_dataset.metadata["query_limit"] == 1
     assert sliced_dataset.metadata["query_offset"] == 1
     assert sliced_dataset.metadata["subset"] == "queries_2_to_2"
@@ -127,7 +179,7 @@ def test_load_default_dataset_with_invalid_query_offset(monkeypatch, sample_data
 
 
 def test_load_small_dataset(monkeypatch, sample_dataset):
-    """小データセットは十分小さい入力では元データをそのまま返す"""
+    """小データセットは query ごとの wordlist を持つ形式で返る"""
 
     def mock_load_dataset(path):
         return sample_dataset
@@ -138,7 +190,52 @@ def test_load_small_dataset(monkeypatch, sample_dataset):
     )
 
     loaded_dataset = load_small_dataset()
-    assert loaded_dataset is sample_dataset
+    assert len(loaded_dataset.queries) == len(sample_dataset.queries)
+    assert loaded_dataset.queries[0].wordlist == sample_dataset.words
+    assert loaded_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
+    assert loaded_dataset.metadata["format"] == "query_with_wordlist"
+
+
+def test_load_default_dataset_for_llm_builds_query_wordlists(
+    monkeypatch, sample_dataset_for_llm
+):
+    """LLM向けローダーは query ごとの候補語リストを返す"""
+
+    def mock_load_dataset(path):
+        return sample_dataset_for_llm
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    loaded_dataset = load_default_dataset_for_llm(wordlist_size=4)
+
+    assert len(loaded_dataset.queries) == 1
+    assert loaded_dataset.queries[0].query == "アケ"
+    assert loaded_dataset.queries[0].wordlist == ["アベ", "イケ", "ウエ", "オノ"]
+    assert loaded_dataset.queries[0].positive_words == ["アベ", "イケ"]
+    assert loaded_dataset.metadata["wordlist_size"] == 4
+    assert loaded_dataset.metadata["format"] == "query_with_wordlist"
+
+
+def test_load_default_dataset_for_llm_requires_enough_hard_negatives(
+    monkeypatch, sample_dataset
+):
+    """LLM向けローダーは不足した hard_negatives を弾く"""
+
+    def mock_load_dataset(path):
+        return sample_dataset
+
+    monkeypatch.setattr(
+        "soramimi_phonetic_search_dataset.dataset.load_phonetic_search_dataset",
+        mock_load_dataset,
+    )
+
+    with pytest.raises(
+        ValueError, match="hard_negatives are required to build an LLM wordlist"
+    ):
+        load_default_dataset_for_llm(wordlist_size=4)
 
 
 def test_calculate_recall():
@@ -176,13 +273,14 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
     )
 
     # 完全一致するランキング関数
-    def perfect_ranking(query_texts, wordlist_texts):
+    def perfect_ranking(query_texts, wordlists):
         results = []
-        for query in query_texts:
-            if query == "タロウ":
+        for query_text in query_texts:
+            if query_text == "タロウ":
                 results.append(["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"])
             else:  # ハナコ
                 results.append(["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"])
+        assert wordlists[0] is wordlists[1]
         return results
 
     results = evaluate_ranking_function(ranking_func=perfect_ranking, topn=2)
@@ -190,12 +288,15 @@ def test_evaluate_ranking_function(monkeypatch, sample_dataset):
     assert results.parameters.rank_func == "perfect_ranking"
 
 
-def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):
+def test_evaluate_ranking_function_with_explicit_dataset(
+    sample_dataset, sample_wordlist_dataset
+):
     """明示的に渡したデータセットで評価できる"""
 
-    def perfect_ranking(query_texts, wordlist_texts):
+    def perfect_ranking(query_texts, wordlists):
         assert query_texts == ["タロウ", "ハナコ"]
-        assert wordlist_texts == sample_dataset.words
+        assert wordlists[0] == sample_dataset.words
+        assert wordlists[0] is wordlists[1]
         return [
             ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
             ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
@@ -204,17 +305,15 @@ def test_evaluate_ranking_function_with_explicit_dataset(sample_dataset):
     results = evaluate_ranking_function(
         ranking_func=perfect_ranking,
         topn=2,
-        dataset=sample_dataset,
+        dataset=sample_wordlist_dataset,
     )
     assert results.metrics.recall == 1.0
-
-
-def test_evaluate_ranking_function_with_metadata(sample_dataset):
+def test_evaluate_ranking_function_with_metadata(sample_dataset, sample_wordlist_dataset):
     """ランキング関数がmetadataを返しても評価できる"""
 
-    def ranking_with_metadata(query_texts, wordlist_texts):
+    def ranking_with_metadata(query_texts, wordlists):
         assert query_texts == ["タロウ", "ハナコ"]
-        assert wordlist_texts == sample_dataset.words
+        assert wordlists[0] == sample_dataset.words
         return RankingFunctionOutput(
             ranked_wordlists=[
                 ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
@@ -229,7 +328,7 @@ def test_evaluate_ranking_function_with_metadata(sample_dataset):
     results = evaluate_ranking_function(
         ranking_func=ranking_with_metadata,
         topn=2,
-        dataset=sample_dataset,
+        dataset=sample_wordlist_dataset,
     )
 
     assert results.metrics.recall == 1.0
@@ -245,12 +344,14 @@ def test_evaluate_ranking_function_with_metadata(sample_dataset):
     }
 
 
-def test_evaluate_ranking_function_with_metrics_metadata(sample_dataset):
+def test_evaluate_ranking_function_with_metrics_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
     """ランキング関数が全体メトリクスmetadataを返しても評価できる"""
 
-    def ranking_with_metrics_metadata(query_texts, wordlist_texts):
+    def ranking_with_metrics_metadata(query_texts, wordlists):
         assert query_texts == ["タロウ", "ハナコ"]
-        assert wordlist_texts == sample_dataset.words
+        assert wordlists[0] == sample_dataset.words
         return RankingFunctionOutput(
             ranked_wordlists=[
                 ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
@@ -266,7 +367,7 @@ def test_evaluate_ranking_function_with_metrics_metadata(sample_dataset):
     results = evaluate_ranking_function(
         ranking_func=ranking_with_metrics_metadata,
         topn=2,
-        dataset=sample_dataset,
+        dataset=sample_wordlist_dataset,
     )
 
     assert results.metrics.recall == 1.0
@@ -274,4 +375,63 @@ def test_evaluate_ranking_function_with_metrics_metadata(sample_dataset):
         "model_name": "gpt-5.4",
         "token_usage": {"total_tokens": 123},
         "cost": {"total_cost": 0.42},
+    }
+
+
+def test_phonetic_search_parameters_attach_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
+    """評価結果のparametersにmetadataを後から追記できる"""
+
+    def perfect_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=perfect_ranking,
+        topn=2,
+        dataset=sample_wordlist_dataset,
+    )
+
+    updated_parameters = results.parameters.attach_metadata(
+        {"experiment_tag": "baseline", "run_id": "run-001"}
+    )
+
+    assert updated_parameters is results.parameters
+    assert results.parameters.metadata == {
+        "experiment_tag": "baseline",
+        "run_id": "run-001",
+    }
+
+
+def test_phonetic_search_parameters_attach_metadata_merges_existing_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
+    """既存のparameter metadataを維持しつつ追記できる"""
+
+    def perfect_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["ハナ", "ハナゴ", "ハナコ", "タロウ", "タロー", "タロ"],
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=perfect_ranking,
+        topn=2,
+        dataset=sample_wordlist_dataset,
+    )
+    results.parameters.metadata["existing"] = True
+
+    results.parameters.attach_metadata({"experiment_tag": "baseline"})
+
+    assert results.metrics.recall == 1.0
+    assert results.parameters.metadata == {
+        "existing": True,
+        "experiment_tag": "baseline",
     }

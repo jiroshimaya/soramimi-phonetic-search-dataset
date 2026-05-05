@@ -10,6 +10,16 @@
 
 各手法の評価結果は[leaderboard](https://github.com/jiroshimaya/soramimi-phonetic-search-dataset/blob/main/leaderboard.md)をご覧ください。
 
+## データセット形式
+
+デフォルトのデータセット [src/soramimi_phonetic_search_dataset/data/baseball.json](src/soramimi_phonetic_search_dataset/data/baseball.json) は、各 query について以下の情報を持ちます。
+
+- `query`: 検索クエリ
+- `positive`: 正解となる単語の一覧
+- `hard_negatives`: 正解ではないが音韻的に紛らわしい負例の一覧
+
+`hard_negatives` は、各 query に対して単語リスト全体を `rank_by_vowel_consonant_editdistance` に `vowel_ratio=0.5` を指定して並べ替え、その順位から `positive` に含まれる単語を除いた上位100件として作成しています。
+
 ## 使い方
 
 ### インストール
@@ -24,7 +34,9 @@ pip install soramimi-phonetic-search-dataset
 from soramimi_phonetic_search_dataset import evaluate_ranking_function
 
 # カスタムのランキング関数を定義
-def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+def my_ranking_function(
+  query_texts: list[str], wordlists: list[list[str]]
+) -> list[list[str]]:
     # ここにあなたの音韻的類似度に基づくランキングロジックを実装
     return ranked_wordlists
 
