@@ -8,40 +8,124 @@ from typing import Any, Type
 from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
-import pyopenjtalk
-from soramimi_phonetic_search_dataset import llm_ranking as _core_llm
-from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
-    "default": _core_llm.PROMPT_INSTRUCTIONS,
-    **_core_reasoning.PROMPT_INSTRUCTIONS,
+    "simple": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "detailed": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "step_by_step": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    以下の手順で判断してください。
+    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "detailed_romaji_explicit": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
+    - 子音より母音の一致を優先してください
+    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+    出力は上位Top N件のインデックスのみ返してください。
+    """,
+    "nonreasoning_cot": """
+    クエリ（Query）と単語一覧（Wordlist）が与えられます。
+    クエリと発音が似ている順に、単語一覧を並び替えてください。
+    以下の手順で判断してください。
+    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+    構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
+    構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
+    """,
 }
-PROMPT_EXAMPLE_SUFFIX = _core_reasoning.PROMPT_EXAMPLE_SUFFIX
-OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
-OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR
-OPENAI_MODEL_PREFIXES = _core_reasoning.OPENAI_MODEL_PREFIXES
-TokenUsage = _core_reasoning.TokenUsage
-TokenCost = _core_reasoning.TokenCost
-OpenAIBatchRerankResult = _core_reasoning.OpenAIBatchRerankResult
-RerankedWordlist = _core_reasoning.RerankedWordlist
-ThoughtfulRerankedWordlist = _core_reasoning.ThoughtfulRerankedWordlist
+
+PROMPT_EXAMPLE_SUFFIX = """
+Example:
+Query: タロウ
+Wordlist:
+0. アオ
+1. アオウヅ
+2. アノウ
+3. タキョウ
+4. タド
+5. タノ
+6. タロウ
+7. タンノ
+Top N: 5
+Reranked: 6, 4, 5, 7, 2
+"""
+
+OPENAI_BATCH_ENDPOINT = "/v1/chat/completions"
+OPENAI_BATCH_DISCOUNT_FACTOR = 0.5
+OPENAI_MODEL_PREFIXES = ("gpt-", "o1", "o3", "o4", "chatgpt-")
+
+
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+
+    @property
+    def output_tokens(self) -> int:
+        return max(self.completion_tokens - self.reasoning_tokens, 0)
+
+
+@dataclass
+class TokenCost:
+    input_cost: float = 0.0
+    output_cost: float = 0.0
+    reasoning_cost: float = 0.0
+    total_cost: float = 0.0
+
+
+@dataclass
+class OpenAIBatchRerankResult:
+    reranked_wordlists: list[list[str]]
+    structured_outputs: list[dict[str, Any]]
+    batch_id: str
+    batch_status: str
+    execution_time: float
+    output_file_path: str | None
+    error_file_path: str | None
+
+
+_last_token_usage = TokenUsage()
+_last_structured_outputs: list[dict[str, Any]] = []
+
+
+class RerankedWordlist(BaseModel):
+    reranked: list[int]
+
+
+class ThoughtfulRerankedWordlist(BaseModel):
+    thoughts: list[str]
+    reranked: list[int]
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform == "none":
-        return text
-    if input_transform == "pyopenjtalk_romaji":
-        phonemes = pyopenjtalk.g2p(text)
-        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
-        return " ".join(phoneme_text.lower().split())
-    if input_transform == "kana_and_pyopenjtalk_romaji":
-        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
-        return f"{text}（{romaji}）"
-    raise ValueError(f"Unknown input_transform: {input_transform}")
+    if input_transform != "none":
+        raise ValueError(f"Unknown input_transform: {input_transform}")
+    return text
 
 
-def build_system_prompt(prompt_template: str = "default") -> str:
+def build_system_prompt(prompt_template: str = "simple") -> str:
     try:
         prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
     except KeyError as exc:
@@ -100,18 +184,19 @@ def build_rerank_messages(
 
 
 def reset_token_usage() -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage()
+    _last_token_usage.input_tokens = 0
+    _last_token_usage.completion_tokens = 0
+    _last_token_usage.reasoning_tokens = 0
+    _last_token_usage.total_tokens = 0
 
 
 def reset_last_structured_outputs() -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = []
+    _last_structured_outputs.clear()
 
 
 def set_last_structured_outputs(outputs: list[dict[str, Any]]) -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = [dict(output) for output in outputs]
+    _last_structured_outputs.clear()
+    _last_structured_outputs.extend(dict(output) for output in outputs)
 
 
 def get_last_structured_outputs() -> list[dict[str, Any]]:
@@ -119,13 +204,10 @@ def get_last_structured_outputs() -> list[dict[str, Any]]:
 
 
 def set_last_token_usage(token_usage: TokenUsage) -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage(
-        input_tokens=token_usage.input_tokens,
-        completion_tokens=token_usage.completion_tokens,
-        reasoning_tokens=token_usage.reasoning_tokens,
-        total_tokens=token_usage.total_tokens,
-    )
+    _last_token_usage.input_tokens = token_usage.input_tokens
+    _last_token_usage.completion_tokens = token_usage.completion_tokens
+    _last_token_usage.reasoning_tokens = token_usage.reasoning_tokens
+    _last_token_usage.total_tokens = token_usage.total_tokens
 
 
 def get_last_token_usage() -> TokenUsage:
@@ -730,7 +812,7 @@ def rank_by_llm(
     topn: int = 10,
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
-    prompt_template: str = "default",
+    prompt_template: str = "simple",
     include_thoughts: bool = False,
     input_transform: str = "none",
     batch_size: int = 10,

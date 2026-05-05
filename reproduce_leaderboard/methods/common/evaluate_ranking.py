@@ -13,7 +13,7 @@ from reranker import (
     get_rerank_response_format,
     get_last_structured_outputs,
     get_last_token_usage,
-    rerank_by_llm,
+    rank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function,
@@ -25,6 +25,12 @@ from soramimi_phonetic_search_dataset import (
     rank_by_vowel_consonant_editdistance,
 )
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
+
+
+def _get_shared_wordlist(dataset) -> list[str]:
+    if not dataset.queries:
+        return []
+    return dataset.queries[0].wordlist
 
 
 def build_rerank_metrics_metadata(
@@ -50,7 +56,7 @@ def build_rerank_metrics_metadata(
 
 
 def create_reranking_function(
-    base_rank_func: Callable[[list[str], list[str]], list[list[str]]],
+    base_rank_func: Callable[[list[str], list[list[str]]], list[list[str]]],
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
@@ -62,7 +68,7 @@ def create_reranking_function(
     topn: int,
     positive_texts: list[list[str]],
     **base_rank_kwargs,
-) -> Callable[[list[str], list[str]], list[list[str]]]:
+ ) -> Callable[[list[str], list[list[str]]], list[list[str]]]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -83,11 +89,9 @@ def create_reranking_function(
         組み合わせたランキング関数
     """
 
-    def combined_rank_func(query_texts: list[str], wordlist_texts: list[str]):
+    def combined_rank_func(query_texts: list[str], wordlists: list[list[str]]):
         # ベースのランキングを実行
-        base_ranked_wordlists = base_rank_func(
-            query_texts, wordlist_texts, **base_rank_kwargs
-        )
+        base_ranked_wordlists = base_rank_func(query_texts, wordlists, **base_rank_kwargs)
 
         # 上位N件を取得してリランク
         topk_ranked_wordlists = prepare_rerank_candidates(
@@ -96,7 +100,7 @@ def create_reranking_function(
             rerank_input_size,
         )
 
-        reranked_wordlists = rerank_by_llm(
+        reranked_wordlists = rank_by_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
@@ -367,7 +371,7 @@ def main():
 
     if args.rerank and args.rerank_backend == "openai_batch":
         query_texts = [query.query for query in dataset.queries]
-        positive_texts = [query.positive for query in dataset.queries]
+        positive_texts = [query.positive_words for query in dataset.queries]
         response_format = get_rerank_response_format(
             include_thoughts=args.rerank_include_thoughts
         )
@@ -376,7 +380,7 @@ def main():
             batch_state = submit_openai_batch_evaluation(
                 base_rank_func=base_rank_func,
                 query_texts=query_texts,
-                word_texts=dataset.words,
+                word_texts=_get_shared_wordlist(dataset),
                 positive_texts=positive_texts,
                 rank_kwargs=rank_kwargs,
                 rerank_input_size=args.rerank_input_size,
@@ -430,7 +434,7 @@ def main():
         return
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
-        positive_texts = [query.positive for query in dataset.queries]
+        positive_texts = [query.positive_words for query in dataset.queries]
 
         _rank_func = create_reranking_function(
             base_rank_func=base_rank_func,
@@ -448,12 +452,12 @@ def main():
         )
 
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return _rank_func(q, w)
+        def rank_func(query_texts, wordlists):
+            return _rank_func(query_texts, wordlists)
     else:
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return base_rank_func(q, w, **rank_kwargs)
+        def rank_func(query_texts, wordlists):
+            return base_rank_func(query_texts, wordlists, **rank_kwargs)
 
     # 評価を実行
     results = evaluate_ranking_function(

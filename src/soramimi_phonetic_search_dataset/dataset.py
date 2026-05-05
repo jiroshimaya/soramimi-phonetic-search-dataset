@@ -5,10 +5,15 @@
 import json
 from pathlib import Path
 
-from .schemas import PhoneticSearchDataset
+from .schemas import (
+    PhoneticSearchDataset,
+    PhoneticSearchQueryWithWordlist,
+    PhoneticSearchWordlistDataset,
+)
 
 DEFAULT_DATASET_PATH = Path(__file__).parent / "data" / "baseball.json"
 SMALL_DATASET_QUERY_COUNT = 10
+DEFAULT_LLM_WORDLIST_SIZE = 100
 
 
 def load_phonetic_search_dataset(path: str) -> PhoneticSearchDataset:
@@ -57,12 +62,72 @@ def _slice_dataset(
 def load_default_dataset(
     query_limit: int | None = None,
     query_offset: int = 0,
-) -> PhoneticSearchDataset:
+) -> PhoneticSearchWordlistDataset:
     """デフォルトのデータセットを読み込む"""
     dataset = load_phonetic_search_dataset(str(DEFAULT_DATASET_PATH))
-    return _slice_dataset(dataset, query_limit=query_limit, query_offset=query_offset)
+    return build_wordlist_dataset(
+        _slice_dataset(dataset, query_limit=query_limit, query_offset=query_offset)
+    )
 
 
-def load_small_dataset() -> PhoneticSearchDataset:
+def build_wordlist_dataset(
+    dataset: PhoneticSearchDataset,
+) -> PhoneticSearchWordlistDataset:
+    """query ごとに wordlist を持つ入力形式へ変換する"""
+    return PhoneticSearchWordlistDataset(
+        queries=[
+            PhoneticSearchQueryWithWordlist(
+                query=query.query,
+                wordlist=dataset.words,
+                positive_words=query.positive,
+            )
+            for query in dataset.queries
+        ],
+        metadata={
+            **dataset.metadata,
+            "format": "query_with_wordlist",
+        },
+    )
+
+
+def build_wordlist_dataset_for_llm(
+    dataset: PhoneticSearchDataset,
+    *,
+    wordlist_size: int = DEFAULT_LLM_WORDLIST_SIZE,
+) -> PhoneticSearchWordlistDataset:
+    """LLM rerank 向けに query ごとの候補語リストへ変換する"""
+    return PhoneticSearchWordlistDataset(
+        queries=[
+            PhoneticSearchQueryWithWordlist(
+                query=query.query,
+                wordlist=query.build_wordlist_for_llm(wordlist_size=wordlist_size),
+                positive_words=query.positive,
+            )
+            for query in dataset.queries
+        ],
+        metadata={
+            **dataset.metadata,
+            "wordlist_size": wordlist_size,
+            "format": "query_with_wordlist",
+        },
+    )
+
+
+def load_default_dataset_for_llm(
+    query_limit: int | None = None,
+    query_offset: int = 0,
+    *,
+    wordlist_size: int = DEFAULT_LLM_WORDLIST_SIZE,
+) -> PhoneticSearchWordlistDataset:
+    """LLM rerank 向けのデフォルトデータセットを読み込む"""
+    dataset = _slice_dataset(
+        load_phonetic_search_dataset(str(DEFAULT_DATASET_PATH)),
+        query_limit=query_limit,
+        query_offset=query_offset,
+    )
+    return build_wordlist_dataset_for_llm(dataset, wordlist_size=wordlist_size)
+
+
+def load_small_dataset() -> PhoneticSearchWordlistDataset:
     """LLMの試行用に先頭10件へ絞った小データセットを読み込む"""
     return load_default_dataset(query_limit=SMALL_DATASET_QUERY_COUNT)

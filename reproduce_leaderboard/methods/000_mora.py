@@ -18,8 +18,8 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "000_mora.json"
 
-    def ranking_func(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
-        return rank_by_mora_editdistance(query_texts, wordlist_texts)
+    def ranking_func(query_texts: list[str], wordlists: list[list[str]]) -> list[list[str]]:
+        return rank_by_mora_editdistance(query_texts, wordlists)
 
     results = evaluate_ranking_function(
         ranking_func=ranking_func,

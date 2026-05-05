@@ -18,7 +18,10 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from reproduce_leaderboard.methods.common.reranker import PROMPT_INSTRUCTIONS
-from soramimi_phonetic_search_dataset import load_small_dataset
+from soramimi_phonetic_search_dataset import (
+    PhoneticSearchQueryWithWordlist,
+    load_small_dataset,
+)
 from soramimi_phonetic_search_dataset import rank_by_vowel_consonant_editdistance
 
 
@@ -55,12 +58,19 @@ def build_probe_input(
 
     target_query = dataset.queries[query_index]
     ranked_wordlist = rank_by_vowel_consonant_editdistance(
-        [target_query.query], dataset.words, vowel_ratio=vowel_ratio
+        [
+            PhoneticSearchQueryWithWordlist(
+                query=target_query.query,
+                wordlist=target_query.wordlist,
+                positive_words=target_query.positive_words,
+            )
+        ],
+        vowel_ratio=vowel_ratio,
     )[0]
     candidate_wordlist = ranked_wordlist[:candidate_size]
 
     missing_positive_words = [
-        word for word in target_query.positive if word not in candidate_wordlist
+        word for word in target_query.positive_words if word not in candidate_wordlist
     ]
     if missing_positive_words:
         candidate_wordlist = candidate_wordlist[
@@ -73,7 +83,7 @@ def build_probe_input(
     candidate_wordlist = sorted(candidate_wordlist)
     return ProbeInput(
         query=target_query.query,
-        positive_words=target_query.positive,
+        positive_words=target_query.positive_words,
         wordlist=candidate_wordlist,
     )
 
