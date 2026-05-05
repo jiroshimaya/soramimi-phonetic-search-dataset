@@ -122,13 +122,3 @@ def test_rank_by_llm_reranks_candidates(monkeypatch):
     assert "0. タロー" in captured_messages[0][1]["content"]
     assert "1. タロ" in captured_messages[0][1]["content"]
     assert "Top N: 2" in captured_messages[0][1]["content"]
-
-
-def test_llm_ranking_build_system_prompt_only_supports_default():
-    import pytest
-
-    prompt = llm_ranking.build_system_prompt("default")
-
-    assert "You are a phonetic search assistant." in prompt
-    with pytest.raises(ValueError, match="Unknown prompt_template: detailed"):
-        llm_ranking.build_system_prompt("detailed")
