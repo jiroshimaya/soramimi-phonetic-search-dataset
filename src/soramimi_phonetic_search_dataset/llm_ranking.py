@@ -6,19 +6,17 @@ from litellm import batch_completion, completion, cost_per_token
 from pydantic import BaseModel
 from tqdm import tqdm
 
-PROMPT_INSTRUCTIONS = {
-    "default": """
-    You are a phonetic search assistant.
-    You are given a query and a list of words.
-    You need to rerank the words based on phonetic similarity to the query.
-    When estimating phonetic similarity, please consider the following:
-    1. Prioritize matching vowels
-    2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
-    3. For other cases, words with similar mora counts are preferred
-    You need to return only the reranked list of index numbers of the words, no other text.
-    You need to return only topn index numbers.
-    """,
-}
+PROMPT_INSTRUCTIONS = """
+You are a phonetic search assistant.
+You are given a query and a list of words.
+You need to rerank the words based on phonetic similarity to the query.
+When estimating phonetic similarity, please consider the following:
+1. Prioritize matching vowels
+2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
+3. For other cases, words with similar mora counts are preferred
+You need to return only the reranked list of index numbers of the words, no other text.
+You need to return only topn index numbers.
+"""
 PROMPT_EXAMPLE_SUFFIX = """
 Example:
 Query: タロウ
@@ -221,16 +219,8 @@ def _build_reranked_wordlist(
     return reranked_wordlist
 
 
-def build_system_prompt(prompt_template: str = "default") -> str:
-    try:
-        prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
-    except KeyError as exc:
-        raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
-    return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
-
-
-def prompt_template_requires_thoughts(prompt_template: str) -> bool:
-    return False
+def build_system_prompt() -> str:
+    return f"{PROMPT_INSTRUCTIONS.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
 
 
 def build_rerank_messages(
@@ -238,9 +228,8 @@ def build_rerank_messages(
     wordlist_texts: list[list[str]],
     *,
     topn: int,
-    prompt_template: str,
 ) -> list[list[dict[str, str]]]:
-    prompt = build_system_prompt(prompt_template)
+    prompt = build_system_prompt()
     user_prompt = """
     Query: {query}
     Wordlist:
@@ -314,7 +303,6 @@ def rank_by_llm(
     *,
     topn: int = 10,
     model_name: str = "gpt-4o-mini",
-    prompt_template: str = "default",
     include_thoughts: bool = False,
     batch_size: int = 10,
     temperature: float = 0.0,
@@ -324,12 +312,8 @@ def rank_by_llm(
         query_texts,
         wordlist_texts,
         topn=topn,
-        prompt_template=prompt_template,
     )
-    response_format = get_rerank_response_format(
-        include_thoughts=include_thoughts
-        or prompt_template_requires_thoughts(prompt_template)
-    )
+    response_format = get_rerank_response_format(include_thoughts=include_thoughts)
 
     reranked_wordlists = []
     structured_outputs = []

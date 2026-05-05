@@ -14,7 +14,7 @@ from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reas
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
-    **_core_llm.PROMPT_INSTRUCTIONS,
+    "default": _core_llm.PROMPT_INSTRUCTIONS,
     **_core_reasoning.PROMPT_INSTRUCTIONS,
 }
 PROMPT_EXAMPLE_SUFFIX = _core_reasoning.PROMPT_EXAMPLE_SUFFIX
