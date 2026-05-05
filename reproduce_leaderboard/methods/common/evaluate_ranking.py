@@ -13,7 +13,7 @@ from reranker import (
     get_rerank_response_format,
     get_last_structured_outputs,
     get_last_token_usage,
-    rerank_by_llm,
+    rank_by_llm,
 )
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function,
@@ -100,7 +100,7 @@ def create_reranking_function(
             rerank_input_size,
         )
 
-        reranked_wordlists = rerank_by_llm(
+        reranked_wordlists = rank_by_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
