@@ -4,7 +4,6 @@ from typing import Any, Type
 
 from litellm import batch_completion, completion, cost_per_token
 from pydantic import BaseModel
-import pyopenjtalk
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
@@ -68,19 +67,6 @@ class RerankedWordlist(BaseModel):
 class ThoughtfulRerankedWordlist(BaseModel):
     thoughts: list[str]
     reranked: list[int]
-
-
-def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform == "none":
-        return text
-    if input_transform == "pyopenjtalk_romaji":
-        phonemes = pyopenjtalk.g2p(text)
-        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
-        return " ".join(phoneme_text.lower().split())
-    if input_transform == "kana_and_pyopenjtalk_romaji":
-        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
-        return f"{text}（{romaji}）"
-    raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
 def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
@@ -253,7 +239,6 @@ def build_rerank_messages(
     *,
     topn: int,
     prompt_template: str,
-    input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
     prompt = build_system_prompt(prompt_template)
     user_prompt = """
@@ -266,12 +251,8 @@ def build_rerank_messages(
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
-        transformed_query = transform_text_for_rerank(query, input_transform)
-        transformed_wordlist = [
-            transform_text_for_rerank(word, input_transform) for word in wordlist
-        ]
         wordlist_str = "\n".join(
-            [f"{i}. {word}" for i, word in enumerate(transformed_wordlist)]
+            [f"{i}. {word}" for i, word in enumerate(wordlist)]
         )
         messages.append(
             [
@@ -279,7 +260,7 @@ def build_rerank_messages(
                 {
                     "role": "user",
                     "content": user_prompt.format(
-                        query=transformed_query, wordlist=wordlist_str, topn=topn
+                        query=query, wordlist=wordlist_str, topn=topn
                     ),
                 },
             ]
@@ -335,7 +316,6 @@ def rank_by_llm(
     model_name: str = "gpt-4o-mini",
     prompt_template: str = "default",
     include_thoughts: bool = False,
-    input_transform: str = "none",
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
@@ -345,7 +325,6 @@ def rank_by_llm(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
-        input_transform=input_transform,
     )
     response_format = get_rerank_response_format(
         include_thoughts=include_thoughts

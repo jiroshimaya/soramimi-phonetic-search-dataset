@@ -8,7 +8,6 @@ from typing import Any, Type
 from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
-import pyopenjtalk
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
@@ -121,16 +120,9 @@ class ThoughtfulRerankedWordlist(BaseModel):
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform == "none":
-        return text
-    if input_transform == "pyopenjtalk_romaji":
-        phonemes = pyopenjtalk.g2p(text)
-        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
-        return " ".join(phoneme_text.lower().split())
-    if input_transform == "kana_and_pyopenjtalk_romaji":
-        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
-        return f"{text}（{romaji}）"
-    raise ValueError(f"Unknown input_transform: {input_transform}")
+    if input_transform != "none":
+        raise ValueError(f"Unknown input_transform: {input_transform}")
+    return text
 
 
 def build_system_prompt(prompt_template: str = "simple") -> str:

@@ -13,7 +13,6 @@ from soramimi_phonetic_search_dataset import llm_ranking as _core_llm
 from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
 
-_core_rank_by_llm = _core_reasoning.rank_by_llm
 PROMPT_INSTRUCTIONS = {
     **_core_llm.PROMPT_INSTRUCTIONS,
     **_core_reasoning.PROMPT_INSTRUCTIONS,
@@ -738,16 +737,37 @@ def rank_by_llm(
     temperature: float = 0.0,
     rerank_interval: int = 60,
 ) -> list[list[str]]:
-    return _core_rank_by_llm(
+    messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
         topn=topn,
-        model_name=model_name,
-        reasoning_effort=reasoning_effort,
         prompt_template=prompt_template,
-        include_thoughts=include_thoughts,
         input_transform=input_transform,
-        batch_size=batch_size,
-        temperature=temperature,
-        rerank_interval=rerank_interval,
     )
+    response_format = get_rerank_response_format(
+        include_thoughts=include_thoughts
+        or prompt_template_requires_thoughts(prompt_template)
+    )
+
+    reranked_wordlists = []
+    structured_outputs = []
+    for i in tqdm(range(0, len(messages), batch_size)):
+        batch_messages = messages[i : i + batch_size]
+        responses = get_structured_outputs(
+            model_name=model_name,
+            messages=batch_messages,
+            temperature=temperature,
+            max_tokens=1000,
+            response_format=response_format,
+            reasoning_effort=reasoning_effort,
+        )
+        for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
+            structured_outputs.append(_extract_structured_output(response))
+            reranked_wordlists.append(
+                _build_reranked_wordlist(wordlist, _extract_reranked_indices(response))
+            )
+
+        time.sleep(rerank_interval)
+
+    set_last_structured_outputs(structured_outputs)
+    return reranked_wordlists
