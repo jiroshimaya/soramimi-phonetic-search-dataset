@@ -6,6 +6,7 @@ from soramimi_phonetic_search_dataset import (
     rank_by_vowel_consonant_editdistance,
 )
 from soramimi_phonetic_search_dataset import llm_ranking
+from soramimi_phonetic_search_dataset import reasoning_llm_ranking
 
 
 def test_rank_by_mora_editdistance():
@@ -91,46 +92,43 @@ def test_rank_by_kanasim():
     assert ranked_wordlists[0][-1] == "ハナコ"
 
 
-def test_rank_by_llm_delegates_to_reranker(monkeypatch):
-    """LLM ランキング前にベースランキングで候補を絞り込む"""
+def test_rank_by_llm_reranks_candidates(monkeypatch):
+    """LLM ランキングは候補 wordlist をそのまま再ランキングする"""
 
-    captured = {}
+    captured_messages = []
 
-    def fake_base_rank_func(query_texts, wordlists, **kwargs):
-        captured["base_query_texts"] = query_texts
-        captured["base_wordlists"] = wordlists
-        captured["base_kwargs"] = kwargs
-        return [["ハナコ", "タロー", "タロ", "サブロウ"]]
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return [{"reranked": [1, 0]}]
 
-    def fake_rerank_by_llm(query_texts, wordlist_texts, **kwargs):
-        captured["query_texts"] = query_texts
-        captured["wordlist_texts"] = wordlist_texts
-        captured["kwargs"] = kwargs
-        return [["タロー", "タロ"]]
-
-    monkeypatch.setattr(llm_ranking, "_rerank_by_llm_impl", fake_rerank_by_llm)
+    monkeypatch.setattr(
+        reasoning_llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
 
     query_texts = ["タロウ"]
     wordlists = [["タロー", "タロ", "ハナコ", "サブロウ"]]
 
-    ranked_wordlists = rank_by_llm(
+    ranked_wordlists = reasoning_llm_ranking.rank_by_llm(
         query_texts,
         wordlists,
         topn=2,
-        rerank_input_size=3,
-        base_rank_func=fake_base_rank_func,
-        vowel_ratio=0.7,
         model_name="gpt-5.4",
         prompt_template="detailed",
         rerank_interval=0,
     )
 
-    assert ranked_wordlists == [["タロー", "タロ"]]
-    assert captured["base_query_texts"] == ["タロウ"]
-    assert captured["base_wordlists"] == [["タロー", "タロ", "ハナコ", "サブロウ"]]
-    assert captured["base_kwargs"]["vowel_ratio"] == 0.7
-    assert captured["query_texts"] == ["タロウ"]
-    assert captured["wordlist_texts"] == [["ハナコ", "タロー", "タロ"]]
-    assert captured["kwargs"]["topn"] == 2
-    assert captured["kwargs"]["model_name"] == "gpt-5.4"
-    assert captured["kwargs"]["prompt_template"] == "detailed"
+    assert ranked_wordlists == [["タロ", "タロー"]]
+    assert "Query: タロウ" in captured_messages[0][1]["content"]
+    assert "0. タロー" in captured_messages[0][1]["content"]
+    assert "1. タロ" in captured_messages[0][1]["content"]
+    assert "Top N: 2" in captured_messages[0][1]["content"]
+
+
+def test_llm_ranking_build_system_prompt_only_supports_default():
+    import pytest
+
+    prompt = llm_ranking.build_system_prompt("default")
+
+    assert "You are a phonetic search assistant." in prompt
+    with pytest.raises(ValueError, match="Unknown prompt_template: detailed"):
+        llm_ranking.build_system_prompt("detailed")

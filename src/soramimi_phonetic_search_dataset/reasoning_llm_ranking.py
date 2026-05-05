@@ -12,17 +12,6 @@ import pyopenjtalk
 from tqdm import tqdm
 
 PROMPT_INSTRUCTIONS = {
-    "default": """
-    You are a phonetic search assistant.
-    You are given a query and a list of words.
-    You need to rerank the words based on phonetic similarity to the query.
-    When estimating phonetic similarity, please consider the following:
-    1. Prioritize matching vowels
-    2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
-    3. For other cases, words with similar mora counts are preferred
-    You need to return only the reranked list of index numbers of the words, no other text.
-    You need to return only topn index numbers.
-    """,
     "simple": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
     クエリと発音が似ている順に、単語一覧を並び替えてください。
@@ -144,7 +133,7 @@ def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
     raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
-def build_system_prompt(prompt_template: str = "default") -> str:
+def build_system_prompt(prompt_template: str = "simple") -> str:
     try:
         prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
     except KeyError as exc:
@@ -826,14 +815,14 @@ def get_structured_outputs(
     return parsed_responses
 
 
-def rerank_by_llm(
+def rank_by_llm(
     query_texts: list[str],
     wordlist_texts: list[list[str]],
     *,
     topn: int = 10,
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
-    prompt_template: str = "default",
+    prompt_template: str = "simple",
     include_thoughts: bool = False,
     input_transform: str = "none",
     batch_size: int = 10,

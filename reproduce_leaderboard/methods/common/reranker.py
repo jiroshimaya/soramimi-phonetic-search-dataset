@@ -9,8 +9,24 @@ from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
 import pyopenjtalk
-from soramimi_phonetic_search_dataset.reranker import rerank_by_llm as _core_rerank_by_llm
+from soramimi_phonetic_search_dataset import llm_ranking as _core_llm
+from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
+
+_core_rank_by_llm = _core_reasoning.rank_by_llm
+PROMPT_INSTRUCTIONS = {
+    **_core_llm.PROMPT_INSTRUCTIONS,
+    **_core_reasoning.PROMPT_INSTRUCTIONS,
+}
+PROMPT_EXAMPLE_SUFFIX = _core_reasoning.PROMPT_EXAMPLE_SUFFIX
+OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
+OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR
+OPENAI_MODEL_PREFIXES = _core_reasoning.OPENAI_MODEL_PREFIXES
+TokenUsage = _core_reasoning.TokenUsage
+TokenCost = _core_reasoning.TokenCost
+OpenAIBatchRerankResult = _core_reasoning.OpenAIBatchRerankResult
+RerankedWordlist = _core_reasoning.RerankedWordlist
+ThoughtfulRerankedWordlist = _core_reasoning.ThoughtfulRerankedWordlist
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
@@ -708,7 +724,7 @@ def get_structured_outputs(
     return parsed_responses
 
 
-def rerank_by_llm(
+def rank_by_llm(
     query_texts: list[str],
     wordlist_texts: list[list[str]],
     *,
@@ -722,7 +738,7 @@ def rerank_by_llm(
     temperature: float = 0.0,
     rerank_interval: int = 60,
 ) -> list[list[str]]:
-    return _core_rerank_by_llm(
+    return _core_rank_by_llm(
         query_texts,
         wordlist_texts,
         topn=topn,
