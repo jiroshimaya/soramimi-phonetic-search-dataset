@@ -100,7 +100,11 @@ def test_rank_by_llm_reranks_candidates(monkeypatch):
 
     def fake_get_structured_outputs(**kwargs):
         captured_messages.extend(kwargs["messages"])
-        return [{"reranked": [1, 0]}]
+        return reasoning_llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [1, 0]}],
+            structured_outputs=[{"reranked": [1, 0]}],
+            token_usage=reasoning_llm_ranking.TokenUsage(),
+        )
 
     monkeypatch.setattr(
         reasoning_llm_ranking, "get_structured_outputs", fake_get_structured_outputs
@@ -118,7 +122,7 @@ def test_rank_by_llm_reranks_candidates(monkeypatch):
         rerank_interval=0,
     )
 
-    assert ranked_wordlists == [["タロ", "タロー"]]
+    assert ranked_wordlists.ranked_wordlists == [["タロ", "タロー"]]
     assert "Query: タロウ" in captured_messages[0][1]["content"]
     assert "0. タロー" in captured_messages[0][1]["content"]
     assert "1. タロ" in captured_messages[0][1]["content"]

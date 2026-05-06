@@ -10,6 +10,8 @@ from openai import OpenAI
 from pydantic import BaseModel
 from tqdm import tqdm
 
+from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
+
 PROMPT_INSTRUCTIONS = {
     "simple": """
     クエリ（Query）と単語一覧（Wordlist）が与えられます。
@@ -96,18 +98,22 @@ class TokenCost:
 
 
 @dataclass
+class StructuredOutputsResult:
+    parsed_responses: list[BaseModel | dict[str, Any]]
+    structured_outputs: list[dict[str, Any]]
+    token_usage: TokenUsage
+
+
+@dataclass
 class OpenAIBatchRerankResult:
     reranked_wordlists: list[list[str]]
     structured_outputs: list[dict[str, Any]]
+    token_usage: TokenUsage
     batch_id: str
     batch_status: str
     execution_time: float
     output_file_path: str | None
     error_file_path: str | None
-
-
-_last_token_usage = TokenUsage()
-_last_structured_outputs: list[dict[str, Any]] = []
 
 
 class RerankedWordlist(BaseModel):
@@ -183,42 +189,6 @@ def build_rerank_messages(
     return messages
 
 
-def reset_token_usage() -> None:
-    _last_token_usage.input_tokens = 0
-    _last_token_usage.completion_tokens = 0
-    _last_token_usage.reasoning_tokens = 0
-    _last_token_usage.total_tokens = 0
-
-
-def reset_last_structured_outputs() -> None:
-    _last_structured_outputs.clear()
-
-
-def set_last_structured_outputs(outputs: list[dict[str, Any]]) -> None:
-    _last_structured_outputs.clear()
-    _last_structured_outputs.extend(dict(output) for output in outputs)
-
-
-def get_last_structured_outputs() -> list[dict[str, Any]]:
-    return [dict(output) for output in _last_structured_outputs]
-
-
-def set_last_token_usage(token_usage: TokenUsage) -> None:
-    _last_token_usage.input_tokens = token_usage.input_tokens
-    _last_token_usage.completion_tokens = token_usage.completion_tokens
-    _last_token_usage.reasoning_tokens = token_usage.reasoning_tokens
-    _last_token_usage.total_tokens = token_usage.total_tokens
-
-
-def get_last_token_usage() -> TokenUsage:
-    return TokenUsage(
-        input_tokens=_last_token_usage.input_tokens,
-        completion_tokens=_last_token_usage.completion_tokens,
-        reasoning_tokens=_last_token_usage.reasoning_tokens,
-        total_tokens=_last_token_usage.total_tokens,
-    )
-
-
 def calculate_token_cost(
     model_name: str,
     token_usage: TokenUsage,
@@ -259,7 +229,7 @@ def _normalize_reasoning_effort(reasoning_effort: str | None) -> str | None:
     return None if reasoning_effort in (None, "none") else reasoning_effort
 
 
-def accumulate_token_usage(response: Any) -> None:
+def accumulate_token_usage(response: Any, token_usage: TokenUsage) -> None:
     usage = _get_value(response, "usage")
     if usage is None:
         return
@@ -269,15 +239,15 @@ def accumulate_token_usage(response: Any) -> None:
         completion_details = _get_value(usage, "output_tokens_details")
     reasoning_tokens = _get_value(completion_details, "reasoning_tokens", 0) or 0
 
-    _last_token_usage.input_tokens += _get_value(
+    token_usage.input_tokens += _get_value(
         usage, "prompt_tokens", 0
     ) or _get_value(usage, "input_tokens", 0)
-    _last_token_usage.completion_tokens += _get_value(
+    token_usage.completion_tokens += _get_value(
         usage, "completion_tokens", 0
     ) or _get_value(usage, "output_tokens", 0)
-    _last_token_usage.reasoning_tokens += reasoning_tokens
-    _last_token_usage.total_tokens += _get_value(usage, "total_tokens", 0) or (
-        _last_token_usage.input_tokens + _last_token_usage.completion_tokens
+    token_usage.reasoning_tokens += reasoning_tokens
+    token_usage.total_tokens += _get_value(usage, "total_tokens", 0) or (
+        token_usage.input_tokens + token_usage.completion_tokens
     )
 
 
@@ -605,6 +575,15 @@ def _extract_structured_output(
     return response.model_dump() if isinstance(response, BaseModel) else dict(response)
 
 
+def _merge_token_usage(total: TokenUsage, partial: TokenUsage) -> TokenUsage:
+    return TokenUsage(
+        input_tokens=total.input_tokens + partial.input_tokens,
+        completion_tokens=total.completion_tokens + partial.completion_tokens,
+        reasoning_tokens=total.reasoning_tokens + partial.reasoning_tokens,
+        total_tokens=total.total_tokens + partial.total_tokens,
+    )
+
+
 def _get_batch_execution_time(batch: Any) -> float:
     started_at = _get_value(batch, "in_progress_at") or _get_value(batch, "created_at")
     completed_at = _get_value(batch, "completed_at")
@@ -702,8 +681,7 @@ def retrieve_openai_batch_rerank_job(
     result_rows = _read_jsonl(Path(state["result_file_path"]))
     row_by_custom_id = {row["custom_id"]: row for row in result_rows}
 
-    reset_token_usage()
-    reset_last_structured_outputs()
+    token_usage_from_responses = TokenUsage()
     reranked_wordlists = []
     structured_outputs = []
     for item in state["items"]:
@@ -723,7 +701,7 @@ def retrieve_openai_batch_rerank_job(
                 f"custom_id={item['custom_id']}: {json.dumps(row, ensure_ascii=False)}"
             )
         body = response["body"]
-        accumulate_token_usage(body)
+        accumulate_token_usage(body, token_usage_from_responses)
         parsed = _parse_response(body, response_format)
         structured_outputs.append(_extract_structured_output(parsed))
         reranked_wordlists.append(
@@ -734,18 +712,16 @@ def retrieve_openai_batch_rerank_job(
 
     token_usage = _token_usage_from_batch_usage(_get_value(batch, "usage"))
     if token_usage.total_tokens == 0:
-        token_usage = get_last_token_usage()
-    else:
-        set_last_token_usage(token_usage)
+        token_usage = token_usage_from_responses
 
     state["retrieved_at"] = datetime.now().isoformat()
     state["usage"] = asdict(token_usage)
     _write_json(state_file_path, state)
-    set_last_structured_outputs(structured_outputs)
 
     return OpenAIBatchRerankResult(
         reranked_wordlists=reranked_wordlists,
         structured_outputs=structured_outputs,
+        token_usage=token_usage,
         batch_id=state["batch_id"],
         batch_status=batch_status,
         execution_time=_get_batch_execution_time(batch),
@@ -761,9 +737,8 @@ def get_structured_outputs(
     temperature: float = 0.0,
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
-) -> list[BaseModel]:
-    reset_token_usage()
-    reset_last_structured_outputs()
+) -> StructuredOutputsResult:
+    token_usage = TokenUsage()
     completion_kwargs = _build_litellm_completion_kwargs(
         model_name=model_name,
         temperature=temperature,
@@ -781,7 +756,7 @@ def get_structured_outputs(
     parsed_responses = []
     for message, response in zip(messages, raw_responses):
         try:
-            accumulate_token_usage(response)
+            accumulate_token_usage(response, token_usage)
             parsed_responses.append(_parse_response(response, response_format))
         except (TypeError, ValueError):
             fallback_kwargs = _build_litellm_completion_kwargs(
@@ -797,12 +772,16 @@ def get_structured_outputs(
                 response_format=response_format,
                 **fallback_kwargs,
             )
-            accumulate_token_usage(fallback_response)
+            accumulate_token_usage(fallback_response, token_usage)
             parsed_responses.append(_parse_response(fallback_response, response_format))
-    set_last_structured_outputs(
-        [_extract_structured_output(response) for response in parsed_responses]
+    structured_outputs = [
+        _extract_structured_output(response) for response in parsed_responses
+    ]
+    return StructuredOutputsResult(
+        parsed_responses=parsed_responses,
+        structured_outputs=structured_outputs,
+        token_usage=token_usage,
     )
-    return parsed_responses
 
 
 def rank_by_llm(
@@ -818,7 +797,7 @@ def rank_by_llm(
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
-) -> list[list[str]]:
+) -> RankingFunctionOutput:
     messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
@@ -833,9 +812,10 @@ def rank_by_llm(
 
     reranked_wordlists = []
     structured_outputs = []
+    total_token_usage = TokenUsage()
     for i in tqdm(range(0, len(messages), batch_size)):
         batch_messages = messages[i : i + batch_size]
-        responses = get_structured_outputs(
+        batch_result = get_structured_outputs(
             model_name=model_name,
             messages=batch_messages,
             temperature=temperature,
@@ -843,13 +823,31 @@ def rank_by_llm(
             response_format=response_format,
             reasoning_effort=reasoning_effort,
         )
-        for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
-            structured_outputs.append(_extract_structured_output(response))
+        structured_outputs.extend(batch_result.structured_outputs)
+        total_token_usage = _merge_token_usage(
+            total_token_usage, batch_result.token_usage
+        )
+        for wordlist, response in zip(
+            wordlist_texts[i : i + batch_size], batch_result.parsed_responses
+        ):
             reranked_wordlists.append(
                 _build_reranked_wordlist(wordlist, _extract_reranked_indices(response))
             )
 
         time.sleep(rerank_interval)
 
-    set_last_structured_outputs(structured_outputs)
-    return reranked_wordlists
+    token_cost = calculate_token_cost(model_name, total_token_usage)
+    return RankingFunctionOutput(
+        ranked_wordlists=reranked_wordlists,
+        result_metadata=structured_outputs,
+        metrics_metadata={
+            "model_name": model_name,
+            "token_usage": {
+                "input_tokens": total_token_usage.input_tokens,
+                "output_tokens": total_token_usage.output_tokens,
+                "reasoning_tokens": total_token_usage.reasoning_tokens,
+                "total_tokens": total_token_usage.total_tokens,
+            },
+            "cost": asdict(token_cost),
+        },
+    )

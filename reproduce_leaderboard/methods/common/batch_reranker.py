@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from reranker import (
     OPENAI_BATCH_DISCOUNT_FACTOR,
     calculate_token_cost,
-    get_last_token_usage,
     get_rerank_response_format,
     retrieve_openai_batch_rerank_job,
     submit_openai_batch_rerank_job,
@@ -205,7 +204,7 @@ def retrieve_openai_batch_evaluation_results(
         }
     )
 
-    token_usage = get_last_token_usage()
+    token_usage = retrieved.token_usage
     token_cost = calculate_token_cost(
         model_name,
         token_usage,
