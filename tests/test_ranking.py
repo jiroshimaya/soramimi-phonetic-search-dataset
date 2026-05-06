@@ -182,6 +182,32 @@ def test_rank_by_llm_returns_ranking_function_output_with_metrics_metadata(
     }
 
 
+def test_rank_by_llm_accepts_user_prompt_template(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0, 1]}],
+            structured_outputs=[{"reranked": [0, 1]}],
+            token_usage=llm_ranking.TokenUsage(),
+        )
+
+    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+
+    rank_by_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー", "タロ"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        user_prompt_template="QUESTION={query}\nWORDS:\n{wordlist}\nLIMIT={topn}\nANSWER:",
+    )
+
+    assert captured_messages[0][1]["content"] == (
+        "QUESTION=タロウ\nWORDS:\n0. タロー\n1. タロ\nLIMIT=10\nANSWER:"
+    )
+
+
 def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
     token_usages = iter(
         [
