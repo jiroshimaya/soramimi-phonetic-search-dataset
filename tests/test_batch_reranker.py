@@ -65,17 +65,13 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
         lambda **_: SimpleNamespace(
             reranked_wordlists=[["カケイ", "アベ"]],
             structured_outputs=[{"thoughts": ["母音列が一致"], "reranked": [0, 1]}],
+            token_usage=reranker.TokenUsage(
+                input_tokens=11,
+                completion_tokens=22,
+                reasoning_tokens=9,
+                total_tokens=33,
+            ),
             execution_time=12.5,
-        ),
-    )
-    monkeypatch.setattr(
-        batch_reranker,
-        "get_last_token_usage",
-        lambda: reranker.TokenUsage(
-            input_tokens=11,
-            completion_tokens=22,
-            reasoning_tokens=9,
-            total_tokens=33,
         ),
     )
     monkeypatch.setattr(
