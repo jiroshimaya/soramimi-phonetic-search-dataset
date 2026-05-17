@@ -93,14 +93,18 @@ def test_rank_by_kanasim():
     assert ranked_wordlists[0][-1] == "ハナコ"
 
 
-def test_rank_by_llm_reranks_candidates(monkeypatch):
+def test_rank_by_reasoning_llm_reranks_candidates(monkeypatch):
     """LLM ランキングは候補 wordlist をそのまま再ランキングする"""
 
     captured_messages = []
 
     def fake_get_structured_outputs(**kwargs):
         captured_messages.extend(kwargs["messages"])
-        return [{"reranked": [1, 0]}]
+        return reasoning_llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [1, 0]}],
+            structured_outputs=[{"reranked": [1, 0]}],
+            token_usage=reasoning_llm_ranking.TokenUsage(),
+        )
 
     monkeypatch.setattr(
         reasoning_llm_ranking, "get_structured_outputs", fake_get_structured_outputs
@@ -109,20 +113,80 @@ def test_rank_by_llm_reranks_candidates(monkeypatch):
     query_texts = ["タロウ"]
     wordlists = [["タロー", "タロ", "ハナコ", "サブロウ"]]
 
-    ranked_wordlists = reasoning_llm_ranking.rank_by_llm(
+    ranked_wordlists = reasoning_llm_ranking.rank_by_reasoning_llm(
         query_texts,
         wordlists,
         topn=2,
         model_name="gpt-5.4",
-        prompt_template="detailed",
         rerank_interval=0,
     )
 
-    assert ranked_wordlists == [["タロ", "タロー"]]
+    assert ranked_wordlists.ranked_wordlists == [["タロ", "タロー"]]
     assert "Query: タロウ" in captured_messages[0][1]["content"]
     assert "0. タロー" in captured_messages[0][1]["content"]
     assert "1. タロ" in captured_messages[0][1]["content"]
     assert "Top N: 2" in captured_messages[0][1]["content"]
+
+
+def test_rank_by_reasoning_llm_accepts_user_prompt_template(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return reasoning_llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0, 1]}],
+            structured_outputs=[{"reranked": [0, 1]}],
+            token_usage=reasoning_llm_ranking.TokenUsage(),
+        )
+
+    monkeypatch.setattr(
+        reasoning_llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
+
+    reasoning_llm_ranking.rank_by_reasoning_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー", "タロ"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        user_prompt_template="QUESTION={query}\nWORDS:\n{wordlist}\nLIMIT={topn}\nANSWER:",
+    )
+
+    assert captured_messages[0][1]["content"] == (
+        "QUESTION=タロウ\nWORDS:\n0. タロー\n1. タロ\nLIMIT=10\nANSWER:"
+    )
+
+
+def test_rank_by_reasoning_llm_accepts_prompt_overrides(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return reasoning_llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0]}],
+            structured_outputs=[{"reranked": [0]}],
+            token_usage=reasoning_llm_ranking.TokenUsage(),
+        )
+
+    monkeypatch.setattr(
+        reasoning_llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
+    monkeypatch.setattr(
+        reasoning_llm_ranking,
+        "calculate_token_cost",
+        lambda model_name, token_usage: reasoning_llm_ranking.TokenCost(),
+    )
+
+    reranked = reasoning_llm_ranking.rank_by_reasoning_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+    )
+
+    assert reranked.ranked_wordlists == [["タロー"]]
+    assert captured_messages[0][0]["content"] == "Custom instructions\n\nCustom example"
 
 
 def test_rank_by_llm_returns_ranking_function_output_with_metrics_metadata(
@@ -176,6 +240,32 @@ def test_rank_by_llm_returns_ranking_function_output_with_metrics_metadata(
             "total_cost": 0.3,
         },
     }
+
+
+def test_rank_by_llm_accepts_user_prompt_template(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0, 1]}],
+            structured_outputs=[{"reranked": [0, 1]}],
+            token_usage=llm_ranking.TokenUsage(),
+        )
+
+    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+
+    rank_by_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー", "タロ"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        user_prompt_template="QUESTION={query}\nWORDS:\n{wordlist}\nLIMIT={topn}\nANSWER:",
+    )
+
+    assert captured_messages[0][1]["content"] == (
+        "QUESTION=タロウ\nWORDS:\n0. タロー\n1. タロ\nLIMIT=10\nANSWER:"
+    )
 
 
 def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
@@ -239,3 +329,34 @@ def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
             "total_cost": 45.0,
         },
     }
+
+
+def test_rank_by_llm_accepts_prompt_overrides(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return llm_ranking.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0]}],
+            structured_outputs=[{"reranked": [0]}],
+            token_usage=llm_ranking.TokenUsage(),
+        )
+
+    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking,
+        "calculate_token_cost",
+        lambda model_name, token_usage: llm_ranking.TokenCost(),
+    )
+
+    reranked = rank_by_llm(
+        query_texts=["タロウ"],
+        wordlist_texts=[["タロー"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+    )
+
+    assert reranked.ranked_wordlists == [["タロー"]]
+    assert captured_messages[0][0]["content"] == "Custom instructions\n\nCustom example"

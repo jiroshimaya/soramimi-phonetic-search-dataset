@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from reranker import (
     OPENAI_BATCH_DISCOUNT_FACTOR,
     calculate_token_cost,
-    get_last_token_usage,
     get_rerank_response_format,
     retrieve_openai_batch_rerank_job,
     submit_openai_batch_rerank_job,
@@ -123,7 +122,10 @@ def submit_openai_batch_evaluation(
     rerank_input_size: int,
     topn: int,
     model_name: str,
-    prompt_template: str,
+    prompt_template: str = "default",
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     response_format: type[BaseModel] | None = None,
     input_transform: str = "none",
     state_path: str,
@@ -145,6 +147,9 @@ def submit_openai_batch_evaluation(
         topn=topn,
         model_name=model_name,
         prompt_template=prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
         input_transform=input_transform,
         response_format=response_format,
         state_path=state_path,
@@ -166,6 +171,9 @@ def retrieve_openai_batch_evaluation_results(
     model_name: str,
     reasoning_effort: str | None,
     prompt_template: str,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     rerank_include_thoughts: bool = False,
     input_transform: str = "none",
     backend: str,
@@ -197,6 +205,9 @@ def retrieve_openai_batch_evaluation_results(
             "rerank_model_name": model_name,
             "rerank_reasoning_effort": reasoning_effort,
             "rerank_prompt_template": prompt_template,
+            "rerank_prompt_instructions": prompt_instructions,
+            "rerank_prompt_example_suffix": prompt_example_suffix,
+            "rerank_user_prompt_template": user_prompt_template,
             "rerank_include_thoughts": rerank_include_thoughts,
             "rerank_input_transform": input_transform,
             "rerank_input_size": rerank_input_size,
@@ -205,7 +216,7 @@ def retrieve_openai_batch_evaluation_results(
         }
     )
 
-    token_usage = get_last_token_usage()
+    token_usage = retrieved.token_usage
     token_cost = calculate_token_cost(
         model_name,
         token_usage,

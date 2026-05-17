@@ -33,6 +33,13 @@ Wordlist:
 Top N: 5
 Reranked: 6, 4, 5, 7, 2
 """
+USER_PROMPT_TEMPLATE = """
+Query: {query}
+Wordlist:
+{wordlist}
+Top N: {topn}
+Reranked:
+"""
 
 
 @dataclass
@@ -181,8 +188,11 @@ def _extract_structured_output(
     return response.model_dump() if isinstance(response, BaseModel) else dict(response)
 
 
-def build_system_prompt() -> str:
-    return f"{PROMPT_INSTRUCTIONS.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
+def build_system_prompt(
+    prompt_instructions: str = PROMPT_INSTRUCTIONS,
+    prompt_example_suffix: str = PROMPT_EXAMPLE_SUFFIX,
+) -> str:
+    return f"{prompt_instructions.strip()}\n\n{prompt_example_suffix.strip()}"
 
 
 def build_rerank_messages(
@@ -190,15 +200,15 @@ def build_rerank_messages(
     wordlist_texts: list[list[str]],
     *,
     topn: int,
+    prompt_instructions: str = PROMPT_INSTRUCTIONS,
+    prompt_example_suffix: str = PROMPT_EXAMPLE_SUFFIX,
+    user_prompt_template: str = USER_PROMPT_TEMPLATE,
 ) -> list[list[dict[str, str]]]:
-    prompt = build_system_prompt()
-    user_prompt = """
-    Query: {query}
-    Wordlist:
-    {wordlist}
-    Top N: {topn}
-    Reranked:
-    """
+    prompt = build_system_prompt(
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+    )
+    user_prompt = user_prompt_template
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
@@ -277,11 +287,17 @@ def rank_by_llm(
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
+    prompt_instructions: str = PROMPT_INSTRUCTIONS,
+    prompt_example_suffix: str = PROMPT_EXAMPLE_SUFFIX,
+    user_prompt_template: str = USER_PROMPT_TEMPLATE,
 ) -> RankingFunctionOutput:
     messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
         topn=topn,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
     )
 
     reranked_wordlists = []

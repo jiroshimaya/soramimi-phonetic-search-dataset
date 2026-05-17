@@ -55,6 +55,45 @@ def test_submit_openai_batch_evaluation_prepares_candidates(monkeypatch):
     assert captured["wordlist_texts"] == [["オウ", "カケイ"]]
 
 
+def test_submit_openai_batch_evaluation_passes_explicit_prompt_inputs(monkeypatch):
+    captured = {}
+
+    def fake_submit_openai_batch_rerank_job(**kwargs):
+        captured.update(kwargs)
+        return {"batch_id": "batch-456"}
+
+    monkeypatch.setattr(
+        batch_reranker,
+        "submit_openai_batch_rerank_job",
+        fake_submit_openai_batch_rerank_job,
+    )
+
+    state = batch_reranker.submit_openai_batch_evaluation(
+        base_rank_func=lambda query_texts, word_texts, **_: [
+            ["オウ", "アベ", "カケイ"]
+        ],
+        query_texts=["アケ"],
+        word_texts=["オウ", "アベ", "カケイ"],
+        positive_texts=[["カケイ"]],
+        rank_kwargs={},
+        rerank_input_size=2,
+        topn=10,
+        model_name="gpt-5.4",
+        prompt_template="default",
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+        user_prompt_template="Q: {query}\nW:\n{wordlist}\nN: {topn}\nA:",
+        state_path="state.json",
+        output_file_path="output.json",
+        reasoning_effort="medium",
+    )
+
+    assert state == {"batch_id": "batch-456"}
+    assert captured["prompt_instructions"] == "Custom instructions"
+    assert captured["prompt_example_suffix"] == "Custom example"
+    assert captured["user_prompt_template"] == "Q: {query}\nW:\n{wordlist}\nN: {topn}\nA:"
+
+
 def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkeypatch):
     state_path = tmp_path / "rerank_state.json"
     state_path.write_text('{"batch_id":"batch-123"}', encoding="utf-8")
@@ -65,17 +104,13 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
         lambda **_: SimpleNamespace(
             reranked_wordlists=[["カケイ", "アベ"]],
             structured_outputs=[{"thoughts": ["母音列が一致"], "reranked": [0, 1]}],
+            token_usage=reranker.TokenUsage(
+                input_tokens=11,
+                completion_tokens=22,
+                reasoning_tokens=9,
+                total_tokens=33,
+            ),
             execution_time=12.5,
-        ),
-    )
-    monkeypatch.setattr(
-        batch_reranker,
-        "get_last_token_usage",
-        lambda: reranker.TokenUsage(
-            input_tokens=11,
-            completion_tokens=22,
-            reasoning_tokens=9,
-            total_tokens=33,
         ),
     )
     monkeypatch.setattr(
@@ -128,3 +163,27 @@ def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkey
         "thoughts": ["母音列が一致"],
         "reranked": [0, 1],
     }
+
+
+def test_common_reranker_rank_by_llm_accepts_explicit_prompt_inputs(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return [{"reranked": [1, 0]}]
+
+    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
+
+    reranked = reranker.rank_by_llm(
+        query_texts=["アケ"],
+        wordlist_texts=[["アベ", "カケイ"]],
+        model_name="gpt-5.4",
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+        user_prompt_template="Q: {query}\nW:\n{wordlist}\nN: {topn}\nA:",
+        rerank_interval=0,
+    )
+
+    assert captured_messages[0][0]["content"] == "Custom instructions\n\nCustom example"
+    assert captured_messages[0][1]["content"] == "Q: アケ\nW:\n0. アベ\n1. カケイ\nN: 10\nA:"
+    assert reranked == [["カケイ", "アベ"]]
