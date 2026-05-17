@@ -48,17 +48,16 @@ def test_get_structured_outputs_passes_reasoning_effort_for_gpt5(monkeypatch):
     assert captured_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert "max_tokens" not in captured_kwargs
     assert "temperature" not in captured_kwargs
-    assert results == [SampleResponse(reranked=[0])]
-    assert reranker.get_last_token_usage() == reranker.TokenUsage(
+    assert results.parsed_responses == [SampleResponse(reranked=[0])]
+    assert results.structured_outputs == [{"reranked": [0]}]
+    assert results.token_usage == reranker.TokenUsage(
         input_tokens=10,
         completion_tokens=20,
         reasoning_tokens=7,
         total_tokens=30,
     )
     assert (
-        reranker.calculate_token_cost(
-            "gpt-5.4", reranker.get_last_token_usage()
-        ).total_cost
+        reranker.calculate_token_cost("gpt-5.4", results.token_usage).total_cost
         > 0
     )
 
@@ -82,7 +81,7 @@ def test_get_structured_outputs_omits_reasoning_effort_when_unspecified(monkeypa
     assert captured_kwargs["max_tokens"] == 1000
     assert captured_kwargs["temperature"] == 0.0
     assert "extra_body" not in captured_kwargs
-    assert results == [SampleResponse(reranked=[1])]
+    assert results.parsed_responses == [SampleResponse(reranked=[1])]
 
 
 def test_get_structured_outputs_omits_reasoning_effort_when_none(monkeypatch):
@@ -103,7 +102,7 @@ def test_get_structured_outputs_omits_reasoning_effort_when_none(monkeypatch):
 
     assert captured_kwargs["max_completion_tokens"] == 1000
     assert "extra_body" not in captured_kwargs
-    assert results == [SampleResponse(reranked=[1])]
+    assert results.parsed_responses == [SampleResponse(reranked=[1])]
 
 
 def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
@@ -139,8 +138,8 @@ def test_get_structured_outputs_falls_back_to_single_completion(monkeypatch):
     assert completion_kwargs["extra_body"] == {"reasoning_effort": "medium"}
     assert batch_kwargs["max_completion_tokens"] == 24000
     assert completion_kwargs["max_completion_tokens"] == 32000
-    assert results == [SampleResponse(reranked=[2])]
-    assert reranker.get_last_token_usage() == reranker.TokenUsage(
+    assert results.parsed_responses == [SampleResponse(reranked=[2])]
+    assert results.token_usage == reranker.TokenUsage(
         input_tokens=11,
         completion_tokens=22,
         reasoning_tokens=9,
@@ -169,18 +168,20 @@ def test_token_usage_exposes_output_tokens():
 
 
 def test_build_system_prompt_reuses_example_suffix():
-    prompt = reranker.build_system_prompt("detailed")
+    prompt = reranker.build_system_prompt()
 
-    assert "子音より母音の一致を優先してください" in prompt
+    assert "クエリと発音が似ている順に、単語一覧を並び替えてください。" in prompt
     assert "Example:" in prompt
     assert "Reranked: 6, 4, 5, 7, 2" in prompt
 
 
-def test_build_system_prompt_for_nonreasoning_cot_mentions_thoughts():
-    prompt = reranker.build_system_prompt("nonreasoning_cot")
+def test_build_system_prompt_accepts_overrides():
+    prompt = reranker.build_system_prompt(
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+    )
 
-    assert "thoughts フィールド" in prompt
-    assert "reranked フィールド" in prompt
+    assert prompt == "Custom instructions\n\nCustom example"
 
 
 def test_transform_text_for_rerank_rejects_non_default_transform():
@@ -190,25 +191,29 @@ def test_transform_text_for_rerank_rejects_non_default_transform():
         )
 
 
-def test_rank_by_llm_uses_selected_prompt_template(monkeypatch):
+def test_rank_by_reasoning_llm_accepts_prompt_instructions(monkeypatch):
     captured_messages = []
 
     def fake_get_structured_outputs(**kwargs):
         captured_messages.extend(kwargs["messages"])
-        return [{"reranked": [1, 0]}]
+        return reranker.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [1, 0]}],
+            structured_outputs=[{"reranked": [1, 0]}],
+            token_usage=reranker.TokenUsage(),
+        )
 
     monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
 
-    reranked = reranker.rank_by_llm(
+    reranked = reranker.rank_by_reasoning_llm(
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="step_by_step",
         rerank_interval=0,
+        prompt_instructions="以下の手順で判断してください。",
     )
 
     assert "以下の手順で判断してください。" in captured_messages[0][0]["content"]
-    assert reranked == [["カケイ", "アベ"]]
+    assert reranked.ranked_wordlists == [["カケイ", "アベ"]]
 
 
 def test_get_rerank_response_format_uses_thoughtful_schema_when_requested():
@@ -217,28 +222,31 @@ def test_get_rerank_response_format_uses_thoughtful_schema_when_requested():
     assert response_format is reranker.ThoughtfulRerankedWordlist
 
 
-def test_rank_by_llm_accepts_thoughtful_structured_output(monkeypatch):
+def test_rank_by_reasoning_llm_accepts_thoughtful_structured_output(monkeypatch):
     captured_response_format = None
 
     def fake_get_structured_outputs(**kwargs):
         nonlocal captured_response_format
         captured_response_format = kwargs["response_format"]
-        return [{"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}]
+        return reranker.StructuredOutputsResult(
+            parsed_responses=[{"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}],
+            structured_outputs=[{"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}],
+            token_usage=reranker.TokenUsage(),
+        )
 
     monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
 
-    reranked = reranker.rank_by_llm(
+    reranked = reranker.rank_by_reasoning_llm(
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="nonreasoning_cot",
         include_thoughts=True,
         rerank_interval=0,
     )
 
     assert captured_response_format is reranker.ThoughtfulRerankedWordlist
-    assert reranked == [["カケイ", "アベ"]]
-    assert reranker.get_last_structured_outputs() == [
+    assert reranked.ranked_wordlists == [["カケイ", "アベ"]]
+    assert reranked.result_metadata == [
         {"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}
     ]
 
@@ -448,6 +456,12 @@ def test_retrieve_openai_batch_rerank_job_restores_results_and_token_usage(tmp_p
 
     assert result.reranked_wordlists == [["カケイ", "アベ"]]
     assert result.structured_outputs == [{"reranked": [1, 0]}]
+    assert result.token_usage == reranker.TokenUsage(
+        input_tokens=11,
+        completion_tokens=22,
+        reasoning_tokens=9,
+        total_tokens=33,
+    )
     assert result.batch_status == "completed"
     assert result.execution_time == 60.0
 
@@ -533,30 +547,27 @@ def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
             response_format=SampleResponse,
             client=fake_client,
         )
-    assert reranker.get_last_token_usage() == reranker.TokenUsage(
-        input_tokens=11,
-        completion_tokens=22,
-        reasoning_tokens=9,
-        total_tokens=33,
-    )
 
 
-def test_rank_by_llm_rejects_non_default_input_transform():
+def test_rank_by_reasoning_llm_rejects_non_default_input_transform():
     with pytest.raises(ValueError, match="Unknown input_transform"):
-        reranker.rank_by_llm(
+        reranker.rank_by_reasoning_llm(
             query_texts=["アケ"],
             wordlist_texts=[["アベ", "カケイ"]],
             model_name="gpt-5.4",
-            prompt_template="detailed",
             input_transform="pyopenjtalk_romaji",
             rerank_interval=0,
         )
 
 
-def test_build_system_prompt_supports_romaji_explicit_template():
-    prompt = reranker.build_system_prompt("detailed_romaji_explicit")
+def test_build_system_prompt_supports_custom_romaji_instructions():
+    prompt = reranker.build_system_prompt(
+        prompt_instructions=(
+            "Query と Wordlist は、元のカタカナ表記をローマ字変換したものです"
+        )
+    )
 
     assert "元のカタカナ表記をローマ字変換したものです" in prompt
-    assert "子音より母音の一致を優先してください" in prompt
+    assert "Example:" in prompt
 
 
