@@ -9,15 +9,16 @@ from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
 import pyopenjtalk
-from soramimi_phonetic_search_dataset import llm_ranking as _core_llm
 from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
 
-PROMPT_INSTRUCTIONS = {
-    "default": _core_llm.PROMPT_INSTRUCTIONS,
-    **_core_reasoning.PROMPT_INSTRUCTIONS,
-}
-PROMPT_EXAMPLE_SUFFIX = _core_reasoning.PROMPT_EXAMPLE_SUFFIX
+from rerank_prompts import (
+    DEFAULT_PROMPT_EXAMPLE_SUFFIX,
+    DEFAULT_USER_PROMPT_TEMPLATE,
+    RerankPromptConfig,
+    get_prompt_config,
+)
+
 OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
 OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR
 OPENAI_MODEL_PREFIXES = _core_reasoning.OPENAI_MODEL_PREFIXES
@@ -41,16 +42,43 @@ def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
     raise ValueError(f"Unknown input_transform: {input_transform}")
 
 
-def build_system_prompt(prompt_template: str = "default") -> str:
-    try:
-        prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
-    except KeyError as exc:
-        raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
-    return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
+def _resolve_prompt_config(
+    prompt_template: str = "default",
+    *,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
+) -> RerankPromptConfig:
+    prompt_config = get_prompt_config(prompt_template)
+    return RerankPromptConfig(
+        prompt_instructions=prompt_instructions or prompt_config.prompt_instructions,
+        prompt_example_suffix=(
+            prompt_example_suffix or prompt_config.prompt_example_suffix
+        ),
+        user_prompt_template=user_prompt_template or prompt_config.user_prompt_template,
+        requires_thoughts=prompt_config.requires_thoughts,
+    )
+
+
+def build_system_prompt(
+    prompt_template: str = "default",
+    *,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+) -> str:
+    prompt_config = _resolve_prompt_config(
+        prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+    )
+    return (
+        f"{prompt_config.prompt_instructions.strip()}\n\n"
+        f"{prompt_config.prompt_example_suffix.strip()}"
+    )
 
 
 def prompt_template_requires_thoughts(prompt_template: str) -> bool:
-    return prompt_template == "nonreasoning_cot"
+    return get_prompt_config(prompt_template).requires_thoughts
 
 
 def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
@@ -64,17 +92,24 @@ def build_rerank_messages(
     wordlist_texts: list[list[str]],
     *,
     topn: int,
-    prompt_template: str,
+    prompt_template: str = "default",
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
-    prompt = build_system_prompt(prompt_template)
-    user_prompt = """
-    Query: {query}
-    Wordlist:
-    {wordlist}
-    Top N: {topn}
-    Reranked:
-    """
+    prompt_config = _resolve_prompt_config(
+        prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
+    )
+    prompt = build_system_prompt(
+        prompt_template,
+        prompt_instructions=prompt_config.prompt_instructions,
+        prompt_example_suffix=prompt_config.prompt_example_suffix,
+    )
+    user_prompt = prompt_config.user_prompt_template or DEFAULT_USER_PROMPT_TEMPLATE
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
@@ -419,7 +454,10 @@ def submit_openai_batch_rerank_job(
     positive_texts: list[list[str]],
     topn: int,
     model_name: str,
-    prompt_template: str,
+    prompt_template: str = "default",
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     input_transform: str = "none",
     response_format: Type[BaseModel],
     state_path: str,
@@ -447,6 +485,9 @@ def submit_openai_batch_rerank_job(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
     custom_ids = [str(item["custom_id"]) for item in request_items]
@@ -487,6 +528,15 @@ def submit_openai_batch_rerank_job(
             "rerank_model_name": model_name,
             "rerank_reasoning_effort": reasoning_effort,
             "rerank_prompt_template": prompt_template,
+            "rerank_prompt_instructions": (
+                prompt_instructions.strip() if prompt_instructions else None
+            ),
+            "rerank_prompt_example_suffix": (
+                prompt_example_suffix.strip() if prompt_example_suffix else None
+            ),
+            "rerank_user_prompt_template": (
+                user_prompt_template.strip() if user_prompt_template else None
+            ),
             "rerank_input_transform": input_transform,
         },
         "items": request_items,
@@ -731,6 +781,9 @@ def rank_by_llm(
     model_name: str = "gpt-4o-mini",
     reasoning_effort: str | None = None,
     prompt_template: str = "default",
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     include_thoughts: bool = False,
     input_transform: str = "none",
     batch_size: int = 10,
@@ -742,6 +795,9 @@ def rank_by_llm(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
     response_format = get_rerank_response_format(

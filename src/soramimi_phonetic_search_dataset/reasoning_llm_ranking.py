@@ -12,49 +12,11 @@ from tqdm import tqdm
 
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
 
-PROMPT_INSTRUCTIONS = {
-    "simple": """
-    クエリ（Query）と単語一覧（Wordlist）が与えられます。
-    クエリと発音が似ている順に、単語一覧を並び替えてください。
-    出力は上位Top N件のインデックスのみ返してください。
-    """,
-    "detailed": """
-    クエリ（Query）と単語一覧（Wordlist）が与えられます。
-    クエリと発音が似ている順に、単語一覧を並び替えてください。
-    - 子音より母音の一致を優先してください
-    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
-    出力は上位Top N件のインデックスのみ返してください。
-    """,
-    "step_by_step": """
-    クエリ（Query）と単語一覧（Wordlist）が与えられます。
-    クエリと発音が似ている順に、単語一覧を並び替えてください。
-    以下の手順で判断してください。
-    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
-    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
-    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
-    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
-    出力は上位Top N件のインデックスのみ返してください。
-    """,
-    "detailed_romaji_explicit": """
-    クエリ（Query）と単語一覧（Wordlist）が与えられます。
-    クエリと発音が似ている順に、単語一覧を並び替えてください。
-    - Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
-    - 子音より母音の一致を優先してください
-    - クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
-    出力は上位Top N件のインデックスのみ返してください。
-    """,
-    "nonreasoning_cot": """
-    クエリ（Query）と単語一覧（Wordlist）が与えられます。
-    クエリと発音が似ている順に、単語一覧を並び替えてください。
-    以下の手順で判断してください。
-    - 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
-    - 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
-    - 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
-    - 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
-    構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
-    構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
-    """,
-}
+PROMPT_INSTRUCTIONS = """
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+出力は上位Top N件のインデックスのみ返してください。
+"""
 
 PROMPT_EXAMPLE_SUFFIX = """
 Example:
@@ -70,6 +32,13 @@ Wordlist:
 7. タンノ
 Top N: 5
 Reranked: 6, 4, 5, 7, 2
+"""
+USER_PROMPT_TEMPLATE = """
+Query: {query}
+Wordlist:
+{wordlist}
+Top N: {topn}
+Reranked:
 """
 
 OPENAI_BATCH_ENDPOINT = "/v1/chat/completions"
@@ -131,16 +100,15 @@ def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
     return text
 
 
-def build_system_prompt(prompt_template: str = "simple") -> str:
-    try:
-        prompt_instructions = PROMPT_INSTRUCTIONS[prompt_template]
-    except KeyError as exc:
-        raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
-    return f"{prompt_instructions.strip()}\n\n{PROMPT_EXAMPLE_SUFFIX.strip()}"
-
-
-def prompt_template_requires_thoughts(prompt_template: str) -> bool:
-    return prompt_template == "nonreasoning_cot"
+def build_system_prompt(
+    *,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+) -> str:
+    if prompt_instructions is None:
+        prompt_instructions = PROMPT_INSTRUCTIONS
+    example_suffix = prompt_example_suffix or PROMPT_EXAMPLE_SUFFIX
+    return f"{prompt_instructions.strip()}\n\n{example_suffix.strip()}"
 
 
 def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
@@ -154,17 +122,17 @@ def build_rerank_messages(
     wordlist_texts: list[list[str]],
     *,
     topn: int,
-    prompt_template: str,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
+    prompt_template: str | None = None,
     input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
-    prompt = build_system_prompt(prompt_template)
-    user_prompt = """
-    Query: {query}
-    Wordlist:
-    {wordlist}
-    Top N: {topn}
-    Reranked:
-    """
+    prompt = build_system_prompt(
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+    )
+    user_prompt = user_prompt_template or USER_PROMPT_TEMPLATE
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
@@ -784,14 +752,16 @@ def get_structured_outputs(
     )
 
 
-def rank_by_llm(
+def rank_by_reasoning_llm(
     query_texts: list[str],
     wordlist_texts: list[list[str]],
     *,
     topn: int = 10,
-    model_name: str = "gpt-4o-mini",
+    model_name: str = "gpt-5.1-mini",
     reasoning_effort: str | None = None,
-    prompt_template: str = "simple",
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
     include_thoughts: bool = False,
     input_transform: str = "none",
     batch_size: int = 10,
@@ -802,12 +772,13 @@ def rank_by_llm(
         query_texts,
         wordlist_texts,
         topn=topn,
-        prompt_template=prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
     response_format = get_rerank_response_format(
         include_thoughts=include_thoughts
-        or prompt_template_requires_thoughts(prompt_template)
     )
 
     reranked_wordlists = []

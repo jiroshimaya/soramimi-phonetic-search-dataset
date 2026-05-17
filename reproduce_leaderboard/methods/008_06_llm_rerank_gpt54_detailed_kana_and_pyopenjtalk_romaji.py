@@ -9,7 +9,7 @@ from soramimi_phonetic_search_dataset import (
     RankingFunctionOutput,
     evaluate_ranking_function,
     load_default_dataset_for_llm,
-    rank_by_llm,
+    reasoning_llm_ranking,
 )
 
 TOPN = 10
@@ -18,7 +18,6 @@ RERANK_BATCH_SIZE = 10
 RERANK_INTERVAL = 0
 MODEL_NAME = "gpt-5.4"
 VOWEL_RATIO = 0.5
-PROMPT_TEMPLATE = "detailed"
 INPUT_TRANSFORM = "kana_and_pyopenjtalk_romaji"
 PROMPT_INSTRUCTIONS = """
 クエリ（Query）と単語一覧（Wordlist）が与えられます。
@@ -69,7 +68,9 @@ def restore_original_wordlist(
     for transformed in reranked_transformed_words:
         originals = transformed_to_originals.get(transformed)
         if not originals:
-            raise ValueError(f"Unknown transformed word returned by rank_by_llm: {transformed}")
+            raise ValueError(
+                f"Unknown transformed word returned by rank_by_reasoning_llm: {transformed}"
+            )
         restored_wordlist.append(originals.pop(0))
     return restored_wordlist
 
@@ -89,11 +90,12 @@ def build_ranking_function(dataset) -> callable:
             for wordlist in wordlists
         ]
 
-        reranked = rank_by_llm(
+        reranked = reasoning_llm_ranking.rank_by_reasoning_llm(
             query_texts=transformed_query_texts,
             wordlist_texts=transformed_wordlists,
             topn=TOPN,
             model_name=MODEL_NAME,
+            reasoning_effort="none",
             batch_size=RERANK_BATCH_SIZE,
             rerank_interval=RERANK_INTERVAL,
             prompt_instructions=PROMPT_INSTRUCTIONS,
@@ -137,7 +139,7 @@ def main():
             "rerank_interval": RERANK_INTERVAL,
             "rerank_model_name": MODEL_NAME,
             "rerank_reasoning_effort": "none",
-            "rerank_prompt_template": PROMPT_TEMPLATE,
+            "rerank_prompt_template": "detailed",
             "rerank_prompt_instructions": PROMPT_INSTRUCTIONS.strip(),
             "rerank_prompt_example_suffix": build_prompt_example_suffix().strip(),
             "rerank_input_transform": INPUT_TRANSFORM,

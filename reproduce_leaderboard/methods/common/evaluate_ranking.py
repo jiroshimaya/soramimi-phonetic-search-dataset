@@ -61,6 +61,9 @@ def create_reranking_function(
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
     rerank_prompt_template: str,
+    rerank_prompt_instructions: str | None,
+    rerank_prompt_example_suffix: str | None,
+    rerank_user_prompt_template: str | None,
     rerank_include_thoughts: bool,
     rerank_input_transform: str,
     rerank_batch_size: int,
@@ -107,6 +110,9 @@ def create_reranking_function(
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
             prompt_template=rerank_prompt_template,
+            prompt_instructions=rerank_prompt_instructions,
+            prompt_example_suffix=rerank_prompt_example_suffix,
+            user_prompt_template=rerank_user_prompt_template,
             include_thoughts=rerank_include_thoughts,
             input_transform=rerank_input_transform,
             batch_size=rerank_batch_size,
@@ -187,6 +193,13 @@ def load_dataset_for_evaluation(
         query_limit,
         query_offset,
     )
+
+
+def _read_optional_text_file(path: str | None) -> str | None:
+    if path is None:
+        return None
+    with open(path, encoding="utf-8") as f:
+        return f.read()
 
 
 def main():
@@ -273,6 +286,21 @@ def main():
         ],
         default="default",
         help="System prompt template for LLM reranking",
+    )
+    parser.add_argument(
+        "--rerank_prompt_instructions_path",
+        type=str,
+        help="Path to a text file containing prompt instructions for LLM reranking",
+    )
+    parser.add_argument(
+        "--rerank_prompt_example_suffix_path",
+        type=str,
+        help="Path to a text file containing prompt example suffix for LLM reranking",
+    )
+    parser.add_argument(
+        "--rerank_user_prompt_template_path",
+        type=str,
+        help="Path to a text file containing user prompt template for LLM reranking",
     )
     parser.add_argument(
         "--rerank_include_thoughts",
@@ -369,6 +397,16 @@ def main():
     except ValueError as exc:
         parser.error(str(exc))
 
+    rerank_prompt_instructions = _read_optional_text_file(
+        args.rerank_prompt_instructions_path
+    )
+    rerank_prompt_example_suffix = _read_optional_text_file(
+        args.rerank_prompt_example_suffix_path
+    )
+    rerank_user_prompt_template = _read_optional_text_file(
+        args.rerank_user_prompt_template_path
+    )
+
     if args.rerank and args.rerank_backend == "openai_batch":
         query_texts = [query.query for query in dataset.queries]
         positive_texts = [query.positive_words for query in dataset.queries]
@@ -387,6 +425,9 @@ def main():
                 topn=args.topn,
                 model_name=args.rerank_model_name,
                 prompt_template=args.rerank_prompt_template,
+                prompt_instructions=rerank_prompt_instructions,
+                prompt_example_suffix=rerank_prompt_example_suffix,
+                user_prompt_template=rerank_user_prompt_template,
                 response_format=response_format,
                 input_transform=args.rerank_input_transform,
                 state_path=batch_state_path,
@@ -409,6 +450,9 @@ def main():
             model_name=args.rerank_model_name,
             reasoning_effort=args.rerank_reasoning_effort,
             prompt_template=args.rerank_prompt_template,
+            prompt_instructions=rerank_prompt_instructions,
+            prompt_example_suffix=rerank_prompt_example_suffix,
+            user_prompt_template=rerank_user_prompt_template,
             rerank_include_thoughts=args.rerank_include_thoughts,
             input_transform=args.rerank_input_transform,
             backend=args.rerank_backend,
@@ -442,6 +486,9 @@ def main():
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
             rerank_prompt_template=args.rerank_prompt_template,
+            rerank_prompt_instructions=rerank_prompt_instructions,
+            rerank_prompt_example_suffix=rerank_prompt_example_suffix,
+            rerank_user_prompt_template=rerank_user_prompt_template,
             rerank_include_thoughts=args.rerank_include_thoughts,
             rerank_input_transform=args.rerank_input_transform,
             rerank_batch_size=args.rerank_batch_size,
@@ -484,6 +531,21 @@ def main():
             ),
             "rerank_prompt_template": (
                 args.rerank_prompt_template if args.rerank else None
+            ),
+            "rerank_prompt_instructions": (
+                rerank_prompt_instructions.strip()
+                if args.rerank and rerank_prompt_instructions
+                else None
+            ),
+            "rerank_prompt_example_suffix": (
+                rerank_prompt_example_suffix.strip()
+                if args.rerank and rerank_prompt_example_suffix
+                else None
+            ),
+            "rerank_user_prompt_template": (
+                rerank_user_prompt_template.strip()
+                if args.rerank and rerank_user_prompt_template
+                else None
             ),
             "rerank_include_thoughts": (
                 args.rerank_include_thoughts if args.rerank else None
