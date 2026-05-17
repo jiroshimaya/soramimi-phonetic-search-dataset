@@ -7,7 +7,7 @@ from soramimi_phonetic_search_dataset import (
     RankingFunctionOutput,
     evaluate_ranking_function,
     load_default_dataset_for_llm,
-    rank_by_llm,
+    reasoning_llm_ranking,
 )
 
 
@@ -21,11 +21,12 @@ def main():
     def ranking_func(
         query_texts: list[str], wordlists: list[list[str]]
     ) -> RankingFunctionOutput:
-        return rank_by_llm(
+        return reasoning_llm_ranking.rank_by_reasoning_llm(
             query_texts,
             wordlists,
             topn=10,
             model_name="gpt-5.4",
+            reasoning_effort="none",
             batch_size=10,
             rerank_interval=0,
         )
@@ -40,6 +41,7 @@ def main():
     results.parameters.metadata.update(
         {
             "rerank_model_name": "gpt-5.4",
+            "rerank_reasoning_effort": "none",
             "rerank_input_size": 100,
             "rerank_batch_size": 10,
             "rerank_interval": 0,

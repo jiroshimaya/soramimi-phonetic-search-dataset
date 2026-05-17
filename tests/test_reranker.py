@@ -168,18 +168,20 @@ def test_token_usage_exposes_output_tokens():
 
 
 def test_build_system_prompt_reuses_example_suffix():
-    prompt = reranker.build_system_prompt("detailed")
+    prompt = reranker.build_system_prompt()
 
-    assert "子音より母音の一致を優先してください" in prompt
+    assert "クエリと発音が似ている順に、単語一覧を並び替えてください。" in prompt
     assert "Example:" in prompt
     assert "Reranked: 6, 4, 5, 7, 2" in prompt
 
 
-def test_build_system_prompt_for_nonreasoning_cot_mentions_thoughts():
-    prompt = reranker.build_system_prompt("nonreasoning_cot")
+def test_build_system_prompt_accepts_overrides():
+    prompt = reranker.build_system_prompt(
+        prompt_instructions="Custom instructions",
+        prompt_example_suffix="Custom example",
+    )
 
-    assert "thoughts フィールド" in prompt
-    assert "reranked フィールド" in prompt
+    assert prompt == "Custom instructions\n\nCustom example"
 
 
 def test_transform_text_for_rerank_rejects_non_default_transform():
@@ -189,7 +191,7 @@ def test_transform_text_for_rerank_rejects_non_default_transform():
         )
 
 
-def test_rank_by_llm_uses_selected_prompt_template(monkeypatch):
+def test_rank_by_reasoning_llm_accepts_prompt_instructions(monkeypatch):
     captured_messages = []
 
     def fake_get_structured_outputs(**kwargs):
@@ -202,12 +204,12 @@ def test_rank_by_llm_uses_selected_prompt_template(monkeypatch):
 
     monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
 
-    reranked = reranker.rank_by_llm(
+    reranked = reranker.rank_by_reasoning_llm(
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="step_by_step",
         rerank_interval=0,
+        prompt_instructions="以下の手順で判断してください。",
     )
 
     assert "以下の手順で判断してください。" in captured_messages[0][0]["content"]
@@ -220,7 +222,7 @@ def test_get_rerank_response_format_uses_thoughtful_schema_when_requested():
     assert response_format is reranker.ThoughtfulRerankedWordlist
 
 
-def test_rank_by_llm_accepts_thoughtful_structured_output(monkeypatch):
+def test_rank_by_reasoning_llm_accepts_thoughtful_structured_output(monkeypatch):
     captured_response_format = None
 
     def fake_get_structured_outputs(**kwargs):
@@ -234,11 +236,10 @@ def test_rank_by_llm_accepts_thoughtful_structured_output(monkeypatch):
 
     monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
 
-    reranked = reranker.rank_by_llm(
+    reranked = reranker.rank_by_reasoning_llm(
         query_texts=["アケ"],
         wordlist_texts=[["アベ", "カケイ"]],
         model_name="gpt-5.4",
-        prompt_template="nonreasoning_cot",
         include_thoughts=True,
         rerank_interval=0,
     )
@@ -548,22 +549,25 @@ def test_retrieve_openai_batch_rerank_job_surfaces_error_file_details(tmp_path):
         )
 
 
-def test_rank_by_llm_rejects_non_default_input_transform():
+def test_rank_by_reasoning_llm_rejects_non_default_input_transform():
     with pytest.raises(ValueError, match="Unknown input_transform"):
-        reranker.rank_by_llm(
+        reranker.rank_by_reasoning_llm(
             query_texts=["アケ"],
             wordlist_texts=[["アベ", "カケイ"]],
             model_name="gpt-5.4",
-            prompt_template="detailed",
             input_transform="pyopenjtalk_romaji",
             rerank_interval=0,
         )
 
 
-def test_build_system_prompt_supports_romaji_explicit_template():
-    prompt = reranker.build_system_prompt("detailed_romaji_explicit")
+def test_build_system_prompt_supports_custom_romaji_instructions():
+    prompt = reranker.build_system_prompt(
+        prompt_instructions=(
+            "Query と Wordlist は、元のカタカナ表記をローマ字変換したものです"
+        )
+    )
 
     assert "元のカタカナ表記をローマ字変換したものです" in prompt
-    assert "子音より母音の一致を優先してください" in prompt
+    assert "Example:" in prompt
 
 
