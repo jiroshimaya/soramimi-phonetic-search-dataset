@@ -9,6 +9,7 @@
 特定ジャンルの単語だけで歌詞の音韻を模倣する替え歌（いわゆる「〇〇で歌ってみた」）から抽出した単語ペアを含み、特に韻やリズムの一致を重視する音韻検索の評価に適しています。
 
 各手法の評価結果は[leaderboard](https://github.com/jiroshimaya/soramimi-phonetic-search-dataset/blob/main/leaderboard.md)をご覧ください。
+細かな prompt/input の派生実験や probe スクリプトは、別リポジトリの [soramimi-phonetic-search-experiments](https://github.com/jiroshimaya/soramimi-phonetic-search-experiments) で管理します。
 
 ## データセット形式
 
