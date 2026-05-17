@@ -1,5 +1,5 @@
 """
-LLMリランク (gpt-5.4, reasoning effort medium, detailed prompt) による評価を実行するスクリプト
+LLMリランク (gpt-5.4, reasoning effort medium, step-by-step prompt) による評価を実行するスクリプト
 """
 
 import json
@@ -21,8 +21,11 @@ REASONING_EFFORT = "medium"
 PROMPT_INSTRUCTIONS = """
 クエリ（Query）と単語一覧（Wordlist）が与えられます。
 クエリと発音が似ている順に、単語一覧を並び替えてください。
-- 子音より母音の一致を優先してください
-- クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+以下の手順で判断してください。
+- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
 出力は上位Top N件のインデックスのみ返してください。
 """
 PROMPT_EXAMPLE_SUFFIX = """
@@ -45,7 +48,7 @@ Reranked: 6, 4, 5, 7, 2
 def main():
     output_dir = Path(__file__).parent.parent / "results"
     output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / "010_02_llm_rerank_gpt54_medium_detailed.json"
+    output_path = output_dir / "010_llm_rerank_gpt54_medium_step_by_step.json"
 
     dataset = load_default_dataset_for_llm(wordlist_size=RERANK_INPUT_SIZE)
 
@@ -76,7 +79,7 @@ def main():
             "rerank": True,
             "rerank_model_name": MODEL_NAME,
             "rerank_reasoning_effort": REASONING_EFFORT,
-            "rerank_prompt_template": "detailed",
+            "rerank_prompt_template": "step_by_step",
             "rerank_prompt_instructions": PROMPT_INSTRUCTIONS.strip(),
             "rerank_prompt_example_suffix": PROMPT_EXAMPLE_SUFFIX.strip(),
             "rerank_input_transform": "none",
