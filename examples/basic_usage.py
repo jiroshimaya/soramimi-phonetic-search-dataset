@@ -3,15 +3,16 @@ import json
 from typing import Callable
 
 from soramimi_phonetic_search_dataset import (
+    RankingFunctionOutput,
     evaluate_ranking_function,
     load_default_dataset,
     load_small_dataset,
+    rank_by_llm,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
     rank_by_vowel_consonant_editdistance,
 )
-from soramimi_phonetic_search_dataset.reranker import rerank_by_llm
 
 
 def create_reranking_function(
@@ -23,7 +24,7 @@ def create_reranking_function(
     rerank_interval: int,
     topn: int,
     **base_rank_kwargs,
- ) -> Callable[[list[str], list[list[str]]], list[list[str]]]:
+ ) -> Callable[[list[str], list[list[str]]], RankingFunctionOutput]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -44,7 +45,7 @@ def create_reranking_function(
     def combined_rank_func(
         query_texts: list[str],
         wordlists: list[list[str]],
-    ) -> list[list[str]]:
+    ) -> RankingFunctionOutput:
         # ベースのランキングを実行
         base_ranked_wordlists = base_rank_func(query_texts, wordlists, **base_rank_kwargs)
 
@@ -56,12 +57,11 @@ def create_reranking_function(
         # topk_ranked_wordlists = [
         #    sorted(wordlist, key=lambda x: x[0]) for wordlist in topk_ranked_wordlists
         # ]
-        reranked_wordlists = rerank_by_llm(
+        reranked_wordlists = rank_by_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
             model_name=rerank_model_name,
-            reasoning_effort=rerank_reasoning_effort,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )

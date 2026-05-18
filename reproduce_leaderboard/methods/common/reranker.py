@@ -23,6 +23,9 @@ OpenAIBatchRerankResult = _core_reasoning.OpenAIBatchRerankResult
 RerankedWordlist = _core_reasoning.RerankedWordlist
 ThoughtfulRerankedWordlist = _core_reasoning.ThoughtfulRerankedWordlist
 
+_last_token_usage = TokenUsage()
+_last_structured_outputs: list[dict[str, Any]] = []
+
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
     if input_transform == "none":
@@ -709,6 +712,7 @@ def retrieve_openai_batch_rerank_job(
     return OpenAIBatchRerankResult(
         reranked_wordlists=reranked_wordlists,
         structured_outputs=structured_outputs,
+        token_usage=token_usage,
         batch_id=state["batch_id"],
         batch_status=batch_status,
         execution_time=_get_batch_execution_time(batch),
