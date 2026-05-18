@@ -27,7 +27,7 @@ def _build_rerank_metrics_metadata(
     token_cost: Any,
     discount_factor: float | None = None,
 ) -> dict[str, Any]:
-    metadata = {
+    metadata: dict[str, Any] = {
         "model_name": model_name,
         "token_usage": {
             "input_tokens": token_usage.input_tokens,

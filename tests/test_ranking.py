@@ -1,3 +1,5 @@
+from typing import Any, cast
+
 from soramimi_phonetic_search_dataset import (
     rank_by_kanasim,
     rank_by_llm,
@@ -287,9 +289,14 @@ def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
     )
 
     def fake_get_structured_outputs(**kwargs):
-        reranked = [{"reranked": [0]} for _ in kwargs["messages"]]
+        reranked: list[dict[str, Any]] = [
+            {"reranked": [0]} for _ in kwargs["messages"]
+        ]
         return llm_ranking.StructuredOutputsResult(
-            parsed_responses=reranked,
+            parsed_responses=cast(
+                list[llm_ranking.BaseModel | dict[str, Any]],
+                reranked,
+            ),
             structured_outputs=reranked,
             token_usage=next(token_usages),
         )
