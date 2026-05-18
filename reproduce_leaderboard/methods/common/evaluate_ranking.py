@@ -71,7 +71,7 @@ def create_reranking_function(
     topn: int,
     positive_texts: list[list[str]],
     **base_rank_kwargs,
- ) -> Callable[[list[str], list[list[str]]], list[list[str]]]:
+) -> Callable[[list[str], list[list[str]]], list[list[str]]]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -94,7 +94,9 @@ def create_reranking_function(
 
     def combined_rank_func(query_texts: list[str], wordlists: list[list[str]]):
         # ベースのランキングを実行
-        base_ranked_wordlists = base_rank_func(query_texts, wordlists, **base_rank_kwargs)
+        base_ranked_wordlists = base_rank_func(
+            query_texts, wordlists, **base_rank_kwargs
+        )
 
         # 上位N件を取得してリランク
         topk_ranked_wordlists = prepare_rerank_candidates(

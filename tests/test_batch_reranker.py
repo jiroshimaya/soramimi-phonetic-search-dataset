@@ -91,7 +91,9 @@ def test_submit_openai_batch_evaluation_passes_explicit_prompt_inputs(monkeypatc
     assert state == {"batch_id": "batch-456"}
     assert captured["prompt_instructions"] == "Custom instructions"
     assert captured["prompt_example_suffix"] == "Custom example"
-    assert captured["user_prompt_template"] == "Q: {query}\nW:\n{wordlist}\nN: {topn}\nA:"
+    assert (
+        captured["user_prompt_template"] == "Q: {query}\nW:\n{wordlist}\nN: {topn}\nA:"
+    )
 
 
 def test_retrieve_openai_batch_evaluation_results_sets_metadata(tmp_path, monkeypatch):
@@ -185,5 +187,8 @@ def test_common_reranker_rank_by_llm_accepts_explicit_prompt_inputs(monkeypatch)
     )
 
     assert captured_messages[0][0]["content"] == "Custom instructions\n\nCustom example"
-    assert captured_messages[0][1]["content"] == "Q: アケ\nW:\n0. アベ\n1. カケイ\nN: 10\nA:"
+    assert (
+        captured_messages[0][1]["content"]
+        == "Q: アケ\nW:\n0. アベ\n1. カケイ\nN: 10\nA:"
+    )
     assert reranked == [["カケイ", "アベ"]]

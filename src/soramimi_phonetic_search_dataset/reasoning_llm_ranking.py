@@ -207,9 +207,9 @@ def accumulate_token_usage(response: Any, token_usage: TokenUsage) -> None:
         completion_details = _get_value(usage, "output_tokens_details")
     reasoning_tokens = _get_value(completion_details, "reasoning_tokens", 0) or 0
 
-    token_usage.input_tokens += _get_value(
-        usage, "prompt_tokens", 0
-    ) or _get_value(usage, "input_tokens", 0)
+    token_usage.input_tokens += _get_value(usage, "prompt_tokens", 0) or _get_value(
+        usage, "input_tokens", 0
+    )
     token_usage.completion_tokens += _get_value(
         usage, "completion_tokens", 0
     ) or _get_value(usage, "output_tokens", 0)
@@ -777,9 +777,7 @@ def rank_by_reasoning_llm(
         user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
-    response_format = get_rerank_response_format(
-        include_thoughts=include_thoughts
-    )
+    response_format = get_rerank_response_format(include_thoughts=include_thoughts)
 
     reranked_wordlists = []
     structured_outputs = []

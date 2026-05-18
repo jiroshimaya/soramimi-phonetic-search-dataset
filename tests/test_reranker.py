@@ -56,10 +56,7 @@ def test_get_structured_outputs_passes_reasoning_effort_for_gpt5(monkeypatch):
         reasoning_tokens=7,
         total_tokens=30,
     )
-    assert (
-        reranker.calculate_token_cost("gpt-5.4", results.token_usage).total_cost
-        > 0
-    )
+    assert reranker.calculate_token_cost("gpt-5.4", results.token_usage).total_cost > 0
 
 
 def test_get_structured_outputs_omits_reasoning_effort_when_unspecified(monkeypatch):
@@ -229,8 +226,12 @@ def test_rank_by_reasoning_llm_accepts_thoughtful_structured_output(monkeypatch)
         nonlocal captured_response_format
         captured_response_format = kwargs["response_format"]
         return reranker.StructuredOutputsResult(
-            parsed_responses=[{"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}],
-            structured_outputs=[{"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}],
+            parsed_responses=[
+                {"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}
+            ],
+            structured_outputs=[
+                {"thoughts": ["母音列が一致", "子音差を比較"], "reranked": [1, 0]}
+            ],
             token_usage=reranker.TokenUsage(),
         )
 
@@ -569,5 +570,3 @@ def test_build_system_prompt_supports_custom_romaji_instructions():
 
     assert "元のカタカナ表記をローマ字変換したものです" in prompt
     assert "Example:" in prompt
-
-
