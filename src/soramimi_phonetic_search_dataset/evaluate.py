@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, TypeAlias
+from typing import Any, Callable, TypeAlias, cast
 
 from soramimi_phonetic_search_dataset.dataset import load_default_dataset
 from soramimi_phonetic_search_dataset.schemas import (
@@ -55,7 +55,7 @@ def _normalize_ranking_output(
     dict[str, Any] | None,
 ]:
     if isinstance(ranking_output, list):
-        return ranking_output, None, None
+        return cast(list[list[str]], ranking_output), None, None
 
     return (
         ranking_output.ranked_wordlists,
