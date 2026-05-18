@@ -1,7 +1,7 @@
 {
-  "experiment_id": "010_03_medium_step_by_step_sample10",
+  "experiment_id": "010_medium_step_by_step_sample10",
   "estimate": true,
-  "based_on_result_file": "010_03_llm_rerank_gpt54_medium_step_by_step.json",
+  "based_on_result_file": "010_llm_rerank_gpt54_medium_step_by_step.json",
   "note": "先頭10件のクエリで計測した token/cost を 150 件全体に線形外挿した試算値です。full run の実測 token/cost ではありません。",
   "sample": {
     "queries": 10,
