@@ -18,7 +18,9 @@ def main():
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / "002_vowel_consonant.json"
 
-    def ranking_func(query_texts: list[str], wordlists: list[list[str]]) -> list[list[str]]:
+    def ranking_func(
+        query_texts: list[str], wordlists: list[list[str]]
+    ) -> list[list[str]]:
         return rank_by_vowel_consonant_editdistance(
             query_texts,
             wordlists,

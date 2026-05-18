@@ -12,7 +12,11 @@ import pyopenjtalk
 from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
 
-from rerank_prompts import DEFAULT_USER_PROMPT_TEMPLATE, RerankPromptConfig, get_prompt_config
+from rerank_prompts import (
+    DEFAULT_USER_PROMPT_TEMPLATE,
+    RerankPromptConfig,
+    get_prompt_config,
+)
 
 OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
 OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR

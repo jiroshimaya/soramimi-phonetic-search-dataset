@@ -24,7 +24,7 @@ def create_reranking_function(
     rerank_interval: int,
     topn: int,
     **base_rank_kwargs,
- ) -> Callable[[list[str], list[list[str]]], RankingFunctionOutput]:
+) -> Callable[[list[str], list[list[str]]], RankingFunctionOutput]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -47,7 +47,9 @@ def create_reranking_function(
         wordlists: list[list[str]],
     ) -> RankingFunctionOutput:
         # ベースのランキングを実行
-        base_ranked_wordlists = base_rank_func(query_texts, wordlists, **base_rank_kwargs)
+        base_ranked_wordlists = base_rank_func(
+            query_texts, wordlists, **base_rank_kwargs
+        )
 
         # 上位N件を取得してリランク
         topk_ranked_wordlists = [

@@ -44,7 +44,9 @@ def rank_by_mora_editdistance(
         wordlist_moras = [
             _get_or_convert(word_mora_memo, text, jamorasep.parse) for text in wordlist
         ]
-        scores = [ed.eval(query_mora, wordlist_mora) for wordlist_mora in wordlist_moras]
+        scores = [
+            ed.eval(query_mora, wordlist_mora) for wordlist_mora in wordlist_moras
+        ]
         final_results.append(
             [word for word, _ in sorted(zip(wordlist, scores), key=lambda x: x[1])]
         )
@@ -67,6 +69,7 @@ def rank_by_vowel_consonant_editdistance(
     Returns:
         list[list[str]]: 各クエリに対する単語のランキング結果
     """
+
     def _parse_word(text: str) -> tuple[list[str], list[str]]:
         mora = jamorasep.parse(text, output_format="simple-ipa")
         vowels = [m[-1] for m in mora]
@@ -115,7 +118,8 @@ def rank_by_phoneme_editdistance(
     for query_text, wordlist in zip(query_texts, wordlists):
         query_phoneme = _get_or_convert(word_phoneme_memo, query_text, _split_phonemes)
         wordlist_phonemes = [
-            _get_or_convert(word_phoneme_memo, text, _split_phonemes) for text in wordlist
+            _get_or_convert(word_phoneme_memo, text, _split_phonemes)
+            for text in wordlist
         ]
         scores = [
             ed.eval(query_phoneme, wordlist_phoneme)

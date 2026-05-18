@@ -156,6 +156,7 @@ def accumulate_token_usage(response: Any, token_usage: TokenUsage) -> None:
     token_usage.reasoning_tokens += reasoning_tokens
     token_usage.total_tokens += total_tokens
 
+
 def _get_value(source: Any, key: str, default: Any = None) -> Any:
     if source is None:
         return default
@@ -212,9 +213,7 @@ def build_rerank_messages(
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
-        wordlist_str = "\n".join(
-            [f"{i}. {word}" for i, word in enumerate(wordlist)]
-        )
+        wordlist_str = "\n".join([f"{i}. {word}" for i, word in enumerate(wordlist)])
         messages.append(
             [
                 {"role": "system", "content": prompt},

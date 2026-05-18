@@ -53,7 +53,9 @@ def test_rank_by_vowel_consonant_editdistance():
     wordlist_texts = ["タロー", "タロ", "ハナコ"]
 
     # デフォルトの重み（母音:子音 = 0.5:0.5）
-    ranked_wordlists = rank_by_vowel_consonant_editdistance(query_texts, [wordlist_texts])
+    ranked_wordlists = rank_by_vowel_consonant_editdistance(
+        query_texts, [wordlist_texts]
+    )
     assert len(ranked_wordlists) == 1
     assert ranked_wordlists[0][0] in ["タロー", "タロ"]
     assert ranked_wordlists[0][-1] == "ハナコ"
@@ -206,7 +208,9 @@ def test_rank_by_llm_returns_ranking_function_output_with_metrics_metadata(
             ),
         )
 
-    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
     monkeypatch.setattr(
         llm_ranking,
         "calculate_token_cost",
@@ -255,7 +259,9 @@ def test_rank_by_llm_accepts_user_prompt_template(monkeypatch):
             token_usage=llm_ranking.TokenUsage(),
         )
 
-    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
 
     rank_by_llm(
         query_texts=["タロウ"],
@@ -289,9 +295,7 @@ def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
     )
 
     def fake_get_structured_outputs(**kwargs):
-        reranked: list[dict[str, Any]] = [
-            {"reranked": [0]} for _ in kwargs["messages"]
-        ]
+        reranked: list[dict[str, Any]] = [{"reranked": [0]} for _ in kwargs["messages"]]
         return llm_ranking.StructuredOutputsResult(
             parsed_responses=cast(
                 list[llm_ranking.BaseModel | dict[str, Any]],
@@ -301,7 +305,9 @@ def test_rank_by_llm_aggregates_token_usage_across_batches(monkeypatch):
             token_usage=next(token_usages),
         )
 
-    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
     monkeypatch.setattr(
         llm_ranking,
         "calculate_token_cost",
@@ -349,7 +355,9 @@ def test_rank_by_llm_accepts_prompt_overrides(monkeypatch):
             token_usage=llm_ranking.TokenUsage(),
         )
 
-    monkeypatch.setattr(llm_ranking, "get_structured_outputs", fake_get_structured_outputs)
+    monkeypatch.setattr(
+        llm_ranking, "get_structured_outputs", fake_get_structured_outputs
+    )
     monkeypatch.setattr(
         llm_ranking,
         "calculate_token_cost",

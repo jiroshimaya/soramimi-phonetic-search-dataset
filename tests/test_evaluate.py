@@ -120,7 +120,9 @@ def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
     limited_dataset = load_default_dataset(query_limit=1)
     assert len(limited_dataset.queries) == 1
     assert limited_dataset.queries[0].wordlist == sample_dataset.words
-    assert limited_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
+    assert (
+        limited_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
+    )
     assert limited_dataset.metadata["query_limit"] == 1
     assert limited_dataset.metadata["query_offset"] == 0
     assert limited_dataset.metadata["subset"] == "queries_1_to_1"
@@ -192,7 +194,9 @@ def test_load_small_dataset(monkeypatch, sample_dataset):
     loaded_dataset = load_small_dataset()
     assert len(loaded_dataset.queries) == len(sample_dataset.queries)
     assert loaded_dataset.queries[0].wordlist == sample_dataset.words
-    assert loaded_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
+    assert (
+        loaded_dataset.queries[0].positive_words == sample_dataset.queries[0].positive
+    )
     assert loaded_dataset.metadata["format"] == "query_with_wordlist"
 
 
@@ -308,7 +312,11 @@ def test_evaluate_ranking_function_with_explicit_dataset(
         dataset=sample_wordlist_dataset,
     )
     assert results.metrics.recall == 1.0
-def test_evaluate_ranking_function_with_metadata(sample_dataset, sample_wordlist_dataset):
+
+
+def test_evaluate_ranking_function_with_metadata(
+    sample_dataset, sample_wordlist_dataset
+):
     """ランキング関数がmetadataを返しても評価できる"""
 
     def ranking_with_metadata(query_texts, wordlists):
