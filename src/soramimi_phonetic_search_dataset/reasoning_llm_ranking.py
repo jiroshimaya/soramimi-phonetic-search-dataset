@@ -1,6 +1,6 @@
 import json
 import time
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Type
@@ -8,79 +8,107 @@ from typing import Any, Type
 from litellm import batch_completion, completion, cost_per_token
 from openai import OpenAI
 from pydantic import BaseModel
-import pyopenjtalk
-from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
 from tqdm import tqdm
 
-from rerank_prompts import (
-    DEFAULT_USER_PROMPT_TEMPLATE,
-    RerankPromptConfig,
-    get_prompt_config,
-)
+from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
 
-OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
-OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR
-OPENAI_MODEL_PREFIXES = _core_reasoning.OPENAI_MODEL_PREFIXES
-TokenUsage = _core_reasoning.TokenUsage
-TokenCost = _core_reasoning.TokenCost
-OpenAIBatchRerankResult = _core_reasoning.OpenAIBatchRerankResult
-RerankedWordlist = _core_reasoning.RerankedWordlist
-ThoughtfulRerankedWordlist = _core_reasoning.ThoughtfulRerankedWordlist
+PROMPT_INSTRUCTIONS = """
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+出力は上位Top N件のインデックスのみ返してください。
+"""
 
-_last_token_usage = TokenUsage()
-_last_structured_outputs: list[dict[str, Any]] = []
+PROMPT_EXAMPLE_SUFFIX = """
+Example:
+Query: タロウ
+Wordlist:
+0. アオ
+1. アオウヅ
+2. アノウ
+3. タキョウ
+4. タド
+5. タノ
+6. タロウ
+7. タンノ
+Top N: 5
+Reranked: 6, 4, 5, 7, 2
+"""
+USER_PROMPT_TEMPLATE = """
+Query: {query}
+Wordlist:
+{wordlist}
+Top N: {topn}
+Reranked:
+"""
+
+OPENAI_BATCH_ENDPOINT = "/v1/chat/completions"
+OPENAI_BATCH_DISCOUNT_FACTOR = 0.5
+OPENAI_MODEL_PREFIXES = ("gpt-", "o1", "o3", "o4", "chatgpt-")
+
+
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    completion_tokens: int = 0
+    reasoning_tokens: int = 0
+    total_tokens: int = 0
+
+    @property
+    def output_tokens(self) -> int:
+        return max(self.completion_tokens - self.reasoning_tokens, 0)
+
+
+@dataclass
+class TokenCost:
+    input_cost: float = 0.0
+    output_cost: float = 0.0
+    reasoning_cost: float = 0.0
+    total_cost: float = 0.0
+
+
+@dataclass
+class StructuredOutputsResult:
+    parsed_responses: list[BaseModel | dict[str, Any]]
+    structured_outputs: list[dict[str, Any]]
+    token_usage: TokenUsage
+
+
+@dataclass
+class OpenAIBatchRerankResult:
+    reranked_wordlists: list[list[str]]
+    structured_outputs: list[dict[str, Any]]
+    token_usage: TokenUsage
+    batch_id: str
+    batch_status: str
+    execution_time: float
+    output_file_path: str | None
+    error_file_path: str | None
+
+
+class RerankedWordlist(BaseModel):
+    reranked: list[int]
+
+
+class ThoughtfulRerankedWordlist(BaseModel):
+    thoughts: list[str]
+    reranked: list[int]
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform == "none":
-        return text
-    if input_transform == "pyopenjtalk_romaji":
-        phonemes = pyopenjtalk.g2p(text)
-        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
-        return " ".join(phoneme_text.lower().split())
-    if input_transform == "kana_and_pyopenjtalk_romaji":
-        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
-        return f"{text}（{romaji}）"
-    raise ValueError(f"Unknown input_transform: {input_transform}")
-
-
-def _resolve_prompt_config(
-    prompt_template: str = "default",
-    *,
-    prompt_instructions: str | None = None,
-    prompt_example_suffix: str | None = None,
-    user_prompt_template: str | None = None,
-) -> RerankPromptConfig:
-    prompt_config = get_prompt_config(prompt_template)
-    return RerankPromptConfig(
-        prompt_instructions=prompt_instructions or prompt_config.prompt_instructions,
-        prompt_example_suffix=(
-            prompt_example_suffix or prompt_config.prompt_example_suffix
-        ),
-        user_prompt_template=user_prompt_template or prompt_config.user_prompt_template,
-        requires_thoughts=prompt_config.requires_thoughts,
-    )
+    if input_transform != "none":
+        raise ValueError(f"Unknown input_transform: {input_transform}")
+    return text
 
 
 def build_system_prompt(
-    prompt_template: str = "default",
     *,
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
 ) -> str:
-    prompt_config = _resolve_prompt_config(
-        prompt_template,
-        prompt_instructions=prompt_instructions,
-        prompt_example_suffix=prompt_example_suffix,
-    )
-    return (
-        f"{prompt_config.prompt_instructions.strip()}\n\n"
-        f"{prompt_config.prompt_example_suffix.strip()}"
-    )
-
-
-def prompt_template_requires_thoughts(prompt_template: str) -> bool:
-    return get_prompt_config(prompt_template).requires_thoughts
+    if prompt_instructions is None:
+        prompt_instructions = PROMPT_INSTRUCTIONS
+    example_suffix = prompt_example_suffix or PROMPT_EXAMPLE_SUFFIX
+    return f"{prompt_instructions.strip()}\n\n{example_suffix.strip()}"
 
 
 def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
@@ -94,24 +122,17 @@ def build_rerank_messages(
     wordlist_texts: list[list[str]],
     *,
     topn: int,
-    prompt_template: str = "default",
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
     user_prompt_template: str | None = None,
+    prompt_template: str | None = None,
     input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
-    prompt_config = _resolve_prompt_config(
-        prompt_template,
+    prompt = build_system_prompt(
         prompt_instructions=prompt_instructions,
         prompt_example_suffix=prompt_example_suffix,
-        user_prompt_template=user_prompt_template,
     )
-    prompt = build_system_prompt(
-        prompt_template,
-        prompt_instructions=prompt_config.prompt_instructions,
-        prompt_example_suffix=prompt_config.prompt_example_suffix,
-    )
-    user_prompt = prompt_config.user_prompt_template or DEFAULT_USER_PROMPT_TEMPLATE
+    user_prompt = user_prompt_template or USER_PROMPT_TEMPLATE
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
@@ -134,44 +155,6 @@ def build_rerank_messages(
             ]
         )
     return messages
-
-
-def reset_token_usage() -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage()
-
-
-def reset_last_structured_outputs() -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = []
-
-
-def set_last_structured_outputs(outputs: list[dict[str, Any]]) -> None:
-    global _last_structured_outputs
-    _last_structured_outputs = [dict(output) for output in outputs]
-
-
-def get_last_structured_outputs() -> list[dict[str, Any]]:
-    return [dict(output) for output in _last_structured_outputs]
-
-
-def set_last_token_usage(token_usage: TokenUsage) -> None:
-    global _last_token_usage
-    _last_token_usage = TokenUsage(
-        input_tokens=token_usage.input_tokens,
-        completion_tokens=token_usage.completion_tokens,
-        reasoning_tokens=token_usage.reasoning_tokens,
-        total_tokens=token_usage.total_tokens,
-    )
-
-
-def get_last_token_usage() -> TokenUsage:
-    return TokenUsage(
-        input_tokens=_last_token_usage.input_tokens,
-        completion_tokens=_last_token_usage.completion_tokens,
-        reasoning_tokens=_last_token_usage.reasoning_tokens,
-        total_tokens=_last_token_usage.total_tokens,
-    )
 
 
 def calculate_token_cost(
@@ -214,7 +197,7 @@ def _normalize_reasoning_effort(reasoning_effort: str | None) -> str | None:
     return None if reasoning_effort in (None, "none") else reasoning_effort
 
 
-def accumulate_token_usage(response: Any) -> None:
+def accumulate_token_usage(response: Any, token_usage: TokenUsage) -> None:
     usage = _get_value(response, "usage")
     if usage is None:
         return
@@ -224,15 +207,15 @@ def accumulate_token_usage(response: Any) -> None:
         completion_details = _get_value(usage, "output_tokens_details")
     reasoning_tokens = _get_value(completion_details, "reasoning_tokens", 0) or 0
 
-    _last_token_usage.input_tokens += _get_value(
-        usage, "prompt_tokens", 0
-    ) or _get_value(usage, "input_tokens", 0)
-    _last_token_usage.completion_tokens += _get_value(
+    token_usage.input_tokens += _get_value(usage, "prompt_tokens", 0) or _get_value(
+        usage, "input_tokens", 0
+    )
+    token_usage.completion_tokens += _get_value(
         usage, "completion_tokens", 0
     ) or _get_value(usage, "output_tokens", 0)
-    _last_token_usage.reasoning_tokens += reasoning_tokens
-    _last_token_usage.total_tokens += _get_value(usage, "total_tokens", 0) or (
-        _last_token_usage.input_tokens + _last_token_usage.completion_tokens
+    token_usage.reasoning_tokens += reasoning_tokens
+    token_usage.total_tokens += _get_value(usage, "total_tokens", 0) or (
+        token_usage.input_tokens + token_usage.completion_tokens
     )
 
 
@@ -456,10 +439,7 @@ def submit_openai_batch_rerank_job(
     positive_texts: list[list[str]],
     topn: int,
     model_name: str,
-    prompt_template: str = "default",
-    prompt_instructions: str | None = None,
-    prompt_example_suffix: str | None = None,
-    user_prompt_template: str | None = None,
+    prompt_template: str,
     input_transform: str = "none",
     response_format: Type[BaseModel],
     state_path: str,
@@ -487,9 +467,6 @@ def submit_openai_batch_rerank_job(
         wordlist_texts,
         topn=topn,
         prompt_template=prompt_template,
-        prompt_instructions=prompt_instructions,
-        prompt_example_suffix=prompt_example_suffix,
-        user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
     custom_ids = [str(item["custom_id"]) for item in request_items]
@@ -530,15 +507,6 @@ def submit_openai_batch_rerank_job(
             "rerank_model_name": model_name,
             "rerank_reasoning_effort": reasoning_effort,
             "rerank_prompt_template": prompt_template,
-            "rerank_prompt_instructions": (
-                prompt_instructions.strip() if prompt_instructions else None
-            ),
-            "rerank_prompt_example_suffix": (
-                prompt_example_suffix.strip() if prompt_example_suffix else None
-            ),
-            "rerank_user_prompt_template": (
-                user_prompt_template.strip() if user_prompt_template else None
-            ),
             "rerank_input_transform": input_transform,
         },
         "items": request_items,
@@ -573,6 +541,15 @@ def _extract_structured_output(
     response: BaseModel | dict[str, Any],
 ) -> dict[str, Any]:
     return response.model_dump() if isinstance(response, BaseModel) else dict(response)
+
+
+def _merge_token_usage(total: TokenUsage, partial: TokenUsage) -> TokenUsage:
+    return TokenUsage(
+        input_tokens=total.input_tokens + partial.input_tokens,
+        completion_tokens=total.completion_tokens + partial.completion_tokens,
+        reasoning_tokens=total.reasoning_tokens + partial.reasoning_tokens,
+        total_tokens=total.total_tokens + partial.total_tokens,
+    )
 
 
 def _get_batch_execution_time(batch: Any) -> float:
@@ -672,8 +649,7 @@ def retrieve_openai_batch_rerank_job(
     result_rows = _read_jsonl(Path(state["result_file_path"]))
     row_by_custom_id = {row["custom_id"]: row for row in result_rows}
 
-    reset_token_usage()
-    reset_last_structured_outputs()
+    token_usage_from_responses = TokenUsage()
     reranked_wordlists = []
     structured_outputs = []
     for item in state["items"]:
@@ -693,7 +669,7 @@ def retrieve_openai_batch_rerank_job(
                 f"custom_id={item['custom_id']}: {json.dumps(row, ensure_ascii=False)}"
             )
         body = response["body"]
-        accumulate_token_usage(body)
+        accumulate_token_usage(body, token_usage_from_responses)
         parsed = _parse_response(body, response_format)
         structured_outputs.append(_extract_structured_output(parsed))
         reranked_wordlists.append(
@@ -704,14 +680,11 @@ def retrieve_openai_batch_rerank_job(
 
     token_usage = _token_usage_from_batch_usage(_get_value(batch, "usage"))
     if token_usage.total_tokens == 0:
-        token_usage = get_last_token_usage()
-    else:
-        set_last_token_usage(token_usage)
+        token_usage = token_usage_from_responses
 
     state["retrieved_at"] = datetime.now().isoformat()
     state["usage"] = asdict(token_usage)
     _write_json(state_file_path, state)
-    set_last_structured_outputs(structured_outputs)
 
     return OpenAIBatchRerankResult(
         reranked_wordlists=reranked_wordlists,
@@ -732,9 +705,8 @@ def get_structured_outputs(
     temperature: float = 0.0,
     max_tokens: int = 1000,
     reasoning_effort: str | None = None,
-) -> list[BaseModel]:
-    reset_token_usage()
-    reset_last_structured_outputs()
+) -> StructuredOutputsResult:
+    token_usage = TokenUsage()
     completion_kwargs = _build_litellm_completion_kwargs(
         model_name=model_name,
         temperature=temperature,
@@ -752,7 +724,7 @@ def get_structured_outputs(
     parsed_responses = []
     for message, response in zip(messages, raw_responses):
         try:
-            accumulate_token_usage(response)
+            accumulate_token_usage(response, token_usage)
             parsed_responses.append(_parse_response(response, response_format))
         except (TypeError, ValueError):
             fallback_kwargs = _build_litellm_completion_kwargs(
@@ -768,22 +740,25 @@ def get_structured_outputs(
                 response_format=response_format,
                 **fallback_kwargs,
             )
-            accumulate_token_usage(fallback_response)
+            accumulate_token_usage(fallback_response, token_usage)
             parsed_responses.append(_parse_response(fallback_response, response_format))
-    set_last_structured_outputs(
-        [_extract_structured_output(response) for response in parsed_responses]
+    structured_outputs = [
+        _extract_structured_output(response) for response in parsed_responses
+    ]
+    return StructuredOutputsResult(
+        parsed_responses=parsed_responses,
+        structured_outputs=structured_outputs,
+        token_usage=token_usage,
     )
-    return parsed_responses
 
 
-def rank_by_llm(
+def rank_by_reasoning_llm(
     query_texts: list[str],
     wordlist_texts: list[list[str]],
     *,
     topn: int = 10,
-    model_name: str = "gpt-4o-mini",
+    model_name: str = "gpt-5.1-mini",
     reasoning_effort: str | None = None,
-    prompt_template: str = "default",
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
     user_prompt_template: str | None = None,
@@ -792,27 +767,24 @@ def rank_by_llm(
     batch_size: int = 10,
     temperature: float = 0.0,
     rerank_interval: int = 60,
-) -> list[list[str]]:
+) -> RankingFunctionOutput:
     messages = build_rerank_messages(
         query_texts,
         wordlist_texts,
         topn=topn,
-        prompt_template=prompt_template,
         prompt_instructions=prompt_instructions,
         prompt_example_suffix=prompt_example_suffix,
         user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
-    response_format = get_rerank_response_format(
-        include_thoughts=include_thoughts
-        or prompt_template_requires_thoughts(prompt_template)
-    )
+    response_format = get_rerank_response_format(include_thoughts=include_thoughts)
 
     reranked_wordlists = []
     structured_outputs = []
+    total_token_usage = TokenUsage()
     for i in tqdm(range(0, len(messages), batch_size)):
         batch_messages = messages[i : i + batch_size]
-        responses = get_structured_outputs(
+        batch_result = get_structured_outputs(
             model_name=model_name,
             messages=batch_messages,
             temperature=temperature,
@@ -820,13 +792,31 @@ def rank_by_llm(
             response_format=response_format,
             reasoning_effort=reasoning_effort,
         )
-        for wordlist, response in zip(wordlist_texts[i : i + batch_size], responses):
-            structured_outputs.append(_extract_structured_output(response))
+        structured_outputs.extend(batch_result.structured_outputs)
+        total_token_usage = _merge_token_usage(
+            total_token_usage, batch_result.token_usage
+        )
+        for wordlist, response in zip(
+            wordlist_texts[i : i + batch_size], batch_result.parsed_responses
+        ):
             reranked_wordlists.append(
                 _build_reranked_wordlist(wordlist, _extract_reranked_indices(response))
             )
 
         time.sleep(rerank_interval)
 
-    set_last_structured_outputs(structured_outputs)
-    return reranked_wordlists
+    token_cost = calculate_token_cost(model_name, total_token_usage)
+    return RankingFunctionOutput(
+        ranked_wordlists=reranked_wordlists,
+        result_metadata=structured_outputs,
+        metrics_metadata={
+            "model_name": model_name,
+            "token_usage": {
+                "input_tokens": total_token_usage.input_tokens,
+                "output_tokens": total_token_usage.output_tokens,
+                "reasoning_tokens": total_token_usage.reasoning_tokens,
+                "total_tokens": total_token_usage.total_tokens,
+            },
+            "cost": asdict(token_cost),
+        },
+    )

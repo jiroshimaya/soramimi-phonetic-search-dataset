@@ -9,6 +9,17 @@
 特定ジャンルの単語だけで歌詞の音韻を模倣する替え歌（いわゆる「〇〇で歌ってみた」）から抽出した単語ペアを含み、特に韻やリズムの一致を重視する音韻検索の評価に適しています。
 
 各手法の評価結果は[leaderboard](https://github.com/jiroshimaya/soramimi-phonetic-search-dataset/blob/main/leaderboard.md)をご覧ください。
+細かな prompt/input の派生実験や probe スクリプトは、別リポジトリの [soramimi-phonetic-search-experiments](https://github.com/jiroshimaya/soramimi-phonetic-search-experiments) で管理します。
+
+## データセット形式
+
+デフォルトのデータセット [src/soramimi_phonetic_search_dataset/data/baseball.json](src/soramimi_phonetic_search_dataset/data/baseball.json) は、各 query について以下の情報を持ちます。
+
+- `query`: 検索クエリ
+- `positive`: 正解となる単語の一覧
+- `hard_negatives`: 正解ではないが音韻的に紛らわしい負例の一覧
+
+`hard_negatives` は、各 query に対して単語リスト全体を `rank_by_vowel_consonant_editdistance` に `vowel_ratio=0.5` を指定して並べ替え、その順位から `positive` に含まれる単語を除いた上位100件として作成しています。
 
 ## 使い方
 
@@ -24,13 +35,15 @@ pip install soramimi-phonetic-search-dataset
 from soramimi_phonetic_search_dataset import evaluate_ranking_function
 
 # カスタムのランキング関数を定義
-def my_ranking_function(query_texts: list[str], wordlist_texts: list[str]) -> list[list[str]]:
+def my_ranking_function(
+  query_texts: list[str], wordlists: list[list[str]]
+) -> list[list[str]]:
     # ここにあなたの音韻的類似度に基づくランキングロジックを実装
     return ranked_wordlists
 
 # 評価の実行
-recall = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
-print(f"Recall@10: {recall}")
+results = evaluate_ranking_function(ranking_func=my_ranking_function, topn=10)
+print(f"Recall@10: {results.metrics.recall}")
 ```
 
 LLMでの試行回数を減らしたい場合は、先頭10件のクエリだけを使う小データセットも利用できます。
@@ -42,12 +55,12 @@ from soramimi_phonetic_search_dataset import (
 )
 
 small_dataset = load_small_dataset()
-recall = evaluate_ranking_function(
+results = evaluate_ranking_function(
     ranking_func=my_ranking_function,
     topn=10,
     dataset=small_dataset,
 )
-print(f"Recall@10 on small dataset: {recall}")
+print(f"Recall@10 on small dataset: {results.metrics.recall}")
 ```
 
 リポジトリ内のサンプルスクリプトでも `--dataset_size small` を指定すると、同じ10件版で評価できます。
@@ -64,7 +77,8 @@ print(f"Recall@10 on small dataset: {recall}")
 ```python
 from soramimi_phonetic_search_dataset import rank_by_mora_editdistance
 
-recall = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+results = evaluate_ranking_function(ranking_func=rank_by_mora_editdistance, topn=10)
+print(results.metrics.recall)
 ```
 
 ## ライセンス

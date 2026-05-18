@@ -2,11 +2,12 @@ import argparse
 import json
 from typing import Callable
 
-from reproduce_leaderboard.methods.common.reranker import rerank_by_llm
 from soramimi_phonetic_search_dataset import (
-    evaluate_ranking_function_with_details,
+    RankingFunctionOutput,
+    evaluate_ranking_function,
     load_default_dataset,
     load_small_dataset,
+    rank_by_llm,
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
@@ -15,7 +16,7 @@ from soramimi_phonetic_search_dataset import (
 
 
 def create_reranking_function(
-    base_rank_func: Callable[[list[str], list[str]], list[list[str]]],
+    base_rank_func: Callable[[list[str], list[list[str]]], list[list[str]]],
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
@@ -23,7 +24,7 @@ def create_reranking_function(
     rerank_interval: int,
     topn: int,
     **base_rank_kwargs,
-) -> Callable[[list[str], list[str]], list[list[str]]]:
+) -> Callable[[list[str], list[list[str]]], RankingFunctionOutput]:
     """
     ベースのランキング関数とLLMによるリランクを組み合わせた関数を作成する
 
@@ -42,11 +43,12 @@ def create_reranking_function(
     """
 
     def combined_rank_func(
-        query_texts: list[str], wordlist_texts: list[str]
-    ) -> list[list[str]]:
+        query_texts: list[str],
+        wordlists: list[list[str]],
+    ) -> RankingFunctionOutput:
         # ベースのランキングを実行
         base_ranked_wordlists = base_rank_func(
-            query_texts, wordlist_texts, **base_rank_kwargs
+            query_texts, wordlists, **base_rank_kwargs
         )
 
         # 上位N件を取得してリランク
@@ -57,12 +59,11 @@ def create_reranking_function(
         # topk_ranked_wordlists = [
         #    sorted(wordlist, key=lambda x: x[0]) for wordlist in topk_ranked_wordlists
         # ]
-        reranked_wordlists = rerank_by_llm(
+        reranked_wordlists = rank_by_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
             model_name=rerank_model_name,
-            reasoning_effort=rerank_reasoning_effort,
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
@@ -199,19 +200,19 @@ def main():
         )
 
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return _rank_func(q, w)
+        def rank_func(query_texts, wordlists):
+            return _rank_func(query_texts, wordlists)
     else:
         # 警告を回避するためdefでラップ
-        def rank_func(q, w):
-            return base_rank_func(q, w, **rank_kwargs)
+        def rank_func(query_texts, wordlists):
+            return base_rank_func(query_texts, wordlists, **rank_kwargs)
 
     dataset = (
         load_small_dataset() if args.dataset_size == "small" else load_default_dataset()
     )
 
     # 評価を実行
-    results = evaluate_ranking_function_with_details(
+    results = evaluate_ranking_function(
         ranking_func=rank_func,
         topn=args.topn,
         dataset=dataset,
@@ -219,18 +220,20 @@ def main():
 
     # パラメータを設定
     results.parameters.rank_func = args.rank_func
-    results.parameters.vowel_ratio = (
-        args.vowel_ratio if args.rank_func in ["kanasim", "vowel_consonant"] else None
-    )
-    results.parameters.rerank = args.rerank
-    results.parameters.rerank_model_name = (
-        args.rerank_model_name if args.rerank else None
-    )
-    results.parameters.rerank_reasoning_effort = (
-        args.rerank_reasoning_effort if args.rerank else None
-    )
-    results.parameters.rerank_input_size = (
-        args.rerank_input_size if args.rerank else None
+    results.parameters.metadata.update(
+        {
+            "vowel_ratio": (
+                args.vowel_ratio
+                if args.rank_func in ["kanasim", "vowel_consonant"]
+                else None
+            ),
+            "rerank": args.rerank,
+            "rerank_model_name": args.rerank_model_name if args.rerank else None,
+            "rerank_reasoning_effort": (
+                args.rerank_reasoning_effort if args.rerank else None
+            ),
+            "rerank_input_size": args.rerank_input_size if args.rerank else None,
+        }
     )
 
     print("Recall: ", results.metrics.recall)
