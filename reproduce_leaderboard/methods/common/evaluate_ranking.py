@@ -38,7 +38,6 @@ def create_reranking_function(
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
-    rerank_prompt_template: str,
     rerank_prompt_instructions: str | None,
     rerank_prompt_example_suffix: str | None,
     rerank_user_prompt_template: str | None,
@@ -58,7 +57,6 @@ def create_reranking_function(
         rerank_input_size: リランクに使用する候補数
         rerank_model_name: リランクに使用するモデル名
         rerank_reasoning_effort: リランクに使用するreasoning effort
-        rerank_prompt_template: リランクに使用するプロンプトテンプレート
         rerank_input_transform: リランク前に query / candidate に適用する入力変換
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
@@ -89,7 +87,6 @@ def create_reranking_function(
             topn=topn,
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
-            prompt_template=rerank_prompt_template,
             prompt_instructions=rerank_prompt_instructions,
             prompt_example_suffix=rerank_prompt_example_suffix,
             user_prompt_template=rerank_user_prompt_template,
@@ -119,7 +116,6 @@ def get_default_output_path(
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
     rerank_reasoning_effort: str | None = None,
-    rerank_prompt_template: str = "default",
     rerank_include_thoughts: bool = False,
     rerank_input_transform: str = "none",
 ) -> str:
@@ -130,8 +126,6 @@ def get_default_output_path(
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
         if rerank_reasoning_effort:
             suffix += f"_reasoning{rerank_reasoning_effort}"
-        if rerank_prompt_template != "default":
-            suffix += f"_prompt{rerank_prompt_template}"
         if rerank_include_thoughts:
             suffix += "_withthoughts"
         if rerank_input_transform != "none":
@@ -246,13 +240,6 @@ def main():
         help="Reasoning effort for reranking models that support it",
     )
     parser.add_argument(
-        "--rerank_prompt_template",
-        type=str,
-        choices=["default", "step_by_step"],
-        default="default",
-        help="System prompt template for LLM reranking",
-    )
-    parser.add_argument(
         "--rerank_prompt_instructions_path",
         type=str,
         help="Path to a text file containing prompt instructions for LLM reranking",
@@ -324,7 +311,6 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
-            args.rerank_prompt_template,
             args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
@@ -357,7 +343,6 @@ def main():
             rerank_input_size=args.rerank_input_size,
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
-            rerank_prompt_template=args.rerank_prompt_template,
             rerank_prompt_instructions=rerank_prompt_instructions,
             rerank_prompt_example_suffix=rerank_prompt_example_suffix,
             rerank_user_prompt_template=rerank_user_prompt_template,
@@ -401,9 +386,6 @@ def main():
             "rerank_reasoning_effort": (
                 args.rerank_reasoning_effort if args.rerank else None
             ),
-            "rerank_prompt_template": (
-                args.rerank_prompt_template if args.rerank else None
-            ),
             "rerank_prompt_instructions": (
                 rerank_prompt_instructions.strip()
                 if args.rerank and rerank_prompt_instructions
@@ -446,7 +428,6 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
-            args.rerank_prompt_template,
             args.rerank_include_thoughts,
             args.rerank_input_transform,
         )

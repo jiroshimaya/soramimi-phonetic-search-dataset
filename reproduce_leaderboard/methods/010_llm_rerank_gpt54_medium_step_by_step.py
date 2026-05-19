@@ -79,7 +79,6 @@ def main():
             "rerank": True,
             "rerank_model_name": MODEL_NAME,
             "rerank_reasoning_effort": REASONING_EFFORT,
-            "rerank_prompt_template": "step_by_step",
             "rerank_prompt_instructions": PROMPT_INSTRUCTIONS.strip(),
             "rerank_prompt_example_suffix": PROMPT_EXAMPLE_SUFFIX.strip(),
             "rerank_input_transform": "none",
