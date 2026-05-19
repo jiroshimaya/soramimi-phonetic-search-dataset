@@ -53,13 +53,11 @@ def test_正常系_query_limit付きの出力ファイル名を生成できる()
         rerank_topn=100,
         rerank_model_name="gpt-5.4",
         rerank_reasoning_effort="none",
-        rerank_prompt_template="detailed",
-        rerank_input_transform="kana_and_pyopenjtalk_romaji",
+        rerank_prompt_template="step_by_step",
+        rerank_input_transform="none",
     )
 
-    assert output_path.endswith(
-        "_transformkana_and_pyopenjtalk_romaji_querylimit100.json"
-    )
+    assert output_path.endswith("_promptstep_by_step_querylimit100.json")
 
 
 def test_正常系_query_offset付きの出力ファイル名を生成できる():
@@ -72,13 +70,11 @@ def test_正常系_query_offset付きの出力ファイル名を生成できる(
         rerank_topn=100,
         rerank_model_name="gpt-5.4",
         rerank_reasoning_effort="none",
-        rerank_prompt_template="detailed",
-        rerank_input_transform="kana_and_pyopenjtalk_romaji",
+        rerank_prompt_template="step_by_step",
+        rerank_input_transform="none",
     )
 
-    assert output_path.endswith(
-        "_transformkana_and_pyopenjtalk_romaji_querylimit50_queryoffset100.json"
-    )
+    assert output_path.endswith("_promptstep_by_step_querylimit50_queryoffset100.json")
 
 
 def test_正常系_query_limit指定でdefault_datasetを絞って評価できる(
