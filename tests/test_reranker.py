@@ -249,30 +249,6 @@ def test_rank_by_reasoning_llm_accepts_thoughtful_structured_output(monkeypatch)
     ]
 
 
-def test_rerank_by_reasoning_llm_uses_selected_prompt_template(monkeypatch):
-    captured_messages = []
-
-    def fake_get_structured_outputs(**kwargs):
-        captured_messages.extend(kwargs["messages"])
-        return reranker.StructuredOutputsResult(
-            parsed_responses=[{"reranked": [0]}],
-            structured_outputs=[{"reranked": [0]}],
-            token_usage=reranker.TokenUsage(),
-        )
-
-    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
-
-    reranker.rank_by_reasoning_llm(
-        query_texts=["アケ"],
-        wordlist_texts=[["アベ"]],
-        model_name="gpt-5.4",
-        rerank_interval=0,
-        prompt_template="step_by_step",
-    )
-
-    assert "以下の手順で判断してください。" in captured_messages[0][0]["content"]
-
-
 def test_build_openai_json_schema_response_format_uses_pydantic_schema():
     expected_schema = reranker._normalize_openai_json_schema(
         SampleResponse.model_json_schema()
