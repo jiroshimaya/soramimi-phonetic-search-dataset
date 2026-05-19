@@ -1,12 +1,7 @@
-import json
 import time
-from dataclasses import asdict
-from datetime import datetime
-from pathlib import Path
 from typing import Any, Type
 
 from litellm import batch_completion, completion, cost_per_token
-from openai import OpenAI
 from pydantic import BaseModel
 import pyopenjtalk
 from soramimi_phonetic_search_dataset import reasoning_llm_ranking as _core_reasoning
@@ -18,12 +13,9 @@ from rerank_prompts import (
     get_prompt_config,
 )
 
-OPENAI_BATCH_ENDPOINT = _core_reasoning.OPENAI_BATCH_ENDPOINT
-OPENAI_BATCH_DISCOUNT_FACTOR = _core_reasoning.OPENAI_BATCH_DISCOUNT_FACTOR
 OPENAI_MODEL_PREFIXES = _core_reasoning.OPENAI_MODEL_PREFIXES
 TokenUsage = _core_reasoning.TokenUsage
 TokenCost = _core_reasoning.TokenCost
-OpenAIBatchRerankResult = _core_reasoning.OpenAIBatchRerankResult
 RerankedWordlist = _core_reasoning.RerankedWordlist
 ThoughtfulRerankedWordlist = _core_reasoning.ThoughtfulRerankedWordlist
 
@@ -236,29 +228,6 @@ def accumulate_token_usage(response: Any) -> None:
     )
 
 
-def _token_usage_from_batch_usage(batch_usage: Any) -> TokenUsage:
-    if batch_usage is None:
-        return TokenUsage()
-
-    output_details = _get_value(batch_usage, "output_tokens_details")
-    reasoning_tokens = _get_value(output_details, "reasoning_tokens", 0) or 0
-    input_tokens = _get_value(batch_usage, "input_tokens", 0) or _get_value(
-        batch_usage, "prompt_tokens", 0
-    )
-    completion_tokens = _get_value(batch_usage, "output_tokens", 0) or _get_value(
-        batch_usage, "completion_tokens", 0
-    )
-    total_tokens = _get_value(batch_usage, "total_tokens", 0) or (
-        input_tokens + completion_tokens
-    )
-    return TokenUsage(
-        input_tokens=input_tokens,
-        completion_tokens=completion_tokens,
-        reasoning_tokens=reasoning_tokens,
-        total_tokens=total_tokens,
-    )
-
-
 def _extract_response_content(response: Any) -> str:
     choices = _get_value(response, "choices")
     if not choices:
@@ -392,161 +361,6 @@ def _normalize_openai_json_schema(schema: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
-def build_openai_batch_requests(
-    *,
-    model_name: str,
-    messages: list[list[dict[str, str]]],
-    custom_ids: list[str],
-    response_format: Type[BaseModel],
-    temperature: float = 0.0,
-    max_tokens: int = 1000,
-    reasoning_effort: str | None = None,
-) -> list[dict[str, Any]]:
-    if len(messages) != len(custom_ids):
-        raise ValueError("messages and custom_ids must have the same length")
-    if not is_openai_model(model_name):
-        raise ValueError(f"OpenAI batch backend does not support model: {model_name}")
-
-    requests = []
-    for custom_id, message in zip(custom_ids, messages):
-        requests.append(
-            {
-                "custom_id": custom_id,
-                "method": "POST",
-                "url": OPENAI_BATCH_ENDPOINT,
-                "body": _build_openai_chat_completion_body(
-                    model_name=model_name,
-                    messages=message,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    reasoning_effort=reasoning_effort,
-                    response_format=response_format,
-                ),
-            }
-        )
-    return requests
-
-
-def _write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-
-
-def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        for row in rows:
-            f.write(json.dumps(row, ensure_ascii=False) + "\n")
-
-
-def _read_jsonl(path: Path) -> list[dict[str, Any]]:
-    with open(path, encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
-
-
-def _get_openai_client(client: Any | None = None) -> Any:
-    return client if client is not None else OpenAI()
-
-
-def submit_openai_batch_rerank_job(
-    *,
-    query_texts: list[str],
-    wordlist_texts: list[list[str]],
-    positive_texts: list[list[str]],
-    topn: int,
-    model_name: str,
-    prompt_template: str = "default",
-    prompt_instructions: str | None = None,
-    prompt_example_suffix: str | None = None,
-    user_prompt_template: str | None = None,
-    input_transform: str = "none",
-    response_format: Type[BaseModel],
-    state_path: str,
-    output_file_path: str,
-    reasoning_effort: str | None = None,
-    temperature: float = 0.0,
-    max_tokens: int = 1000,
-    client: Any | None = None,
-) -> dict[str, Any]:
-    state_file_path = Path(state_path)
-    request_file_path = state_file_path.with_suffix(".requests.jsonl")
-    request_items: list[dict[str, Any]] = [
-        {
-            "custom_id": f"rerank-{index:04d}",
-            "query": query,
-            "candidate_words": wordlist,
-            "positive_words": positive,
-        }
-        for index, (query, wordlist, positive) in enumerate(
-            zip(query_texts, wordlist_texts, positive_texts)
-        )
-    ]
-    messages = build_rerank_messages(
-        query_texts,
-        wordlist_texts,
-        topn=topn,
-        prompt_template=prompt_template,
-        prompt_instructions=prompt_instructions,
-        prompt_example_suffix=prompt_example_suffix,
-        user_prompt_template=user_prompt_template,
-        input_transform=input_transform,
-    )
-    custom_ids = [str(item["custom_id"]) for item in request_items]
-    requests = build_openai_batch_requests(
-        model_name=model_name,
-        messages=messages,
-        custom_ids=custom_ids,
-        response_format=response_format,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        reasoning_effort=reasoning_effort,
-    )
-    _write_jsonl(request_file_path, requests)
-
-    openai_client = _get_openai_client(client)
-    with open(request_file_path, "rb") as f:
-        input_file = openai_client.files.create(file=f, purpose="batch")
-    batch = openai_client.batches.create(
-        input_file_id=input_file.id,
-        endpoint=OPENAI_BATCH_ENDPOINT,
-        completion_window="24h",
-    )
-
-    state = {
-        "schema_version": 1,
-        "backend": "openai_batch",
-        "endpoint": OPENAI_BATCH_ENDPOINT,
-        "batch_id": batch.id,
-        "batch_status": _get_value(batch, "status"),
-        "input_file_id": input_file.id,
-        "request_file_path": str(request_file_path),
-        "output_file_path": output_file_path,
-        "result_file_path": None,
-        "error_file_path": None,
-        "submitted_at": datetime.now().isoformat(),
-        "parameters": {
-            "topn": topn,
-            "rerank_model_name": model_name,
-            "rerank_reasoning_effort": reasoning_effort,
-            "rerank_prompt_template": prompt_template,
-            "rerank_prompt_instructions": (
-                prompt_instructions.strip() if prompt_instructions else None
-            ),
-            "rerank_prompt_example_suffix": (
-                prompt_example_suffix.strip() if prompt_example_suffix else None
-            ),
-            "rerank_user_prompt_template": (
-                user_prompt_template.strip() if user_prompt_template else None
-            ),
-            "rerank_input_transform": input_transform,
-        },
-        "items": request_items,
-    }
-    _write_json(state_file_path, state)
-    return state
-
-
 def _build_reranked_wordlist(
     wordlist: list[str], reranked_indices: list[int]
 ) -> list[str]:
@@ -573,156 +387,6 @@ def _extract_structured_output(
     response: BaseModel | dict[str, Any],
 ) -> dict[str, Any]:
     return response.model_dump() if isinstance(response, BaseModel) else dict(response)
-
-
-def _get_batch_execution_time(batch: Any) -> float:
-    started_at = _get_value(batch, "in_progress_at") or _get_value(batch, "created_at")
-    completed_at = _get_value(batch, "completed_at")
-    if started_at is None or completed_at is None:
-        return 0.0
-    return max(float(completed_at) - float(started_at), 0.0)
-
-
-def _jsonify_openai_value(value: Any) -> Any:
-    if isinstance(value, (str, int, float, bool)) or value is None:
-        return value
-    if isinstance(value, dict):
-        return {key: _jsonify_openai_value(inner) for key, inner in value.items()}
-    if isinstance(value, list):
-        return [_jsonify_openai_value(item) for item in value]
-    if hasattr(value, "model_dump"):
-        return _jsonify_openai_value(value.model_dump())
-    if hasattr(value, "__dict__"):
-        return _jsonify_openai_value(vars(value))
-    return value
-
-
-def _summarize_batch_errors(
-    error_file_path: str | None, *, limit: int = 3
-) -> str | None:
-    if error_file_path is None:
-        return None
-
-    rows = _read_jsonl(Path(error_file_path))
-    summaries = []
-    for row in rows[:limit]:
-        custom_id = row.get("custom_id", "unknown")
-        response = row.get("response")
-        response_error = _get_value(_get_value(response, "body"), "error")
-        error = row.get("error")
-        message = _get_value(response_error, "message") or _get_value(error, "message")
-        if message is not None:
-            summaries.append(f"{custom_id}: {message}")
-
-    if not summaries:
-        return None
-    return "; ".join(summaries)
-
-
-def retrieve_openai_batch_rerank_job(
-    *,
-    state_path: str,
-    response_format: Type[BaseModel],
-    client: Any | None = None,
-) -> OpenAIBatchRerankResult:
-    state_file_path = Path(state_path)
-    with open(state_file_path, encoding="utf-8") as f:
-        state = json.load(f)
-
-    openai_client = _get_openai_client(client)
-    batch = openai_client.batches.retrieve(state["batch_id"])
-    state["batch_status"] = _get_value(batch, "status")
-    state["output_file_id"] = _get_value(batch, "output_file_id")
-    state["error_file_id"] = _get_value(batch, "error_file_id")
-    state["request_counts"] = _jsonify_openai_value(_get_value(batch, "request_counts"))
-
-    if state["output_file_id"]:
-        result_file_path = state_file_path.with_suffix(".results.jsonl")
-        result_bytes = openai_client.files.content(state["output_file_id"]).content
-        result_file_path.write_bytes(result_bytes)
-        state["result_file_path"] = str(result_file_path)
-
-    if state["error_file_id"]:
-        error_file_path = state_file_path.with_suffix(".errors.jsonl")
-        error_bytes = openai_client.files.content(state["error_file_id"]).content
-        error_file_path.write_bytes(error_bytes)
-        state["error_file_path"] = str(error_file_path)
-
-    batch_status = state["batch_status"]
-    if batch_status != "completed":
-        _write_json(state_file_path, state)
-        raise RuntimeError(
-            "OpenAI batch is not completed yet: "
-            f"batch_id={state['batch_id']} status={batch_status}"
-        )
-
-    if not state.get("result_file_path"):
-        error_summary = _summarize_batch_errors(state.get("error_file_path"))
-        error_context = (
-            f" error_file_path={state.get('error_file_path')}"
-            if state.get("error_file_path")
-            else ""
-        )
-        if error_summary:
-            error_context += f" sample_errors={error_summary}"
-        raise RuntimeError(
-            f"OpenAI batch completed without result file: {state['batch_id']}{error_context}"
-        )
-
-    result_rows = _read_jsonl(Path(state["result_file_path"]))
-    row_by_custom_id = {row["custom_id"]: row for row in result_rows}
-
-    reset_token_usage()
-    reset_last_structured_outputs()
-    reranked_wordlists = []
-    structured_outputs = []
-    for item in state["items"]:
-        row = row_by_custom_id.get(item["custom_id"])
-        if row is None:
-            raise RuntimeError(
-                f"Missing batch result for custom_id={item['custom_id']}"
-            )
-        response = row.get("response")
-        if response is None:
-            raise RuntimeError(
-                f"Batch result missing response for custom_id={item['custom_id']}"
-            )
-        if response.get("status_code") != 200:
-            raise RuntimeError(
-                "Batch request failed for "
-                f"custom_id={item['custom_id']}: {json.dumps(row, ensure_ascii=False)}"
-            )
-        body = response["body"]
-        accumulate_token_usage(body)
-        parsed = _parse_response(body, response_format)
-        structured_outputs.append(_extract_structured_output(parsed))
-        reranked_wordlists.append(
-            _build_reranked_wordlist(
-                item["candidate_words"], _extract_reranked_indices(parsed)
-            )
-        )
-
-    token_usage = _token_usage_from_batch_usage(_get_value(batch, "usage"))
-    if token_usage.total_tokens == 0:
-        token_usage = get_last_token_usage()
-    else:
-        set_last_token_usage(token_usage)
-
-    state["retrieved_at"] = datetime.now().isoformat()
-    state["usage"] = asdict(token_usage)
-    _write_json(state_file_path, state)
-    set_last_structured_outputs(structured_outputs)
-
-    return OpenAIBatchRerankResult(
-        reranked_wordlists=reranked_wordlists,
-        structured_outputs=structured_outputs,
-        token_usage=token_usage,
-        batch_id=state["batch_id"],
-        batch_status=batch_status,
-        execution_time=_get_batch_execution_time(batch),
-        output_file_path=state.get("result_file_path"),
-        error_file_path=state.get("error_file_path"),
-    )
 
 
 def get_structured_outputs(

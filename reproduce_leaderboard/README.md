@@ -49,8 +49,6 @@ uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10
 uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10 --dataset_size small
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4
 uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort medium --rerank_prompt_template step_by_step
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action submit
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_backend openai_batch --rerank_batch_action retrieve
 ```
 
 ## 出力
@@ -80,6 +78,4 @@ results/
 
 - 評価には `baseball.json` データセットが使われます
 - `--dataset_size small` を使うと、同じ単語リストのまま先頭10クエリだけで評価できます
-- `openai_batch` backend は OpenAI 系モデル専用です
 - LLM を使う場合は `OPENAI_API_KEY` / `GEMINI_API_KEY` などの環境変数を設定してください
-
