@@ -2,12 +2,6 @@ import argparse
 import json
 from typing import Callable
 
-from reranker import (
-    calculate_token_cost,
-    get_last_structured_outputs,
-    get_last_token_usage,
-    rank_by_llm,
-)
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function,
     load_default_dataset,
@@ -15,31 +9,10 @@ from soramimi_phonetic_search_dataset import (
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
+    reasoning_llm_ranking,
     rank_by_vowel_consonant_editdistance,
 )
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
-
-
-def build_rerank_metrics_metadata(
-    model_name: str,
-    token_usage,
-    token_cost,
-) -> dict[str, object]:
-    return {
-        "model_name": model_name,
-        "token_usage": {
-            "input_tokens": token_usage.input_tokens,
-            "output_tokens": token_usage.output_tokens,
-            "reasoning_tokens": token_usage.reasoning_tokens,
-            "total_tokens": token_usage.total_tokens,
-        },
-        "cost": {
-            "input_cost": token_cost.input_cost,
-            "output_cost": token_cost.output_cost,
-            "reasoning_cost": token_cost.reasoning_cost,
-            "total_cost": token_cost.total_cost,
-        },
-    }
 
 
 def prepare_rerank_candidates(
@@ -110,7 +83,7 @@ def create_reranking_function(
             rerank_input_size,
         )
 
-        reranked_wordlists = rank_by_llm(
+        rerank_output = reasoning_llm_ranking.rank_by_reasoning_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
@@ -125,20 +98,12 @@ def create_reranking_function(
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
-        token_usage = get_last_token_usage()
-        token_cost = calculate_token_cost(rerank_model_name, token_usage)
-        result_metadata = (
-            get_last_structured_outputs() if rerank_include_thoughts else None
-        )
-        metrics_metadata = build_rerank_metrics_metadata(
-            rerank_model_name,
-            token_usage,
-            token_cost,
-        )
         return RankingFunctionOutput(
-            ranked_wordlists=reranked_wordlists,
-            result_metadata=result_metadata,
-            metrics_metadata=metrics_metadata,
+            ranked_wordlists=rerank_output.ranked_wordlists,
+            result_metadata=(
+                rerank_output.result_metadata if rerank_include_thoughts else None
+            ),
+            metrics_metadata=rerank_output.metrics_metadata,
         )
 
     return combined_rank_func
@@ -472,11 +437,6 @@ def main():
             "rerank_batch_id": None,
         }
     )
-    if args.rerank and args.rerank_include_thoughts:
-        structured_outputs = get_last_structured_outputs()
-        for result, structured_output in zip(results.results, structured_outputs):
-            result.metadata = structured_output
-
     print("Recall: ", results.metrics.recall)
     print("Execution time: ", results.metrics.execution_time)
 
