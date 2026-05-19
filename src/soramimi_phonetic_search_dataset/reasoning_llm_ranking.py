@@ -4,6 +4,7 @@ from typing import Any, Type
 
 from litellm import batch_completion, completion, cost_per_token
 from pydantic import BaseModel
+import pyopenjtalk
 from tqdm import tqdm
 
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
@@ -36,8 +37,87 @@ Wordlist:
 Top N: {topn}
 Reranked:
 """
+DEFAULT_PROMPT_EXAMPLE_SUFFIX = PROMPT_EXAMPLE_SUFFIX
+DEFAULT_USER_PROMPT_TEMPLATE = USER_PROMPT_TEMPLATE
 
 OPENAI_MODEL_PREFIXES = ("gpt-", "o1", "o3", "o4", "chatgpt-")
+
+
+@dataclass(frozen=True)
+class RerankPromptConfig:
+    prompt_instructions: str
+    prompt_example_suffix: str = DEFAULT_PROMPT_EXAMPLE_SUFFIX
+    user_prompt_template: str = DEFAULT_USER_PROMPT_TEMPLATE
+    requires_thoughts: bool = False
+
+
+PROMPT_CONFIGS = {
+    "default": RerankPromptConfig(
+        prompt_instructions="""
+You are a phonetic search assistant.
+You are given a query and a list of words.
+You need to rerank the words based on phonetic similarity to the query.
+When estimating phonetic similarity, please consider the following:
+1. Prioritize matching vowels
+2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
+3. For other cases, words with similar mora counts are preferred
+You need to return only the reranked list of index numbers of the words, no other text.
+You need to return only topn index numbers.
+""",
+    ),
+    "simple": RerankPromptConfig(
+        prompt_instructions="""
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+出力は上位Top N件のインデックスのみ返してください。
+""",
+    ),
+    "detailed": RerankPromptConfig(
+        prompt_instructions="""
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+- 子音より母音の一致を優先してください
+- クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+出力は上位Top N件のインデックスのみ返してください。
+""",
+    ),
+    "step_by_step": RerankPromptConfig(
+        prompt_instructions="""
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+以下の手順で判断してください。
+- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+出力は上位Top N件のインデックスのみ返してください。
+""",
+    ),
+    "detailed_romaji_explicit": RerankPromptConfig(
+        prompt_instructions="""
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+- Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
+- 子音より母音の一致を優先してください
+- クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
+出力は上位Top N件のインデックスのみ返してください。
+""",
+    ),
+    "nonreasoning_cot": RerankPromptConfig(
+        prompt_instructions="""
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+以下の手順で判断してください。
+- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
+構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
+""",
+        requires_thoughts=True,
+    ),
+}
 
 
 @dataclass
@@ -77,20 +157,71 @@ class ThoughtfulRerankedWordlist(BaseModel):
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform != "none":
-        raise ValueError(f"Unknown input_transform: {input_transform}")
-    return text
+    if input_transform == "none":
+        return text
+    if input_transform == "pyopenjtalk_romaji":
+        phonemes = pyopenjtalk.g2p(text)
+        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
+        return " ".join(phoneme_text.lower().split())
+    if input_transform == "kana_and_pyopenjtalk_romaji":
+        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
+        return f"{text}（{romaji}）"
+    raise ValueError(f"Unknown input_transform: {input_transform}")
+
+
+def get_prompt_config(prompt_template: str = "default") -> RerankPromptConfig:
+    try:
+        return PROMPT_CONFIGS[prompt_template]
+    except KeyError as exc:
+        raise ValueError(f"Unknown prompt_template: {prompt_template}") from exc
+
+
+def _resolve_prompt_config(
+    prompt_template: str | None = None,
+    *,
+    prompt_instructions: str | None = None,
+    prompt_example_suffix: str | None = None,
+    user_prompt_template: str | None = None,
+) -> RerankPromptConfig:
+    if prompt_template is None:
+        return RerankPromptConfig(
+            prompt_instructions=prompt_instructions or PROMPT_INSTRUCTIONS,
+            prompt_example_suffix=prompt_example_suffix or PROMPT_EXAMPLE_SUFFIX,
+            user_prompt_template=user_prompt_template or USER_PROMPT_TEMPLATE,
+        )
+
+    prompt_config = get_prompt_config(prompt_template)
+    return RerankPromptConfig(
+        prompt_instructions=prompt_instructions or prompt_config.prompt_instructions,
+        prompt_example_suffix=(
+            prompt_example_suffix or prompt_config.prompt_example_suffix
+        ),
+        user_prompt_template=user_prompt_template or prompt_config.user_prompt_template,
+        requires_thoughts=prompt_config.requires_thoughts,
+    )
 
 
 def build_system_prompt(
+    prompt_template: str | None = None,
     *,
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
 ) -> str:
-    if prompt_instructions is None:
-        prompt_instructions = PROMPT_INSTRUCTIONS
-    example_suffix = prompt_example_suffix or PROMPT_EXAMPLE_SUFFIX
-    return f"{prompt_instructions.strip()}\n\n{example_suffix.strip()}"
+    prompt_config = _resolve_prompt_config(
+        prompt_template,
+        prompt_instructions=prompt_instructions,
+        prompt_example_suffix=prompt_example_suffix,
+    )
+    return (
+        f"{prompt_config.prompt_instructions.strip()}\n\n"
+        f"{prompt_config.prompt_example_suffix.strip()}"
+    )
+
+
+def prompt_template_requires_thoughts(prompt_template: str | None) -> bool:
+    if prompt_template is None:
+        return False
+    return get_prompt_config(prompt_template).requires_thoughts
 
 
 def get_rerank_response_format(*, include_thoughts: bool) -> Type[BaseModel]:
@@ -110,11 +241,18 @@ def build_rerank_messages(
     prompt_template: str | None = None,
     input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
-    prompt = build_system_prompt(
+    prompt_config = _resolve_prompt_config(
+        prompt_template,
         prompt_instructions=prompt_instructions,
         prompt_example_suffix=prompt_example_suffix,
+        user_prompt_template=user_prompt_template,
     )
-    user_prompt = user_prompt_template or USER_PROMPT_TEMPLATE
+    prompt = build_system_prompt(
+        prompt_template,
+        prompt_instructions=prompt_config.prompt_instructions,
+        prompt_example_suffix=prompt_config.prompt_example_suffix,
+    )
+    user_prompt = prompt_config.user_prompt_template or DEFAULT_USER_PROMPT_TEMPLATE
 
     messages = []
     for query, wordlist in zip(query_texts, wordlist_texts):
@@ -432,6 +570,7 @@ def rank_by_reasoning_llm(
     topn: int = 10,
     model_name: str = "gpt-5.1-mini",
     reasoning_effort: str | None = None,
+    prompt_template: str | None = None,
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
     user_prompt_template: str | None = None,
@@ -445,12 +584,16 @@ def rank_by_reasoning_llm(
         query_texts,
         wordlist_texts,
         topn=topn,
+        prompt_template=prompt_template,
         prompt_instructions=prompt_instructions,
         prompt_example_suffix=prompt_example_suffix,
         user_prompt_template=user_prompt_template,
         input_transform=input_transform,
     )
-    response_format = get_rerank_response_format(include_thoughts=include_thoughts)
+    response_format = get_rerank_response_format(
+        include_thoughts=include_thoughts
+        or prompt_template_requires_thoughts(prompt_template)
+    )
 
     reranked_wordlists = []
     structured_outputs = []

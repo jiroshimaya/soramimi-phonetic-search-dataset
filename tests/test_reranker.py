@@ -182,9 +182,27 @@ def test_build_system_prompt_accepts_overrides():
 
 def test_transform_text_for_rerank_rejects_non_default_transform():
     with pytest.raises(ValueError, match="Unknown input_transform"):
-        reranker.transform_text_for_rerank(
-            "タロウ", input_transform="pyopenjtalk_romaji"
-        )
+        reranker.transform_text_for_rerank("タロウ", input_transform="unknown")
+
+
+def test_transform_text_for_rerank_supports_pyopenjtalk_romaji(monkeypatch):
+    monkeypatch.setattr(reranker.pyopenjtalk, "g2p", lambda text: "t a r o o")
+
+    transformed = reranker.transform_text_for_rerank(
+        "タロウ", input_transform="pyopenjtalk_romaji"
+    )
+
+    assert transformed == "t a r o o"
+
+
+def test_transform_text_for_rerank_supports_kana_and_pyopenjtalk_romaji(monkeypatch):
+    monkeypatch.setattr(reranker.pyopenjtalk, "g2p", lambda text: "t a r o o")
+
+    transformed = reranker.transform_text_for_rerank(
+        "タロウ", input_transform="kana_and_pyopenjtalk_romaji"
+    )
+
+    assert transformed == "タロウ（t a r o o）"
 
 
 def test_rank_by_reasoning_llm_accepts_prompt_instructions(monkeypatch):
@@ -251,6 +269,36 @@ def test_rank_by_reasoning_llm_accepts_thoughtful_structured_output(monkeypatch)
     ]
 
 
+def test_rerank_by_reasoning_llm_uses_selected_prompt_template(monkeypatch):
+    captured_messages = []
+
+    def fake_get_structured_outputs(**kwargs):
+        captured_messages.extend(kwargs["messages"])
+        return reranker.StructuredOutputsResult(
+            parsed_responses=[{"reranked": [0]}],
+            structured_outputs=[{"reranked": [0]}],
+            token_usage=reranker.TokenUsage(),
+        )
+
+    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
+
+    reranker.rank_by_reasoning_llm(
+        query_texts=["アケ"],
+        wordlist_texts=[["アベ"]],
+        model_name="gpt-5.4",
+        rerank_interval=0,
+        prompt_template="step_by_step",
+    )
+
+    assert "以下の手順で判断してください。" in captured_messages[0][0]["content"]
+
+
+def test_build_system_prompt_for_nonreasoning_cot_mentions_thoughts():
+    prompt = reranker.build_system_prompt(prompt_template="nonreasoning_cot")
+
+    assert "thoughts フィールド" in prompt
+
+
 def test_build_openai_json_schema_response_format_uses_pydantic_schema():
     expected_schema = reranker._normalize_openai_json_schema(
         SampleResponse.model_json_schema()
@@ -287,15 +335,32 @@ def test_normalize_openai_json_schema_adds_additional_properties_false():
     )
 
 
-def test_rank_by_reasoning_llm_rejects_non_default_input_transform():
-    with pytest.raises(ValueError, match="Unknown input_transform"):
+def test_get_rerank_response_format_uses_thoughtful_schema_when_prompt_requires_it():
+    captured_response_format = None
+
+    def fake_get_structured_outputs(**kwargs):
+        nonlocal captured_response_format
+        captured_response_format = kwargs["response_format"]
+        return reranker.StructuredOutputsResult(
+            parsed_responses=[{"thoughts": ["a"], "reranked": [0]}],
+            structured_outputs=[{"thoughts": ["a"], "reranked": [0]}],
+            token_usage=reranker.TokenUsage(),
+        )
+
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(reranker, "get_structured_outputs", fake_get_structured_outputs)
+    try:
         reranker.rank_by_reasoning_llm(
             query_texts=["アケ"],
-            wordlist_texts=[["アベ", "カケイ"]],
+            wordlist_texts=[["アベ"]],
             model_name="gpt-5.4",
-            input_transform="pyopenjtalk_romaji",
+            prompt_template="nonreasoning_cot",
             rerank_interval=0,
         )
+    finally:
+        monkeypatch.undo()
+
+    assert captured_response_format is reranker.ThoughtfulRerankedWordlist
 
 
 def test_build_system_prompt_supports_custom_romaji_instructions():
