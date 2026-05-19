@@ -107,7 +107,6 @@ def build_rerank_messages(
     prompt_instructions: str | None = None,
     prompt_example_suffix: str | None = None,
     user_prompt_template: str | None = None,
-    prompt_template: str | None = None,
     input_transform: str = "none",
 ) -> list[list[dict[str, str]]]:
     prompt = build_system_prompt(

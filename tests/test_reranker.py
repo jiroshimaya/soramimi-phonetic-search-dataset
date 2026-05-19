@@ -182,9 +182,7 @@ def test_build_system_prompt_accepts_overrides():
 
 def test_transform_text_for_rerank_rejects_non_default_transform():
     with pytest.raises(ValueError, match="Unknown input_transform"):
-        reranker.transform_text_for_rerank(
-            "タロウ", input_transform="pyopenjtalk_romaji"
-        )
+        reranker.transform_text_for_rerank("タロウ", input_transform="unknown")
 
 
 def test_rank_by_reasoning_llm_accepts_prompt_instructions(monkeypatch):
@@ -285,17 +283,6 @@ def test_normalize_openai_json_schema_adds_additional_properties_false():
     assert (
         normalized["properties"]["reranked"]["items"]["additionalProperties"] is False
     )
-
-
-def test_rank_by_reasoning_llm_rejects_non_default_input_transform():
-    with pytest.raises(ValueError, match="Unknown input_transform"):
-        reranker.rank_by_reasoning_llm(
-            query_texts=["アケ"],
-            wordlist_texts=[["アベ", "カケイ"]],
-            model_name="gpt-5.4",
-            input_transform="pyopenjtalk_romaji",
-            rerank_interval=0,
-        )
 
 
 def test_build_system_prompt_supports_custom_romaji_instructions():

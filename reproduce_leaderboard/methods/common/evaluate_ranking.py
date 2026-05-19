@@ -2,12 +2,6 @@ import argparse
 import json
 from typing import Callable
 
-from reranker import (
-    calculate_token_cost,
-    get_last_structured_outputs,
-    get_last_token_usage,
-    rank_by_llm,
-)
 from soramimi_phonetic_search_dataset import (
     evaluate_ranking_function,
     load_default_dataset,
@@ -15,31 +9,10 @@ from soramimi_phonetic_search_dataset import (
     rank_by_kanasim,
     rank_by_mora_editdistance,
     rank_by_phoneme_editdistance,
+    reasoning_llm_ranking,
     rank_by_vowel_consonant_editdistance,
 )
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
-
-
-def build_rerank_metrics_metadata(
-    model_name: str,
-    token_usage,
-    token_cost,
-) -> dict[str, object]:
-    return {
-        "model_name": model_name,
-        "token_usage": {
-            "input_tokens": token_usage.input_tokens,
-            "output_tokens": token_usage.output_tokens,
-            "reasoning_tokens": token_usage.reasoning_tokens,
-            "total_tokens": token_usage.total_tokens,
-        },
-        "cost": {
-            "input_cost": token_cost.input_cost,
-            "output_cost": token_cost.output_cost,
-            "reasoning_cost": token_cost.reasoning_cost,
-            "total_cost": token_cost.total_cost,
-        },
-    }
 
 
 def prepare_rerank_candidates(
@@ -65,7 +38,6 @@ def create_reranking_function(
     rerank_input_size: int,
     rerank_model_name: str,
     rerank_reasoning_effort: str | None,
-    rerank_prompt_template: str,
     rerank_prompt_instructions: str | None,
     rerank_prompt_example_suffix: str | None,
     rerank_user_prompt_template: str | None,
@@ -85,7 +57,6 @@ def create_reranking_function(
         rerank_input_size: リランクに使用する候補数
         rerank_model_name: リランクに使用するモデル名
         rerank_reasoning_effort: リランクに使用するreasoning effort
-        rerank_prompt_template: リランクに使用するプロンプトテンプレート
         rerank_input_transform: リランク前に query / candidate に適用する入力変換
         rerank_batch_size: リランクのバッチサイズ
         rerank_interval: リランクのインターバル
@@ -110,13 +81,12 @@ def create_reranking_function(
             rerank_input_size,
         )
 
-        reranked_wordlists = rank_by_llm(
+        rerank_output = reasoning_llm_ranking.rank_by_reasoning_llm(
             query_texts,
             topk_ranked_wordlists,
             topn=topn,
             model_name=rerank_model_name,
             reasoning_effort=rerank_reasoning_effort,
-            prompt_template=rerank_prompt_template,
             prompt_instructions=rerank_prompt_instructions,
             prompt_example_suffix=rerank_prompt_example_suffix,
             user_prompt_template=rerank_user_prompt_template,
@@ -125,20 +95,12 @@ def create_reranking_function(
             batch_size=rerank_batch_size,
             rerank_interval=rerank_interval,
         )
-        token_usage = get_last_token_usage()
-        token_cost = calculate_token_cost(rerank_model_name, token_usage)
-        result_metadata = (
-            get_last_structured_outputs() if rerank_include_thoughts else None
-        )
-        metrics_metadata = build_rerank_metrics_metadata(
-            rerank_model_name,
-            token_usage,
-            token_cost,
-        )
         return RankingFunctionOutput(
-            ranked_wordlists=reranked_wordlists,
-            result_metadata=result_metadata,
-            metrics_metadata=metrics_metadata,
+            ranked_wordlists=rerank_output.ranked_wordlists,
+            result_metadata=(
+                rerank_output.result_metadata if rerank_include_thoughts else None
+            ),
+            metrics_metadata=rerank_output.metrics_metadata,
         )
 
     return combined_rank_func
@@ -154,7 +116,6 @@ def get_default_output_path(
     rerank_topn: int = 10,
     rerank_model_name: str = "gpt-4o-mini",
     rerank_reasoning_effort: str | None = None,
-    rerank_prompt_template: str = "default",
     rerank_include_thoughts: bool = False,
     rerank_input_transform: str = "none",
 ) -> str:
@@ -165,8 +126,6 @@ def get_default_output_path(
         suffix += f"_reranked_top{rerank_topn}_model{model_name_safe}"
         if rerank_reasoning_effort:
             suffix += f"_reasoning{rerank_reasoning_effort}"
-        if rerank_prompt_template != "default":
-            suffix += f"_prompt{rerank_prompt_template}"
         if rerank_include_thoughts:
             suffix += "_withthoughts"
         if rerank_input_transform != "none":
@@ -281,20 +240,6 @@ def main():
         help="Reasoning effort for reranking models that support it",
     )
     parser.add_argument(
-        "--rerank_prompt_template",
-        type=str,
-        choices=[
-            "default",
-            "simple",
-            "detailed",
-            "step_by_step",
-            "detailed_romaji_explicit",
-            "nonreasoning_cot",
-        ],
-        default="default",
-        help="System prompt template for LLM reranking",
-    )
-    parser.add_argument(
         "--rerank_prompt_instructions_path",
         type=str,
         help="Path to a text file containing prompt instructions for LLM reranking",
@@ -317,7 +262,7 @@ def main():
     parser.add_argument(
         "--rerank_input_transform",
         type=str,
-        choices=["none", "pyopenjtalk_romaji", "kana_and_pyopenjtalk_romaji"],
+        choices=["none"],
         default="none",
         help="Transform query/candidates before reranking",
     )
@@ -366,7 +311,6 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
-            args.rerank_prompt_template,
             args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
@@ -399,7 +343,6 @@ def main():
             rerank_input_size=args.rerank_input_size,
             rerank_model_name=args.rerank_model_name,
             rerank_reasoning_effort=args.rerank_reasoning_effort,
-            rerank_prompt_template=args.rerank_prompt_template,
             rerank_prompt_instructions=rerank_prompt_instructions,
             rerank_prompt_example_suffix=rerank_prompt_example_suffix,
             rerank_user_prompt_template=rerank_user_prompt_template,
@@ -443,9 +386,6 @@ def main():
             "rerank_reasoning_effort": (
                 args.rerank_reasoning_effort if args.rerank else None
             ),
-            "rerank_prompt_template": (
-                args.rerank_prompt_template if args.rerank else None
-            ),
             "rerank_prompt_instructions": (
                 rerank_prompt_instructions.strip()
                 if args.rerank and rerank_prompt_instructions
@@ -472,11 +412,6 @@ def main():
             "rerank_batch_id": None,
         }
     )
-    if args.rerank and args.rerank_include_thoughts:
-        structured_outputs = get_last_structured_outputs()
-        for result, structured_output in zip(results.results, structured_outputs):
-            result.metadata = structured_output
-
     print("Recall: ", results.metrics.recall)
     print("Execution time: ", results.metrics.execution_time)
 
@@ -493,7 +428,6 @@ def main():
             args.rerank_input_size,
             args.rerank_model_name,
             args.rerank_reasoning_effort,
-            args.rerank_prompt_template,
             args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
