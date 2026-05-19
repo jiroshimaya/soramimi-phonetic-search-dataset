@@ -41,15 +41,9 @@ uv run methods/010_llm_rerank_gpt54_medium_step_by_step.py
 
 ### カスタム評価
 
-```bash
-cd reproduce_leaderboard
-
-uv run methods/common/evaluate_ranking.py --help
-uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10
-uv run methods/common/evaluate_ranking.py -r vowel_consonant -n 10 --dataset_size small
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4
-uv run methods/common/evaluate_ranking.py -r vowel_consonant --rerank --rerank_model_name gpt-5.4 --rerank_reasoning_effort medium --rerank_prompt_template step_by_step
-```
+細かな派生実験やアドホックな評価は、このリポジトリではなく
+[soramimi-phonetic-search-experiments](https://github.com/jiroshimaya/soramimi-phonetic-search-experiments)
+またはパッケージ API を使って行ってください。
 
 ## 出力
 

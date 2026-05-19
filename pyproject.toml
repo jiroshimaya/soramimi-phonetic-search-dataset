@@ -57,6 +57,3 @@ act-sample = "act -j publish -W .github/workflows/publish-to-testpypi.yaml -e te
 test = "pytest"
 lint = "ruff check . && ty check ."
 format = "ruff format ."
-
-[tool.ty.environment]
-extra-paths = ["./reproduce_leaderboard/methods/common"]
