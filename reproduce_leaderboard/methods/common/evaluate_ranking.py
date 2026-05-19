@@ -2,15 +2,8 @@ import argparse
 import json
 from typing import Callable
 
-from batch_reranker import (
-    get_default_batch_state_path,
-    prepare_rerank_candidates,
-    retrieve_openai_batch_evaluation_results,
-    submit_openai_batch_evaluation,
-)
 from reranker import (
     calculate_token_cost,
-    get_rerank_response_format,
     get_last_structured_outputs,
     get_last_token_usage,
     rank_by_llm,
@@ -25,12 +18,6 @@ from soramimi_phonetic_search_dataset import (
     rank_by_vowel_consonant_editdistance,
 )
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
-
-
-def _get_shared_wordlist(dataset) -> list[str]:
-    if not dataset.queries:
-        return []
-    return dataset.queries[0].wordlist
 
 
 def build_rerank_metrics_metadata(
@@ -53,6 +40,24 @@ def build_rerank_metrics_metadata(
             "total_cost": token_cost.total_cost,
         },
     }
+
+
+def prepare_rerank_candidates(
+    base_ranked_wordlists: list[list[str]],
+    positive_texts: list[list[str]],
+    rerank_input_size: int,
+) -> list[list[str]]:
+    topk_ranked_wordlists = []
+    for wordlist, positive_text in zip(base_ranked_wordlists, positive_texts):
+        topk = wordlist[:rerank_input_size]
+        missing_positive_count = sum(1 for text in positive_text if text not in topk)
+        if missing_positive_count > 0:
+            topk = topk[:-missing_positive_count]
+            for text in positive_text:
+                if text not in topk:
+                    topk.append(text)
+        topk_ranked_wordlists.append(sorted(topk))
+    return topk_ranked_wordlists
 
 
 def create_reranking_function(
@@ -310,25 +315,6 @@ def main():
         help="Require structured outputs to include thoughts in addition to reranked",
     )
     parser.add_argument(
-        "--rerank_backend",
-        type=str,
-        choices=["litellm", "openai_batch"],
-        default="litellm",
-        help="Backend for LLM reranking",
-    )
-    parser.add_argument(
-        "--rerank_batch_action",
-        type=str,
-        choices=["submit", "retrieve"],
-        default="submit",
-        help="Action for OpenAI Batch reranking",
-    )
-    parser.add_argument(
-        "--rerank_batch_state_path",
-        type=str,
-        help="Path to the OpenAI Batch state JSON file",
-    )
-    parser.add_argument(
         "--rerank_input_transform",
         type=str,
         choices=["none", "pyopenjtalk_romaji", "kana_and_pyopenjtalk_romaji"],
@@ -384,10 +370,6 @@ def main():
             args.rerank_include_thoughts,
             args.rerank_input_transform,
         )
-    batch_state_path = args.rerank_batch_state_path or get_default_batch_state_path(
-        output_path
-    )
-
     try:
         dataset, effective_query_limit, effective_query_offset = (
             load_dataset_for_evaluation(
@@ -408,76 +390,6 @@ def main():
     rerank_user_prompt_template = _read_optional_text_file(
         args.rerank_user_prompt_template_path
     )
-
-    if args.rerank and args.rerank_backend == "openai_batch":
-        query_texts = [query.query for query in dataset.queries]
-        positive_texts = [query.positive_words for query in dataset.queries]
-        response_format = get_rerank_response_format(
-            include_thoughts=args.rerank_include_thoughts
-        )
-
-        if args.rerank_batch_action == "submit":
-            batch_state = submit_openai_batch_evaluation(
-                base_rank_func=base_rank_func,
-                query_texts=query_texts,
-                word_texts=_get_shared_wordlist(dataset),
-                positive_texts=positive_texts,
-                rank_kwargs=rank_kwargs,
-                rerank_input_size=args.rerank_input_size,
-                topn=args.topn,
-                model_name=args.rerank_model_name,
-                prompt_template=args.rerank_prompt_template,
-                prompt_instructions=rerank_prompt_instructions,
-                prompt_example_suffix=rerank_prompt_example_suffix,
-                user_prompt_template=rerank_user_prompt_template,
-                response_format=response_format,
-                input_transform=args.rerank_input_transform,
-                state_path=batch_state_path,
-                output_file_path=output_path,
-                reasoning_effort=args.rerank_reasoning_effort,
-            )
-            print("OpenAI batch submitted: ", batch_state["batch_id"])
-            print("Batch state path: ", batch_state_path)
-            return
-
-        results = retrieve_openai_batch_evaluation_results(
-            state_path=batch_state_path,
-            query_texts=query_texts,
-            positive_texts=positive_texts,
-            response_format=response_format,
-            rank_func=args.rank_func,
-            vowel_ratio=args.vowel_ratio,
-            topn=args.topn,
-            rerank_input_size=args.rerank_input_size,
-            model_name=args.rerank_model_name,
-            reasoning_effort=args.rerank_reasoning_effort,
-            prompt_template=args.rerank_prompt_template,
-            prompt_instructions=rerank_prompt_instructions,
-            prompt_example_suffix=rerank_prompt_example_suffix,
-            user_prompt_template=rerank_user_prompt_template,
-            rerank_include_thoughts=args.rerank_include_thoughts,
-            input_transform=args.rerank_input_transform,
-            backend=args.rerank_backend,
-        )
-        results.parameters.metadata.update(
-            {
-                "query_limit": effective_query_limit,
-                "query_offset": effective_query_offset,
-            }
-        )
-
-        print("Recall: ", results.metrics.recall)
-        print("Execution time: ", results.metrics.execution_time)
-        if not args.no_save:
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    results,
-                    f,
-                    ensure_ascii=False,
-                    indent=2,
-                    default=lambda x: x.__dict__,
-                )
-        return
     # リランクが必要な場合は組み合わせた関数を作成
     if args.rerank:
         positive_texts = [query.positive_words for query in dataset.queries]
@@ -556,7 +468,7 @@ def main():
                 args.rerank_input_transform if args.rerank else None
             ),
             "rerank_input_size": args.rerank_input_size if args.rerank else None,
-            "rerank_backend": args.rerank_backend if args.rerank else None,
+            "rerank_backend": "litellm" if args.rerank else None,
             "rerank_batch_id": None,
         }
     )
