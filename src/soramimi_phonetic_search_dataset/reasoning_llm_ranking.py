@@ -4,7 +4,6 @@ from typing import Any, Type
 
 from litellm import batch_completion, completion, cost_per_token
 from pydantic import BaseModel
-import pyopenjtalk
 from tqdm import tqdm
 
 from soramimi_phonetic_search_dataset.evaluate import RankingFunctionOutput
@@ -37,6 +36,16 @@ Wordlist:
 Top N: {topn}
 Reranked:
 """
+STEP_BY_STEP_PROMPT_INSTRUCTIONS = """
+クエリ（Query）と単語一覧（Wordlist）が与えられます。
+クエリと発音が似ている順に、単語一覧を並び替えてください。
+以下の手順で判断してください。
+- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
+- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
+- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
+- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
+出力は上位Top N件のインデックスのみ返してください。
+"""
 DEFAULT_PROMPT_EXAMPLE_SUFFIX = PROMPT_EXAMPLE_SUFFIX
 DEFAULT_USER_PROMPT_TEMPLATE = USER_PROMPT_TEMPLATE
 
@@ -53,69 +62,10 @@ class RerankPromptConfig:
 
 PROMPT_CONFIGS = {
     "default": RerankPromptConfig(
-        prompt_instructions="""
-You are a phonetic search assistant.
-You are given a query and a list of words.
-You need to rerank the words based on phonetic similarity to the query.
-When estimating phonetic similarity, please consider the following:
-1. Prioritize matching vowels
-2. Substitution, insertion, or deletion of nasal sounds, geminate consonants, and long vowels is acceptable
-3. For other cases, words with similar mora counts are preferred
-You need to return only the reranked list of index numbers of the words, no other text.
-You need to return only topn index numbers.
-""",
-    ),
-    "simple": RerankPromptConfig(
-        prompt_instructions="""
-クエリ（Query）と単語一覧（Wordlist）が与えられます。
-クエリと発音が似ている順に、単語一覧を並び替えてください。
-出力は上位Top N件のインデックスのみ返してください。
-""",
-    ),
-    "detailed": RerankPromptConfig(
-        prompt_instructions="""
-クエリ（Query）と単語一覧（Wordlist）が与えられます。
-クエリと発音が似ている順に、単語一覧を並び替えてください。
-- 子音より母音の一致を優先してください
-- クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
-出力は上位Top N件のインデックスのみ返してください。
-""",
+        prompt_instructions=PROMPT_INSTRUCTIONS,
     ),
     "step_by_step": RerankPromptConfig(
-        prompt_instructions="""
-クエリ（Query）と単語一覧（Wordlist）が与えられます。
-クエリと発音が似ている順に、単語一覧を並び替えてください。
-以下の手順で判断してください。
-- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
-- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
-- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
-- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
-出力は上位Top N件のインデックスのみ返してください。
-""",
-    ),
-    "detailed_romaji_explicit": RerankPromptConfig(
-        prompt_instructions="""
-クエリ（Query）と単語一覧（Wordlist）が与えられます。
-クエリと発音が似ている順に、単語一覧を並び替えてください。
-- Query と Wordlist は、元のカタカナ表記をローマ字変換したものです
-- 子音より母音の一致を優先してください
-- クエリとモウラ数が同じであることを優先してください。ただし促音（ッ）、撥音（ン）、長音（「ー」や直前のカナの母音と同じ単母音モウラ、エ段のカナの直後のイ、オ段のカナの直後のウ、など）の挿入や削除は許容されます。
-出力は上位Top N件のインデックスのみ返してください。
-""",
-    ),
-    "nonreasoning_cot": RerankPromptConfig(
-        prompt_instructions="""
-クエリ（Query）と単語一覧（Wordlist）が与えられます。
-クエリと発音が似ている順に、単語一覧を並び替えてください。
-以下の手順で判断してください。
-- 1. クエリと比較対象単語から促音（ッ）、撥音（ン）、長音（ー）を削除
-- 2. クエリと比較対象単語をそれぞれ小文字ローマ字に直す
-- 3. 同じ母音が連続していれば2文字目以降を削除する。例えば「k a a」は「k a」にする。「カア」は実質「カー」であるため長音の削除に相当。同様に「ei」「ou」についてはそれぞれ「e」「o」にする。これも「エイ」「オウ」は実質「エー」「オー」であるため長音の削除に対応する
-- 4. 母音（aiueo）の並びが一致していることを優先し、母音の一致が同程度であればなるべく子音が似ているものを、より発音が似ているとする。
-構造化出力の thoughts フィールドには、最終順位に効いた判断要点だけを短い箇条書きで入れてください。
-構造化出力の reranked フィールドには、上位Top N件のインデックスのみを入れてください。
-""",
-        requires_thoughts=True,
+        prompt_instructions=STEP_BY_STEP_PROMPT_INSTRUCTIONS,
     ),
 }
 
@@ -157,16 +107,9 @@ class ThoughtfulRerankedWordlist(BaseModel):
 
 
 def transform_text_for_rerank(text: str, input_transform: str = "none") -> str:
-    if input_transform == "none":
-        return text
-    if input_transform == "pyopenjtalk_romaji":
-        phonemes = pyopenjtalk.g2p(text)
-        phoneme_text = phonemes if isinstance(phonemes, str) else " ".join(phonemes)
-        return " ".join(phoneme_text.lower().split())
-    if input_transform == "kana_and_pyopenjtalk_romaji":
-        romaji = transform_text_for_rerank(text, "pyopenjtalk_romaji")
-        return f"{text}（{romaji}）"
-    raise ValueError(f"Unknown input_transform: {input_transform}")
+    if input_transform != "none":
+        raise ValueError(f"Unknown input_transform: {input_transform}")
+    return text
 
 
 def get_prompt_config(prompt_template: str = "default") -> RerankPromptConfig:
