@@ -7,7 +7,19 @@ class PhoneticSearchQuery:
     query: str
     positive: list[str]
     hard_negatives: list[str] | None = None
-    difficulty: Literal["easy", "medium", "hard"] | None = None
+    subset: Literal["easy", "medium", "hard"] | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchQuery":
+        subset = data.get("subset")
+        if subset is None:
+            subset = data.get("difficulty")
+        return cls(
+            query=data["query"],
+            positive=data["positive"],
+            hard_negatives=data.get("hard_negatives"),
+            subset=subset,
+        )
 
     def build_wordlist_for_llm(self, *, wordlist_size: int = 100) -> list[str]:
         if wordlist_size <= 0:
@@ -43,7 +55,7 @@ class PhoneticSearchDataset:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "PhoneticSearchDataset":
-        queries = [PhoneticSearchQuery(**query) for query in data["queries"]]
+        queries = [PhoneticSearchQuery.from_dict(query) for query in data["queries"]]
         words = data["words"]
         metadata = data.get("metadata", {})
         return cls(queries=queries, words=words, metadata=metadata)
@@ -54,6 +66,7 @@ class PhoneticSearchQueryWithWordlist:
     query: str
     wordlist: list[str]
     positive_words: list[str]
+    subset: Literal["easy", "medium", "hard"] | None = None
 
 
 @dataclass
