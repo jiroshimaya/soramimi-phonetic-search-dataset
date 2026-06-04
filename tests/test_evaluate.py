@@ -92,6 +92,7 @@ def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
                         "query": "タロウ",
                         "positive": ["タロー", "タロ"],
                         "hard_negatives": ["ハナコ", "サブロウ"],
+                        "difficulty": "medium",
                     }
                 ],
                 "words": ["タロウ", "タロー", "タロ", "ハナコ", "サブロウ"],
@@ -104,6 +105,7 @@ def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
     assert loaded_dataset.queries[0].query == "タロウ"
     assert loaded_dataset.queries[0].positive == ["タロー", "タロ"]
     assert loaded_dataset.queries[0].hard_negatives == ["ハナコ", "サブロウ"]
+    assert loaded_dataset.queries[0].difficulty == "medium"
 
 
 def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):

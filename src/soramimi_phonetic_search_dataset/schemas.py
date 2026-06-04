@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Literal
 
 
 @dataclass
@@ -7,6 +7,7 @@ class PhoneticSearchQuery:
     query: str
     positive: list[str]
     hard_negatives: list[str] | None = None
+    difficulty: Literal["easy", "medium", "hard"] | None = None
 
     def build_wordlist_for_llm(self, *, wordlist_size: int = 100) -> list[str]:
         if wordlist_size <= 0:
