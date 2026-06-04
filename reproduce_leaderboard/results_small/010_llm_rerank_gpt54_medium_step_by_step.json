@@ -28,6 +28,11 @@
         "output_cost": 0.018389999999999906,
         "reasoning_cost": 1.0355100000000002,
         "total_cost": 1.07997
+      },
+      "recall_by_subset": {
+        "easy": 1.0,
+        "hard": 1.0,
+        "medium": 1.0
       }
     }
   },
