@@ -92,7 +92,7 @@ def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
                         "query": "タロウ",
                         "positive": ["タロー", "タロ"],
                         "hard_negatives": ["ハナコ", "サブロウ"],
-                        "difficulty": "medium",
+                        "subset": "medium",
                     }
                 ],
                 "words": ["タロウ", "タロー", "タロ", "ハナコ", "サブロウ"],
@@ -105,7 +105,30 @@ def test_load_phonetic_search_dataset_with_hard_negatives(tmp_path):
     assert loaded_dataset.queries[0].query == "タロウ"
     assert loaded_dataset.queries[0].positive == ["タロー", "タロ"]
     assert loaded_dataset.queries[0].hard_negatives == ["ハナコ", "サブロウ"]
-    assert loaded_dataset.queries[0].difficulty == "medium"
+    assert loaded_dataset.queries[0].subset == "medium"
+
+
+def test_load_phonetic_search_dataset_accepts_difficulty_alias(tmp_path):
+    """difficulty キーでも subset として読み込める"""
+
+    dataset_path = tmp_path / "test_dataset_with_difficulty_alias.json"
+    with open(dataset_path, "w") as f:
+        json.dump(
+            {
+                "queries": [
+                    {
+                        "query": "タロウ",
+                        "positive": ["タロー", "タロ"],
+                        "difficulty": "easy",
+                    }
+                ],
+                "words": ["タロウ", "タロー", "タロ"],
+            },
+            f,
+        )
+
+    loaded_dataset = load_phonetic_search_dataset(str(dataset_path))
+    assert loaded_dataset.queries[0].subset == "easy"
 
 
 def test_load_default_dataset_with_query_limit(monkeypatch, sample_dataset):
@@ -221,6 +244,7 @@ def test_load_default_dataset_for_llm_builds_query_wordlists(
     assert loaded_dataset.queries[0].query == "アケ"
     assert loaded_dataset.queries[0].wordlist == ["アベ", "イケ", "ウエ", "オノ"]
     assert loaded_dataset.queries[0].positive_words == ["アベ", "イケ"]
+    assert loaded_dataset.queries[0].subset is None
     assert loaded_dataset.metadata["wordlist_size"] == 4
     assert loaded_dataset.metadata["format"] == "query_with_wordlist"
 
@@ -381,10 +405,51 @@ def test_evaluate_ranking_function_with_metrics_metadata(
     )
 
     assert results.metrics.recall == 1.0
-    assert results.metrics.metadata == {
-        "model_name": "gpt-5.4",
-        "token_usage": {"total_tokens": 123},
-        "cost": {"total_cost": 0.42},
+    assert results.metrics.metadata["model_name"] == "gpt-5.4"
+    assert results.metrics.metadata["token_usage"] == {"total_tokens": 123}
+    assert results.metrics.metadata["cost"] == {"total_cost": 0.42}
+
+
+def test_evaluate_ranking_function_includes_recall_by_subset_metadata(
+    sample_dataset,
+):
+    """subset ラベルがある場合は subset ごとの recall を追加する"""
+
+    dataset_with_subset = build_wordlist_dataset(
+        PhoneticSearchDataset(
+            queries=[
+                PhoneticSearchQuery(
+                    query="タロウ",
+                    positive=["タロー", "タロ"],
+                    subset="easy",
+                ),
+                PhoneticSearchQuery(
+                    query="ハナコ",
+                    positive=["ハナ", "ハナゴ"],
+                    subset="hard",
+                ),
+            ],
+            words=sample_dataset.words,
+        )
+    )
+
+    def mixed_ranking(query_texts, wordlists):
+        assert query_texts == ["タロウ", "ハナコ"]
+        assert wordlists[0] == sample_dataset.words
+        return [
+            ["タロー", "タロ", "タロウ", "ハナコ", "ハナ", "ハナゴ"],
+            ["タロウ", "タロー", "タロ", "ハナコ", "ハナ", "ハナゴ"],
+        ]
+
+    results = evaluate_ranking_function(
+        ranking_func=mixed_ranking,
+        topn=2,
+        dataset=dataset_with_subset,
+    )
+
+    assert results.metrics.metadata["recall_by_subset"] == {
+        "easy": 1.0,
+        "hard": 0.0,
     }
 
 

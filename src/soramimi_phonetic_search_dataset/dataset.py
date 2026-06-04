@@ -80,6 +80,7 @@ def build_wordlist_dataset(
                 query=query.query,
                 wordlist=dataset.words,
                 positive_words=query.positive,
+                subset=query.subset,
             )
             for query in dataset.queries
         ],
@@ -102,6 +103,7 @@ def build_wordlist_dataset_for_llm(
                 query=query.query,
                 wordlist=query.build_wordlist_for_llm(wordlist_size=wordlist_size),
                 positive_words=query.positive,
+                subset=query.subset,
             )
             for query in dataset.queries
         ],

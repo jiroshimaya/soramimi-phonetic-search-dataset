@@ -15,7 +15,7 @@ The default dataset [src/soramimi_phonetic_search_dataset/data/baseball.json](sr
 - `query`: the search query
 - `positive`: the list of correct target words
 - `hard_negatives`: a list of phonologically confusing negative examples
-- `difficulty` (optional): difficulty label (`easy` / `medium` / `hard`)
+- `subset` (optional): difficulty label (`easy` / `medium` / `hard`)
 
 The top-level `metadata` also stores how difficulty is computed (`k`, method priority, and labeling rule).
 

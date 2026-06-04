@@ -27,6 +27,11 @@
         "output_cost": null,
         "reasoning_cost": null,
         "total_cost": null
+      },
+      "recall_by_subset": {
+        "easy": 1.0,
+        "hard": 0.16666666666666666,
+        "medium": 0.0
       }
     }
   },

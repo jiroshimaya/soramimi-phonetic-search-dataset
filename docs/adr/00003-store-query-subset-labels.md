@@ -1,4 +1,4 @@
-# ADR 00003: Store query difficulty labels
+# ADR 00003: Store query subset labels
 
 - Status: accepted
 - Date: 2026-06-04
@@ -15,7 +15,7 @@
 
 ## Decision
 
-- 各 query オブジェクトに `difficulty` フィールドを追加して難易度ラベルを直接保持する
+- 各 query オブジェクトに `subset` フィールドを追加して難易度ラベルを直接保持する
 - ルート `metadata` に難易度判定ルール（`k`、優先順位、ルール文）を保持する
 
 ## Consequences

@@ -15,7 +15,13 @@
   "metrics": {
     "recall": 0.9355555555555555,
     "execution_time": 7534.797988414764,
-    "metadata": {}
+    "metadata": {
+      "recall_by_subset": {
+        "easy": 1.0,
+        "hard": 0.8947368421052632,
+        "medium": 0.8794326241134751
+      }
+    }
   },
   "results": [
     {

@@ -18,7 +18,7 @@
 - `query`: 検索クエリ
 - `positive`: 正解となる単語の一覧
 - `hard_negatives`: 正解ではないが音韻的に紛らわしい負例の一覧
-- `difficulty` (optional): `easy` / `medium` / `hard` の難易度ラベル
+- `subset` (optional): `easy` / `medium` / `hard` の難易度ラベル
 
 データセットのルート `metadata` には、難易度の算出条件（`k`、優先順位、判定ルール）を記録しています。
 

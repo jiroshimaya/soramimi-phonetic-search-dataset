@@ -1,6 +1,7 @@
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from collections.abc import Sequence
 from typing import Any, Callable, TypeAlias, cast
 
 from soramimi_phonetic_search_dataset.dataset import load_default_dataset
@@ -91,6 +92,31 @@ def calculate_recall(
     return sum(recalls) / len(recalls) if recalls else 0.0
 
 
+def _calculate_recall_by_subset(
+    ranked_wordlists: list[list[str]],
+    positive_texts: list[list[str]],
+    subsets: Sequence[str | None],
+    *,
+    topn: int,
+) -> dict[str, float]:
+    grouped_wordlists: dict[str, list[list[str]]] = {}
+    grouped_positives: dict[str, list[list[str]]] = {}
+    for ranked_wordlist, positive_words, subset in zip(
+        ranked_wordlists, positive_texts, subsets
+    ):
+        if subset is None:
+            continue
+        grouped_wordlists.setdefault(subset, []).append(ranked_wordlist)
+        grouped_positives.setdefault(subset, []).append(positive_words)
+
+    return {
+        subset: calculate_recall(
+            grouped_wordlists[subset], grouped_positives[subset], topn=topn
+        )
+        for subset in sorted(grouped_wordlists)
+    }
+
+
 def evaluate_ranking_function(
     ranking_func: RankingFunc,
     topn: int = 10,
@@ -113,6 +139,7 @@ def evaluate_ranking_function(
     query_texts = [query.query for query in dataset.queries]
     wordlists = [query.wordlist for query in dataset.queries]
     positive_texts = [query.positive_words for query in dataset.queries]
+    subsets = [query.subset for query in dataset.queries]
 
     # ランキングを実行（実行時間を計測）
     start_time = time.time()
@@ -124,6 +151,12 @@ def evaluate_ranking_function(
 
     # Recallを計算
     recall = calculate_recall(ranked_wordlists, positive_texts, topn=topn)
+    recall_by_subset = _calculate_recall_by_subset(
+        ranked_wordlists,
+        positive_texts,
+        subsets,
+        topn=topn,
+    )
 
     # 結果を作成
     results = [
@@ -148,7 +181,14 @@ def evaluate_ranking_function(
     metrics = PhoneticSearchMetrics(
         recall=recall,
         execution_time=execution_time,  # 実行時間を追加
-        metadata=metrics_metadata or {},
+        metadata={
+            **(metrics_metadata or {}),
+            **(
+                {"recall_by_subset": recall_by_subset}
+                if recall_by_subset
+                else {}
+            ),
+        },
     )
 
     return PhoneticSearchResults(
