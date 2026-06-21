@@ -36,10 +36,7 @@ def _score_by_mora_editdistance(
     wordlist: list[str],
 ) -> dict[str, int]:
     query_mora = jamorasep.parse(query_text)
-    return {
-        word: ed.eval(query_mora, jamorasep.parse(word))
-        for word in wordlist
-    }
+    return {word: ed.eval(query_mora, jamorasep.parse(word)) for word in wordlist}
 
 
 def _score_by_vowel_consonant_editdistance(

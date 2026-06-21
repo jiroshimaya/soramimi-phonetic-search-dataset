@@ -38,8 +38,7 @@ def _calculate_recall_by_subset(
         hit = 1.0 if set(ranked_words) >= positive_words else 0.0
         hits_by_subset.setdefault(subset, []).append(hit)
     return {
-        subset: sum(hits) / len(hits)
-        for subset, hits in sorted(hits_by_subset.items())
+        subset: sum(hits) / len(hits) for subset, hits in sorted(hits_by_subset.items())
     }
 
 
@@ -114,7 +113,8 @@ def main() -> None:
 
     wordlist_dataset = build_wordlist_dataset(relabeled_dataset)
     subset_by_query: dict[str, SubsetLabel] = {
-        query.query: cast(SubsetLabel, query.subset) for query in wordlist_dataset.queries
+        query.query: cast(SubsetLabel, query.subset)
+        for query in wordlist_dataset.queries
     }
     for results_dir in args.results_dir:
         if not results_dir.exists():
