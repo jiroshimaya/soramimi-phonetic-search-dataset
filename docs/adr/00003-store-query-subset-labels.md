@@ -1,9 +1,9 @@
 # ADR 00003: Store query subset labels
 
-- Status: accepted
+- Status: superseded
 - Date: 2026-06-04
 - Supersedes: none
-- Superseded by: none
+- Superseded by: 00004-make-query-subset-labels-tie-aware-and-staged.md
 
 ## Context
 
