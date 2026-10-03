@@ -1,0 +1,34 @@
+{
+  "metric": "macro Recall@10",
+  "query_count": 150,
+  "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
+  "standard_deviation_ddof": 1,
+  "completed_cells": 0,
+  "tracked_cells": 1,
+  "expected_cells": 15,
+  "status": "pending",
+  "cells": [
+    {
+      "model": "gpt-6-luna",
+      "reasoning_effort": "medium",
+      "prompt_template": "step_by_step",
+      "status": "pending",
+      "completed_variants": 1,
+      "missing_variants": [
+        "v2",
+        "v3",
+        "v4",
+        "v5"
+      ],
+      "variants": {
+        "v1": {
+          "easy": 0.9692307692307692,
+          "medium": 0.5921985815602837,
+          "hard": 0.631578947368421,
+          "overall": 0.7655555555555555
+        }
+      },
+      "stats": {}
+    }
+  ]
+}
