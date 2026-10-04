@@ -4,10 +4,32 @@
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
   "completed_cells": 0,
-  "tracked_cells": 1,
+  "tracked_cells": 2,
   "expected_cells": 15,
   "status": "pending",
   "cells": [
+    {
+      "model": "gpt-6-sol",
+      "reasoning_effort": "medium",
+      "prompt_template": "step_by_step",
+      "status": "pending",
+      "completed_variants": 1,
+      "missing_variants": [
+        "v2",
+        "v3",
+        "v4",
+        "v5"
+      ],
+      "variants": {
+        "v1": {
+          "easy": 0.9846153846153847,
+          "medium": 0.8457446808510638,
+          "hard": 0.7894736842105263,
+          "overall": 0.8916666666666667
+        }
+      },
+      "stats": {}
+    },
     {
       "model": "gpt-6-luna",
       "reasoning_effort": "medium",
