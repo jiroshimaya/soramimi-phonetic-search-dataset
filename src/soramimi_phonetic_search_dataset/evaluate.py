@@ -183,11 +183,7 @@ def evaluate_ranking_function(
         execution_time=execution_time,  # 実行時間を追加
         metadata={
             **(metrics_metadata or {}),
-            **(
-                {"recall_by_subset": recall_by_subset}
-                if recall_by_subset
-                else {}
-            ),
+            **({"recall_by_subset": recall_by_subset} if recall_by_subset else {}),
         },
     )
 

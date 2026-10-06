@@ -16,9 +16,9 @@
     "execution_time": 33.87366580963135,
     "metadata": {
       "recall_by_subset": {
-        "easy": 0.9384615384615385,
-        "hard": 0.2587719298245614,
-        "medium": 0.32092198581560283
+        "easy": 1.0,
+        "hard": 0.25,
+        "medium": 0.45
       }
     }
   },
