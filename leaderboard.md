@@ -43,4 +43,4 @@ Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 |---|---|---|---:|---:|---:|---:|---|
 | gpt-6-sol | medium | step_by_step | — | — | — | — | pending (2/5 variants) |
 | gpt-6-luna | medium | step_by_step | — | — | — | — | pending (2/5 variants) |
-| gpt-6.1-sol | medium | step_by_step | — | — | — | — | pending (2/5 variants) |
+| gpt-6.1-sol | medium | step_by_step | — | — | — | — | pending (3/5 variants) |
