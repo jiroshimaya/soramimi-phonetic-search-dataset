@@ -35,13 +35,13 @@
 
 各条件は固定150クエリ・100候補・同じ指示内容の言い換え5通りで評価しています。値は macro Recall@10 の平均 ± 標本標準偏差（n=5、ddof=1）です。完了した150クエリの試行結果を順次保存し、平均と標準偏差は5試行が揃った条件のみ掲載します。未完了の条件は pending と表示します。GPT-6.1 Solはnoneに非対応のためmediumのみ評価します。
 
-評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 0/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
+評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 1/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
 
 Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 
 | Model | Reasoning | Prompt | Easy (65) | Medium (47) | Hard (38) | Overall | Status |
 |---|---|---|---:|---:|---:|---:|---|
 | gpt-6-sol | none | detailed | — | — | — | — | pending (1/5 variants) |
-| gpt-6-sol | medium | step_by_step | — | — | — | — | pending (4/5 variants) |
+| gpt-6-sol | medium | step_by_step | 0.982 ± 0.017 | 0.857 ± 0.019 | 0.811 ± 0.070 | 0.899 ± 0.018 | complete |
 | gpt-6-luna | medium | step_by_step | — | — | — | — | pending (4/5 variants) |
 | gpt-6.1-sol | medium | step_by_step | — | — | — | — | pending (4/5 variants) |
