@@ -4,7 +4,7 @@
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
   "completed_cells": 2,
-  "tracked_cells": 5,
+  "tracked_cells": 6,
   "expected_cells": 15,
   "status": "pending",
   "cells": [
@@ -123,6 +123,28 @@
           "n": 5
         }
       }
+    },
+    {
+      "model": "gpt-6-luna",
+      "reasoning_effort": "none",
+      "prompt_template": "detailed",
+      "status": "pending",
+      "completed_variants": 1,
+      "missing_variants": [
+        "v2",
+        "v3",
+        "v4",
+        "v5"
+      ],
+      "variants": {
+        "v1": {
+          "easy": 0.8923076923076924,
+          "medium": 0.3280141843971631,
+          "hard": 0.2807017543859649,
+          "overall": 0.5605555555555556
+        }
+      },
+      "stats": {}
     },
     {
       "model": "gpt-6-luna",
