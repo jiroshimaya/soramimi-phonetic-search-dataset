@@ -3,7 +3,7 @@
   "query_count": 150,
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
-  "completed_cells": 2,
+  "completed_cells": 3,
   "tracked_cells": 7,
   "expected_cells": 15,
   "status": "pending",
@@ -39,11 +39,9 @@
       "model": "gpt-6-sol",
       "reasoning_effort": "medium",
       "prompt_template": "detailed",
-      "status": "pending",
-      "completed_variants": 4,
-      "missing_variants": [
-        "v5"
-      ],
+      "status": "complete",
+      "completed_variants": 5,
+      "missing_variants": [],
       "variants": {
         "v1": {
           "easy": 1.0,
@@ -68,9 +66,36 @@
           "medium": 0.7446808510638298,
           "hard": 0.6710526315789473,
           "overall": 0.8366666666666667
+        },
+        "v5": {
+          "easy": 1.0,
+          "medium": 0.7429078014184397,
+          "hard": 0.6710526315789473,
+          "overall": 0.8361111111111111
         }
       },
-      "stats": {}
+      "stats": {
+        "easy": {
+          "mean": 1.0,
+          "stdev": 0.0,
+          "n": 5
+        },
+        "medium": {
+          "mean": 0.7609929078014184,
+          "stdev": 0.019559879958186692,
+          "n": 5
+        },
+        "hard": {
+          "mean": 0.6219298245614036,
+          "stdev": 0.0507143491914465,
+          "n": 5
+        },
+        "overall": {
+          "mean": 0.8293333333333334,
+          "stdev": 0.007405786859770253,
+          "n": 5
+        }
+      }
     },
     {
       "model": "gpt-6-sol",
