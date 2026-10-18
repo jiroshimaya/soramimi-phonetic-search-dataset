@@ -20,7 +20,15 @@
 - `hard_negatives`: 正解ではないが音韻的に紛らわしい負例の一覧
 - `subset` (optional): `easy` / `medium` / `hard` の難易度ラベル
 
-データセットのルート `metadata` には、難易度の算出条件（`k`、優先順位、判定ルール）を記録しています。
+データセットのルート `metadata` には、難易度の算出条件（`k`、優先順位、段階的な判定ルール、tie の扱い）を記録しています。
+
+難易度ラベルは `k=10` で次の順に付与しています。
+
+1. `rank_by_mora_editdistance` で、同点を負例優先で崩しても recall@10=1 を維持できる query を `easy`
+2. それ以外で `rank_by_vowel_consonant_editdistance(vowel_ratio=0.8)` で、同点を負例優先で崩しても recall@10=1 を維持できる query を `medium`
+3. どちらでも安定して recall@10=1 にならない query を `hard`
+
+この再ラベル付けと、保存済み評価結果の `recall_by_subset` 更新には `scripts/update_subset_labels.py` を使います。
 
 `hard_negatives` は、各 query に対して単語リスト全体を `rank_by_vowel_consonant_editdistance` に `vowel_ratio=0.5` を指定して並べ替え、その順位から `positive` に含まれる単語を除いた上位100件として作成しています。
 

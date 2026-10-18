@@ -1308,7 +1308,7 @@
         "オホ",
         "キラ"
       ],
-      "subset": "easy"
+      "subset": "hard"
     },
     {
       "query": "イキテ",
@@ -1527,7 +1527,7 @@
         "シモオ",
         "ショウ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "イタノ",
@@ -3056,7 +3056,7 @@
         "サカキ",
         "トモキ"
       ],
-      "subset": "easy"
+      "subset": "hard"
     },
     {
       "query": "オサキマシロキ",
@@ -3493,7 +3493,7 @@
         "オヌマ",
         "オバタ"
       ],
-      "subset": "easy"
+      "subset": "hard"
     },
     {
       "query": "カクシテ",
@@ -3711,7 +3711,7 @@
         "コバシ",
         "マサ"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "ガッサン",
@@ -3929,7 +3929,7 @@
         "マンエイ",
         "マンダ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "キタ",
@@ -4914,7 +4914,7 @@
         "ウィリー",
         "ウィルス"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "クルウ",
@@ -5460,7 +5460,7 @@
         "クメ",
         "クラ"
       ],
-      "subset": "easy"
+      "subset": "hard"
     },
     {
       "query": "コンヤモ",
@@ -5569,7 +5569,7 @@
         "アサヤマ",
         "アズマ"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "サイゴ",
@@ -6005,7 +6005,7 @@
         "カメイ",
         "カメダ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "サラリ",
@@ -6445,7 +6445,7 @@
         "タゴ",
         "タダ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "シラ",
@@ -6554,7 +6554,7 @@
         "シバノ",
         "シブヤ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ジョシテキ",
@@ -7099,7 +7099,7 @@
         "ハク",
         "パク"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ズット",
@@ -7208,7 +7208,7 @@
         "クロオ",
         "クロッタ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "セキデ",
@@ -7535,7 +7535,7 @@
         "チョウシ",
         "チョウノ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ソウナ",
@@ -7971,7 +7971,7 @@
         "トーベ",
         "ドキ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "タイヨウ",
@@ -8298,7 +8298,7 @@
         "カキギ",
         "カクリ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ダレ",
@@ -8517,7 +8517,7 @@
         "ニキ",
         "ニシ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "チントン",
@@ -8628,7 +8628,7 @@
         "チンギシン",
         "チン"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "ツネニ",
@@ -9721,7 +9721,7 @@
         "タダ",
         "タニ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ドウキ",
@@ -11140,7 +11140,7 @@
         "ナガモチ",
         "マサノ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ナクテモ",
@@ -11686,7 +11686,7 @@
         "ヤン",
         "ヤング"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ハイ",
@@ -11795,7 +11795,7 @@
         "カセ",
         "カダ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ハイ",
@@ -11905,7 +11905,7 @@
         "カダ",
         "カナイ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ハイテ",
@@ -12123,7 +12123,7 @@
         "ハイズデュ",
         "アチラ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ハイミンナ",
@@ -13213,7 +13213,7 @@
         "シオミ",
         "ジャン"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ホントウ",
@@ -13759,7 +13759,7 @@
         "ウグサ",
         "ウザワ"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "マタ",
@@ -15178,7 +15178,7 @@
         "オカノ",
         "オクイ"
       ],
-      "subset": "medium"
+      "subset": "hard"
     },
     {
       "query": "ユク",
@@ -16052,7 +16052,7 @@
         "ナカチ",
         "ヒワタリ"
       ],
-      "subset": "easy"
+      "subset": "medium"
     },
     {
       "query": "ワタシモ",
@@ -29479,7 +29479,9 @@
         "mora_editdistance",
         "vowel_consonant_editdistance(vowel_ratio=0.8)"
       ],
-      "rule": "moraでrecall@k=1ならeasy、次にvowel/consonantで1ならmedium、どちらも満たさなければhard"
+      "decision_style": "staged",
+      "tie_break_policy": "same-score ties are resolved pessimistically by ordering negatives before positives",
+      "rule": "moraで安定してrecall@k=1ならeasy、そうでなければvowel_consonant_editdistance(vowel_ratio=0.8)で安定して1ならmedium、どちらでも安定して満たさなければhard"
     }
   }
 }

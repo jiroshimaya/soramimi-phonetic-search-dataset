@@ -68,6 +68,15 @@ results/
 └── 010_llm_rerank_gpt54_medium_step_by_step_cost_estimate.json
 ```
 
+## subset ラベル更新
+
+`baseball.json` の `subset` と、保存済み結果 JSON 内の `recall_by_subset` は
+次のスクリプトでまとめて再生成できます。
+
+```bash
+uv run python scripts/update_subset_labels.py
+```
+
 ## 注意事項
 
 - 評価には `baseball.json` データセットが使われます
