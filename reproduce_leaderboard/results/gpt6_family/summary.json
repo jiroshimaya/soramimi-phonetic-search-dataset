@@ -161,9 +161,8 @@
       "reasoning_effort": "medium",
       "prompt_template": "detailed",
       "status": "pending",
-      "completed_variants": 2,
+      "completed_variants": 3,
       "missing_variants": [
-        "v3",
         "v4",
         "v5"
       ],
@@ -179,6 +178,12 @@
           "medium": 0.7074468085106383,
           "hard": 0.28728070175438597,
           "overall": 0.6944444444444444
+        },
+        "v3": {
+          "easy": 0.9846153846153847,
+          "medium": 0.5691489361702128,
+          "hard": 0.28728070175438597,
+          "overall": 0.6777777777777778
         }
       },
       "stats": {}
