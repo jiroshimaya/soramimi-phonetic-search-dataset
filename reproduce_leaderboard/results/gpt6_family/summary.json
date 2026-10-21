@@ -3,7 +3,7 @@
   "query_count": 150,
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
-  "completed_cells": 4,
+  "completed_cells": 5,
   "tracked_cells": 9,
   "expected_cells": 15,
   "status": "pending",
@@ -44,11 +44,9 @@
       "model": "gpt-6-sol",
       "reasoning_effort": "medium",
       "prompt_template": "simple",
-      "status": "pending",
-      "completed_variants": 4,
-      "missing_variants": [
-        "v5"
-      ],
+      "status": "complete",
+      "completed_variants": 5,
+      "missing_variants": [],
       "variants": {
         "v1": {
           "easy": 0.9692307692307692,
@@ -73,9 +71,36 @@
           "medium": 0.42730496453900707,
           "hard": 0.44956140350877194,
           "overall": 0.6644444444444444
+        },
+        "v5": {
+          "easy": 0.9692307692307692,
+          "medium": 0.40070921985815605,
+          "hard": 0.3991228070175439,
+          "overall": 0.6466666666666666
         }
       },
-      "stats": {}
+      "stats": {
+        "easy": {
+          "mean": 0.9738461538461539,
+          "stdev": 0.010320313742306743,
+          "n": 5
+        },
+        "medium": {
+          "mean": 0.44858156028368795,
+          "stdev": 0.045446828432540054,
+          "n": 5
+        },
+        "hard": {
+          "mean": 0.42587719298245613,
+          "stdev": 0.04345758696924265,
+          "n": 5
+        },
+        "overall": {
+          "mean": 0.6704444444444444,
+          "stdev": 0.02702707832827963,
+          "n": 5
+        }
+      }
     },
     {
       "model": "gpt-6-sol",
