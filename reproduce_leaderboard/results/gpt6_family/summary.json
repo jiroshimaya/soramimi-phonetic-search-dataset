@@ -4,10 +4,32 @@
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
   "completed_cells": 7,
-  "tracked_cells": 9,
+  "tracked_cells": 10,
   "expected_cells": 15,
   "status": "pending",
   "cells": [
+    {
+      "model": "gpt-6-sol",
+      "reasoning_effort": "none",
+      "prompt_template": "simple",
+      "status": "pending",
+      "completed_variants": 1,
+      "missing_variants": [
+        "v2",
+        "v3",
+        "v4",
+        "v5"
+      ],
+      "variants": {
+        "v1": {
+          "easy": 0.9307692307692308,
+          "medium": 0.4078014184397163,
+          "hard": 0.33771929824561403,
+          "overall": 0.6166666666666667
+        }
+      },
+      "stats": {}
+    },
     {
       "model": "gpt-6-sol",
       "reasoning_effort": "none",
