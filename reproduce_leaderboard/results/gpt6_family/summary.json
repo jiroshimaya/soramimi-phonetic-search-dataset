@@ -3,7 +3,7 @@
   "query_count": 150,
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
-  "completed_cells": 6,
+  "completed_cells": 7,
   "tracked_cells": 9,
   "expected_cells": 15,
   "status": "pending",
@@ -261,9 +261,8 @@
       "reasoning_effort": "none",
       "prompt_template": "detailed",
       "status": "pending",
-      "completed_variants": 2,
+      "completed_variants": 3,
       "missing_variants": [
-        "v3",
         "v4",
         "v5"
       ],
@@ -279,6 +278,12 @@
           "medium": 0.3102836879432624,
           "hard": 0.19736842105263158,
           "overall": 0.5538888888888889
+        },
+        "v3": {
+          "easy": 0.9230769230769231,
+          "medium": 0.3049645390070922,
+          "hard": 0.26096491228070173,
+          "overall": 0.5616666666666666
         }
       },
       "stats": {}
@@ -287,11 +292,9 @@
       "model": "gpt-6-luna",
       "reasoning_effort": "medium",
       "prompt_template": "simple",
-      "status": "pending",
-      "completed_variants": 4,
-      "missing_variants": [
-        "v5"
-      ],
+      "status": "complete",
+      "completed_variants": 5,
+      "missing_variants": [],
       "variants": {
         "v1": {
           "easy": 0.9538461538461539,
@@ -316,9 +319,36 @@
           "medium": 0.35815602836879434,
           "hard": 0.3530701754385965,
           "overall": 0.6116666666666667
+        },
+        "v5": {
+          "easy": 0.9384615384615385,
+          "medium": 0.31560283687943264,
+          "hard": 0.38377192982456143,
+          "overall": 0.6027777777777777
         }
       },
-      "stats": {}
+      "stats": {
+        "easy": {
+          "mean": 0.9507692307692308,
+          "stdev": 0.008770580193070315,
+          "n": 5
+        },
+        "medium": {
+          "mean": 0.3432624113475177,
+          "stdev": 0.02360887342677888,
+          "n": 5
+        },
+        "hard": {
+          "mean": 0.33421052631578946,
+          "stdev": 0.038723375964738606,
+          "n": 5
+        },
+        "overall": {
+          "mean": 0.6042222222222222,
+          "stdev": 0.010157707041733337,
+          "n": 5
+        }
+      }
     },
     {
       "model": "gpt-6-luna",
