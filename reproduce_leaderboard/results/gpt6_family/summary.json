@@ -3,7 +3,7 @@
   "query_count": 150,
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
-  "completed_cells": 5,
+  "completed_cells": 6,
   "tracked_cells": 9,
   "expected_cells": 15,
   "status": "pending",
@@ -12,11 +12,9 @@
       "model": "gpt-6-sol",
       "reasoning_effort": "none",
       "prompt_template": "detailed",
-      "status": "pending",
-      "completed_variants": 4,
-      "missing_variants": [
-        "v5"
-      ],
+      "status": "complete",
+      "completed_variants": 5,
+      "missing_variants": [],
       "variants": {
         "v1": {
           "easy": 1.0,
@@ -41,9 +39,36 @@
           "medium": 0.38475177304964536,
           "hard": 0.4166666666666667,
           "overall": 0.6561111111111111
+        },
+        "v5": {
+          "easy": 1.0,
+          "medium": 0.36347517730496454,
+          "hard": 0.3508771929824561,
+          "overall": 0.6361111111111111
         }
       },
-      "stats": {}
+      "stats": {
+        "easy": {
+          "mean": 0.9984615384615385,
+          "stdev": 0.003440104580768895,
+          "n": 5
+        },
+        "medium": {
+          "mean": 0.4443262411347518,
+          "stdev": 0.06497204887064882,
+          "n": 5
+        },
+        "hard": {
+          "mean": 0.38421052631578945,
+          "stdev": 0.0338814015211388,
+          "n": 5
+        },
+        "overall": {
+          "mean": 0.6692222222222222,
+          "stdev": 0.023780763052476374,
+          "n": 5
+        }
+      }
     },
     {
       "model": "gpt-6-sol",
