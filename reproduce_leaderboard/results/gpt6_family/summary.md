@@ -2,7 +2,7 @@ Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 
 | Model | Reasoning | Prompt | Easy (65) | Medium (47) | Hard (38) | Overall | Status |
 |---|---|---|---:|---:|---:|---:|---|
-| gpt-6-sol | none | detailed | — | — | — | — | pending (4/5 variants) |
+| gpt-6-sol | none | detailed | 0.998 ± 0.003 | 0.444 ± 0.065 | 0.384 ± 0.034 | 0.669 ± 0.024 | complete |
 | gpt-6-sol | medium | simple | 0.974 ± 0.010 | 0.449 ± 0.045 | 0.426 ± 0.043 | 0.670 ± 0.027 | complete |
 | gpt-6-sol | medium | detailed | 1.000 ± 0.000 | 0.761 ± 0.020 | 0.622 ± 0.051 | 0.829 ± 0.007 | complete |
 | gpt-6-sol | medium | step_by_step | 0.982 ± 0.017 | 0.857 ± 0.019 | 0.811 ± 0.070 | 0.899 ± 0.018 | complete |
