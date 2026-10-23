@@ -35,7 +35,7 @@
 
 各条件は固定150クエリ・100候補・同じ指示内容の言い換え5通りで評価しています。値は macro Recall@10 の平均 ± 標本標準偏差（n=5、ddof=1）です。完了した150クエリの試行結果を順次保存し、平均と標準偏差は5試行が揃った条件のみ掲載します。未完了の条件は pending と表示します。GPT-6.1 Solはnoneに非対応のためmediumのみ評価します。
 
-評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 7/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
+評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 8/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
 
 Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 
@@ -46,7 +46,7 @@ Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 | gpt-6-sol | medium | simple | 0.974 ± 0.010 | 0.449 ± 0.045 | 0.426 ± 0.043 | 0.670 ± 0.027 | complete |
 | gpt-6-sol | medium | detailed | 1.000 ± 0.000 | 0.761 ± 0.020 | 0.622 ± 0.051 | 0.829 ± 0.007 | complete |
 | gpt-6-sol | medium | step_by_step | 0.982 ± 0.017 | 0.857 ± 0.019 | 0.811 ± 0.070 | 0.899 ± 0.018 | complete |
-| gpt-6-luna | none | detailed | — | — | — | — | pending (4/5 variants) |
+| gpt-6-luna | none | detailed | 0.902 ± 0.030 | 0.308 ± 0.017 | 0.231 ± 0.040 | 0.546 ± 0.022 | complete |
 | gpt-6-luna | medium | simple | 0.951 ± 0.009 | 0.343 ± 0.024 | 0.334 ± 0.039 | 0.604 ± 0.010 | complete |
 | gpt-6-luna | medium | detailed | 0.957 ± 0.023 | 0.639 ± 0.050 | 0.323 ± 0.066 | 0.697 ± 0.021 | complete |
 | gpt-6-luna | medium | step_by_step | 0.951 ± 0.030 | 0.672 ± 0.077 | 0.696 ± 0.051 | 0.799 ± 0.028 | complete |
