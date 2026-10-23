@@ -35,13 +35,13 @@
 
 各条件は固定150クエリ・100候補・同じ指示内容の言い換え5通りで評価しています。値は macro Recall@10 の平均 ± 標本標準偏差（n=5、ddof=1）です。完了した150クエリの試行結果を順次保存し、平均と標準偏差は5試行が揃った条件のみ掲載します。未完了の条件は pending と表示します。GPT-6.1 Solはnoneに非対応のためmediumのみ評価します。
 
-評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 8/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
+評価データの固定コミット: `6072e13bed37dd2f8eb780e61b6154d21cff2e31`。5試行の完了条件: 9/15。詳細結果は [results/gpt6_family](reproduce_leaderboard/results/gpt6_family/) を参照してください。
 
 Recall@10; mean ± sample standard deviation over five wording variants (n = 5).
 
 | Model | Reasoning | Prompt | Easy (65) | Medium (47) | Hard (38) | Overall | Status |
 |---|---|---|---:|---:|---:|---:|---|
-| gpt-6-sol | none | simple | — | — | — | — | pending (4/5 variants) |
+| gpt-6-sol | none | simple | 0.960 ± 0.020 | 0.356 ± 0.035 | 0.333 ± 0.028 | 0.612 ± 0.004 | complete |
 | gpt-6-sol | none | detailed | 0.998 ± 0.003 | 0.444 ± 0.065 | 0.384 ± 0.034 | 0.669 ± 0.024 | complete |
 | gpt-6-sol | medium | simple | 0.974 ± 0.010 | 0.449 ± 0.045 | 0.426 ± 0.043 | 0.670 ± 0.027 | complete |
 | gpt-6-sol | medium | detailed | 1.000 ± 0.000 | 0.761 ± 0.020 | 0.622 ± 0.051 | 0.829 ± 0.007 | complete |
