@@ -3,7 +3,7 @@
   "query_count": 150,
   "dataset_commit": "6072e13bed37dd2f8eb780e61b6154d21cff2e31",
   "standard_deviation_ddof": 1,
-  "completed_cells": 7,
+  "completed_cells": 8,
   "tracked_cells": 10,
   "expected_cells": 15,
   "status": "pending",
@@ -287,11 +287,9 @@
       "model": "gpt-6-luna",
       "reasoning_effort": "none",
       "prompt_template": "detailed",
-      "status": "pending",
-      "completed_variants": 4,
-      "missing_variants": [
-        "v5"
-      ],
+      "status": "complete",
+      "completed_variants": 5,
+      "missing_variants": [],
       "variants": {
         "v1": {
           "easy": 0.8923076923076924,
@@ -316,9 +314,36 @@
           "medium": 0.28191489361702127,
           "hard": 0.18859649122807018,
           "overall": 0.5094444444444445
+        },
+        "v5": {
+          "easy": 0.8923076923076924,
+          "medium": 0.31560283687943264,
+          "hard": 0.22807017543859648,
+          "overall": 0.5433333333333333
         }
       },
-      "stats": {}
+      "stats": {
+        "easy": {
+          "mean": 0.9015384615384616,
+          "stdev": 0.02999013644556603,
+          "n": 5
+        },
+        "medium": {
+          "mean": 0.3081560283687943,
+          "stdev": 0.016978744141665413,
+          "n": 5
+        },
+        "hard": {
+          "mean": 0.23114035087719298,
+          "stdev": 0.03970449091669006,
+          "n": 5
+        },
+        "overall": {
+          "mean": 0.5457777777777778,
+          "stdev": 0.021579597131218146,
+          "n": 5
+        }
+      }
     },
     {
       "model": "gpt-6-luna",
